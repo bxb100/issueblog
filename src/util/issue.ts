@@ -19,7 +19,7 @@ export class IssuesUtil {
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
         const reactions = await this.getCommentReactions(comment, ReactionContent.HEART);
-        core.debug(`reactions: ${JSON.stringify(reactions)}`)
+        core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
         return reactions.filter(r => r.user?.login === this.owner).length > 0
     }
 
@@ -30,7 +30,7 @@ export class IssuesUtil {
             comment_id: comment.id,
             content: content
         });
-        core.debug(`reactions: ${JSON.stringify(reactions)}`)
+        core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
         return reactions.data;
     }
 
@@ -40,7 +40,7 @@ export class IssuesUtil {
             repo: this.repo,
             issue_number: issue.number
         })
-        core.debug(`comments: ${JSON.stringify(comments)}`)
+        core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`)
         return comments.data;
     }
 
@@ -55,13 +55,13 @@ export class IssuesUtil {
                 direction: 'desc',
                 page
             });
-        core.debug(`issueResult: ${JSON.stringify(issueResult)}`)
+        core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`)
         return issueResult.data;
     }
 
     async processIssues<T>(page: Readonly<number> = 1, result: T, ...functions: Function[]): Promise<T> {
         const issues: IIssue[] = await this.getIssues(page);
-        if (issues.length < 0) {
+        if (issues.length <= 0) {
             return result;
         }
         functions.forEach(f => {
