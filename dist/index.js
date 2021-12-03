@@ -227,9 +227,9 @@ const core = __importStar(__nccwpck_require__(2186));
  */
 // -----------------------------------------------------------------------------
 const FRIEND_TABLE_HEAD = 'Friends';
-const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |`;
+const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `\t| ${name} | ${link} | ${desc} |\n`;
 const FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
-const FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n";
+const FRIENDS_TABLE_HEAD = "\t| Name | Link | Desc |\n\t| ---- | ---- | ---- |\n";
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
@@ -264,8 +264,9 @@ function add_md_friends(issues, result) {
             }))
                 .then(approved => approved.map(_makeFriendTableString)));
         }
-        const stringArray = yield Promise.all(all);
-        result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('\n')}`);
+        const stringArray = yield Promise.all(all).then(arr => arr.flat());
+        result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('')}`);
+        core.debug(`add_md_friends:\n\n${result}\n\n`);
         return result;
     });
 }
