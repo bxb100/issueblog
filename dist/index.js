@@ -111,8 +111,7 @@ const friend_process_1 = __nccwpck_require__(4980);
 const fs = __importStar(__nccwpck_require__(5747));
 const git_1 = __nccwpck_require__(7023);
 async function run() {
-    // TODO: add readme path
-    core.info('[INFO] ');
+    core.info('[INFO] see https://github.com/bxb100/gitlog');
     // 1. 配置 git 和 action input 信息
     core.startGroup("Configuration");
     const config = (0, config_1.getConfig)();
