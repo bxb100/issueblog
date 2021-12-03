@@ -228,13 +228,13 @@ const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 const FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
-const FRIENDS_TABLE_TITLE = '## 友情链接\n';
+const FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
 const FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n";
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
     (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split('：')).filter(s => s.length >= 2).forEach(s => {
-        dict[s[0]] = s[1];
+        dict[s[0]] = s[1].trim();
     });
     core.debug(JSON.stringify(dict));
     return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);

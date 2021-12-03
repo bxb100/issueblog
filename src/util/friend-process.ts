@@ -17,7 +17,7 @@ import * as core from "@actions/core";
 const FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE =
     (name: string, link: string, desc: string) => `| ${name} | ${link} | ${desc} |\n`
-const FRIENDS_TABLE_TITLE = '## 友情链接\n'
+const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
 const FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n"
 
 function _makeFriendTableString(comment: IComment): string {
@@ -27,7 +27,7 @@ function _makeFriendTableString(comment: IComment): string {
         .map(line => line.split('：'))
         .filter(s => s.length >= 2)
         .forEach(s => {
-            dict[s[0]] = s[1]
+            dict[s[0]] = s[1].trim()
         });
     core.debug(JSON.stringify(dict))
     return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
