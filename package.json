@@ -25,19 +25,19 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.6.0",
-    "@actions/exec": "^1.0.4",
-    "@actions/github": "^4.0.0",
-    "zod": "^3.11.6"
+    "@actions/core": "1.6.0",
+    "@actions/exec": "1.1.0",
+    "@actions/github": "4.0.0",
+    "zod": "3.11.6"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
-    "@types/node": "^16.10.5",
-    "@vercel/ncc": "^0.31.1",
-    "husky": "^7.0.4",
-    "jest": "^27.4.3",
+    "@types/node": "16.11.11",
+    "@vercel/ncc": "0.31.1",
+    "husky": "7.0.4",
+    "jest": "27.4.3",
     "prettier": "2.4.1",
-    "ts-jest": "^27.0.7",
-    "typescript": "^4.5.2"
+    "ts-jest": "27.0.7",
+    "typescript": "4.5.2"
   }
 }
