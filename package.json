@@ -6,8 +6,8 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "package": "ncc build --source-map --license LICENSE --target es2020 lib/main.js",
-    "package-post": "ncc build --target es2020 lib/post.js -o dist/post",
+    "package": "ncc build --source-map --license LICENSE lib/main.js",
+    "package-post": "ncc build lib/post.js -o dist/post",
     "dist": "npm run build && npm run package && npm run package-post",
     "format": "prettier --write **/*.ts",
     "test": "jest",

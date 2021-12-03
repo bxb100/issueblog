@@ -25,10 +25,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const exec_1 = __nccwpck_require__(514);
-const run = async () => {
+const run = () => __awaiter(void 0, void 0, void 0, function* () {
     core.startGroup('Post cleanup script');
     if (process.env.HAS_RUN_POST_JOB) {
         core.info('Files already committed');
@@ -48,12 +57,12 @@ const run = async () => {
     // these should already be staged, in main.ts
     core.info(`Committing "${msg}"`);
     core.debug(meta);
-    await (0, exec_1.exec)('git', ['commit', '-m', msg + '\n' + meta]);
-    await (0, exec_1.exec)('git', ['push']);
+    yield (0, exec_1.exec)('git', ['commit', '-m', msg + '\n' + meta]);
+    yield (0, exec_1.exec)('git', ['push']);
     core.info(`Pushed!`);
     core.exportVariable('HAS_RUN_POST_JOB', 'true');
     core.endGroup();
-};
+});
 run().catch(error => {
     core.setFailed('Post script failed! ' + error.message);
 });

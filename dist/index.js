@@ -102,6 +102,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const config_1 = __nccwpck_require__(88);
@@ -110,57 +119,59 @@ const issue_1 = __nccwpck_require__(1398);
 const friend_process_1 = __nccwpck_require__(4980);
 const fs = __importStar(__nccwpck_require__(5747));
 const git_1 = __nccwpck_require__(7023);
-async function run() {
-    core.info('[INFO] see https://github.com/bxb100/gitlog');
-    // 1. 配置 git 和 action input 信息
-    core.startGroup("Configuration");
-    const config = (0, config_1.getConfig)();
-    // is anyway to set other bot?
-    const username = 'github-actions[bot]';
-    await (0, exec_1.exec)('git', ['config', 'user.name', username]);
-    await (0, exec_1.exec)('git', [
-        'config',
-        'user.email',
-        'github-actions[bot]@users.noreply.github.com'
-    ]);
-    core.endGroup();
-    // 2. 处理 issues
-    core.startGroup('Process issues');
-    const issuesUtil = new issue_1.IssuesUtil(config.github_token);
-    let text = config.md_header;
-    text = await issuesUtil.processIssues(1, text, friend_process_1.add_md_friends);
-    core.endGroup();
-    // 3. 写入到 README.md
-    core.startGroup('Write to README.md');
-    fs.writeFileSync('README.md', text);
-    core.endGroup();
-    // 4. 暂存需要提交的文件
-    core.startGroup("File change");
-    const newUnstagedFiles = await (0, git_1.getUnstagedFiles)();
-    const modifiedUnstagedFiles = await (0, git_1.getModifiedUnstagedFiles)();
-    const editedFilenames = [...newUnstagedFiles, ...modifiedUnstagedFiles];
-    core.info(`newUnstagedFiles: \n${newUnstagedFiles}`);
-    core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`);
-    core.info(`editedFilenames: \n${editedFilenames}`);
-    core.endGroup();
-    // 5. 计算是否有修改
-    core.startGroup('Calculating diff');
-    const editedFiles = [];
-    for (const filename of editedFilenames) {
-        core.debug(`git adding ${filename}…`);
-        await (0, exec_1.exec)('git', ['add', filename]);
-        const bytes = await (0, git_1.diff)(filename);
-        editedFiles.push({ name: filename, deltaBytes: bytes });
-    }
-    core.endGroup();
-    // 6. POST 提交
-    core.startGroup('Committing new data');
-    const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]');
-    const files = [...alreadyEditedFiles, ...editedFiles];
-    core.info(`alreadyEditedFiles: \n${JSON.stringify(alreadyEditedFiles)}`);
-    core.info(`editedFiles: \n${JSON.stringify(editedFiles)}`);
-    core.exportVariable('FILES', files);
-    core.endGroup();
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('[INFO] see https://github.com/bxb100/gitlog');
+        // 1. 配置 git 和 action input 信息
+        core.startGroup("Configuration");
+        const config = (0, config_1.getConfig)();
+        // is anyway to set other bot?
+        const username = 'github-actions[bot]';
+        yield (0, exec_1.exec)('git', ['config', 'user.name', username]);
+        yield (0, exec_1.exec)('git', [
+            'config',
+            'user.email',
+            'github-actions[bot]@users.noreply.github.com'
+        ]);
+        core.endGroup();
+        // 2. 处理 issues
+        core.startGroup('Process issues');
+        const issuesUtil = new issue_1.IssuesUtil(config.github_token);
+        let text = config.md_header;
+        text = yield issuesUtil.processIssues(1, text, friend_process_1.add_md_friends);
+        core.endGroup();
+        // 3. 写入到 README.md
+        core.startGroup('Write to README.md');
+        fs.writeFileSync('README.md', text);
+        core.endGroup();
+        // 4. 暂存需要提交的文件
+        core.startGroup("File change");
+        const newUnstagedFiles = yield (0, git_1.getUnstagedFiles)();
+        const modifiedUnstagedFiles = yield (0, git_1.getModifiedUnstagedFiles)();
+        const editedFilenames = [...newUnstagedFiles, ...modifiedUnstagedFiles];
+        core.info(`newUnstagedFiles: \n${newUnstagedFiles}`);
+        core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`);
+        core.info(`editedFilenames: \n${editedFilenames}`);
+        core.endGroup();
+        // 5. 计算是否有修改
+        core.startGroup('Calculating diff');
+        const editedFiles = [];
+        for (const filename of editedFilenames) {
+            core.debug(`git adding ${filename}…`);
+            yield (0, exec_1.exec)('git', ['add', filename]);
+            const bytes = yield (0, git_1.diff)(filename);
+            editedFiles.push({ name: filename, deltaBytes: bytes });
+        }
+        core.endGroup();
+        // 6. POST 提交
+        core.startGroup('Committing new data');
+        const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]');
+        const files = [...alreadyEditedFiles, ...editedFiles];
+        core.info(`alreadyEditedFiles: \n${JSON.stringify(alreadyEditedFiles)}`);
+        core.info(`editedFiles: \n${JSON.stringify(editedFiles)}`);
+        core.exportVariable('FILES', files);
+        core.endGroup();
+    });
 }
 run().catch(error => {
     core.setFailed('Workflow failed! ' + error.message);
@@ -193,6 +204,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_friends = void 0;
 const core = __importStar(__nccwpck_require__(2186));
@@ -211,44 +231,43 @@ const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${de
 const FRIENDS_TABLE_TITLE = '## 友情链接\n';
 const FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n";
 function _makeFriendTableString(comment) {
+    var _a;
     const dict = {};
-    comment.body?.split('\n')
-        .filter(line => line.trim() !== '')
-        .map(line => line.split('：'))
-        .filter(s => s.length >= 2)
-        .forEach(s => {
+    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split('：')).filter(s => s.length >= 2).forEach(s => {
         dict[s[0]] = s[1];
     });
     core.debug(JSON.stringify(dict));
     return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
 }
-async function add_md_friends(issues, result) {
-    const friendIssues = issues.filter(issue => issue.labels.find(label => {
-        if (typeof label === 'string') {
-            return label === FRIEND_TABLE_HEAD;
-        }
-        else if (typeof label === 'object') {
-            return label.name === FRIEND_TABLE_HEAD;
-        }
-        return false;
-    }));
-    const all = [];
-    for (let issue of friendIssues) {
-        all.push(this.getIssueComments(issue)
-            .then(async (comments) => {
-            const approved = [];
-            for (let comment of comments) {
-                if (await this.isHeartBySelf(comment)) {
-                    approved.push(comment);
-                }
+function add_md_friends(issues, result) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const friendIssues = issues.filter(issue => issue.labels.find(label => {
+            if (typeof label === 'string') {
+                return label === FRIEND_TABLE_HEAD;
             }
-            return approved;
-        })
-            .then(approved => approved.map(_makeFriendTableString)));
-    }
-    const stringArray = await Promise.all(all);
-    result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('')}`);
-    return result;
+            else if (typeof label === 'object') {
+                return label.name === FRIEND_TABLE_HEAD;
+            }
+            return false;
+        }));
+        const all = [];
+        for (let issue of friendIssues) {
+            all.push(this.getIssueComments(issue)
+                .then((comments) => __awaiter(this, void 0, void 0, function* () {
+                const approved = [];
+                for (let comment of comments) {
+                    if (yield this.isHeartBySelf(comment)) {
+                        approved.push(comment);
+                    }
+                }
+                return approved;
+            }))
+                .then(approved => approved.map(_makeFriendTableString)));
+        }
+        const stringArray = yield Promise.all(all);
+        result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('')}`);
+        return result;
+    });
 }
 exports.add_md_friends = add_md_friends;
 
@@ -279,6 +298,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -288,83 +316,91 @@ const exec_1 = __nccwpck_require__(1514);
 const fs_1 = __nccwpck_require__(5747);
 const path_1 = __importDefault(__nccwpck_require__(5622));
 const core = __importStar(__nccwpck_require__(2186));
-async function gitStatus() {
-    core.debug('Getting gitStatus()');
-    let output = '';
-    await (0, exec_1.exec)('git', ['status', '-s'], {
-        listeners: {
-            stdout: (data) => {
-                output += data.toString();
+function gitStatus() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug('Getting gitStatus()');
+        let output = '';
+        yield (0, exec_1.exec)('git', ['status', '-s'], {
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                }
             }
-        }
-    });
-    core.debug(`=== output was:\n${output}`);
-    return output
-        .split('\n')
-        .filter(l => l != '')
-        .map(l => {
-        const chunks = l.trim().split(/\s+/);
-        return {
-            flag: chunks[0],
-            path: chunks[1]
-        };
+        });
+        core.debug(`=== output was:\n${output}`);
+        return output
+            .split('\n')
+            .filter(l => l != '')
+            .map(l => {
+            const chunks = l.trim().split(/\s+/);
+            return {
+                flag: chunks[0],
+                path: chunks[1]
+            };
+        });
     });
 }
 exports.gitStatus = gitStatus;
-async function getHeadSize(path) {
-    let raw = '';
-    const exitcode = await (0, exec_1.exec)('git', ['cat-file', '-s', `HEAD:${path}`], {
-        listeners: {
-            stdline: (data) => {
-                raw += data;
+function getHeadSize(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let raw = '';
+        const exitcode = yield (0, exec_1.exec)('git', ['cat-file', '-s', `HEAD:${path}`], {
+            listeners: {
+                stdline: (data) => {
+                    raw += data;
+                }
+            }
+        });
+        core.debug(`raw cat-file output: ${exitcode} '${raw}'`);
+        if (exitcode === 0) {
+            return parseInt(raw, 10);
+        }
+    });
+}
+function diffSize(file) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (file.flag) {
+            case 'M': {
+                const stat = (0, fs_1.statSync)(file.path);
+                core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
+                // get old size and compare
+                const oldSize = yield getHeadSize(file.path);
+                const delta = oldSize === undefined ? stat.size : stat.size - oldSize;
+                core.debug(` ==> ${file.path} modified: old ${oldSize}, new ${stat.size}, delta ${delta}b `);
+                return delta;
+            }
+            case 'A': {
+                const stat = (0, fs_1.statSync)(file.path);
+                core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
+                core.debug(` ==> ${file.path} added: delta ${stat.size}b`);
+                return stat.size;
+            }
+            case 'D': {
+                const oldSize = yield getHeadSize(file.path);
+                const delta = oldSize === undefined ? 0 : oldSize;
+                core.debug(` ==> ${file.path} deleted: delta ${delta}b`);
+                return delta;
+            }
+            default: {
+                throw new Error(`Encountered an unexpected file status in git: ${file.flag} ${file.path}`);
             }
         }
     });
-    core.debug(`raw cat-file output: ${exitcode} '${raw}'`);
-    if (exitcode === 0) {
-        return parseInt(raw, 10);
-    }
 }
-async function diffSize(file) {
-    switch (file.flag) {
-        case 'M': {
-            const stat = (0, fs_1.statSync)(file.path);
-            core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
-            // get old size and compare
-            const oldSize = await getHeadSize(file.path);
-            const delta = oldSize === undefined ? stat.size : stat.size - oldSize;
-            core.debug(` ==> ${file.path} modified: old ${oldSize}, new ${stat.size}, delta ${delta}b `);
-            return delta;
+function diff(filename) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const statuses = yield gitStatus();
+        core.debug(`Parsed statuses: ${statuses.map(s => JSON.stringify(s)).join(', ')}`);
+        const status = statuses.find(s => path_1.default.relative(s.path, filename) === '');
+        if (typeof status === 'undefined') {
+            core.info(`No status found for ${filename}, aborting.`);
+            return 0; // there's no change to the specified file
         }
-        case 'A': {
-            const stat = (0, fs_1.statSync)(file.path);
-            core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
-            core.debug(` ==> ${file.path} added: delta ${stat.size}b`);
-            return stat.size;
-        }
-        case 'D': {
-            const oldSize = await getHeadSize(file.path);
-            const delta = oldSize === undefined ? 0 : oldSize;
-            core.debug(` ==> ${file.path} deleted: delta ${delta}b`);
-            return delta;
-        }
-        default: {
-            throw new Error(`Encountered an unexpected file status in git: ${file.flag} ${file.path}`);
-        }
-    }
-}
-async function diff(filename) {
-    const statuses = await gitStatus();
-    core.debug(`Parsed statuses: ${statuses.map(s => JSON.stringify(s)).join(', ')}`);
-    const status = statuses.find(s => path_1.default.relative(s.path, filename) === '');
-    if (typeof status === 'undefined') {
-        core.info(`No status found for ${filename}, aborting.`);
-        return 0; // there's no change to the specified file
-    }
-    return await diffSize(status);
+        return yield diffSize(status);
+    });
 }
 exports.diff = diff;
-const lsFile = async (commandLine, args) => {
+const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function* () {
     let raw = '';
     const options = {};
     options.listeners = {
@@ -372,18 +408,22 @@ const lsFile = async (commandLine, args) => {
             raw += data.toString();
         }
     };
-    await (0, exec_1.exec)(commandLine, args, options);
+    yield (0, exec_1.exec)(commandLine, args, options);
     return raw
         .split('\n')
         .filter(l => l != '')
         .map(l => l.trim());
-};
-async function getUnstagedFiles() {
-    return lsFile('git', ['ls-files', '--others', '--exclude-standard']);
+});
+function getUnstagedFiles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return lsFile('git', ['ls-files', '--others', '--exclude-standard']);
+    });
 }
 exports.getUnstagedFiles = getUnstagedFiles;
-async function getModifiedUnstagedFiles() {
-    return lsFile('git', ['ls-files', '-m']);
+function getModifiedUnstagedFiles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return lsFile('git', ['ls-files', '-m']);
+    });
 }
 exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
 
@@ -414,6 +454,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IssuesUtil = void 0;
 const github_1 = __nccwpck_require__(5438);
@@ -425,53 +474,63 @@ class IssuesUtil {
         this.owner = github_1.context.repo.owner;
         this.repo = github_1.context.repo.repo;
     }
-    async isHeartBySelf(comment) {
-        const reactions = await this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
-        core.debug(`reactions: ${JSON.stringify(reactions)}`);
-        return reactions.filter(r => r.user?.login === this.owner).length > 0;
-    }
-    async getCommentReactions(comment, content) {
-        const reactions = await this.client.reactions.listForIssueComment({
-            owner: this.owner,
-            repo: this.repo,
-            comment_id: comment.id,
-            content: content
+    isHeartBySelf(comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reactions = yield this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
+            core.debug(`reactions: ${JSON.stringify(reactions)}`);
+            return reactions.filter(r => { var _a; return ((_a = r.user) === null || _a === void 0 ? void 0 : _a.login) === this.owner; }).length > 0;
         });
-        core.debug(`reactions: ${JSON.stringify(reactions)}`);
-        return reactions.data;
     }
-    async getIssueComments(issue) {
-        const comments = await this.client.issues.listComments({
-            owner: this.owner,
-            repo: this.repo,
-            issue_number: issue.number
+    getCommentReactions(comment, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reactions = yield this.client.reactions.listForIssueComment({
+                owner: this.owner,
+                repo: this.repo,
+                comment_id: comment.id,
+                content: content
+            });
+            core.debug(`reactions: ${JSON.stringify(reactions)}`);
+            return reactions.data;
         });
-        core.debug(`comments: ${JSON.stringify(comments)}`);
-        return comments.data;
     }
-    async getIssues(page) {
-        const issueResult = await this.client.issues.listForRepo({
-            owner: this.owner,
-            repo: this.repo,
-            state: 'open',
-            creator: this.owner,
-            per_page: 100,
-            direction: 'desc',
-            page
+    getIssueComments(issue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comments = yield this.client.issues.listComments({
+                owner: this.owner,
+                repo: this.repo,
+                issue_number: issue.number
+            });
+            core.debug(`comments: ${JSON.stringify(comments)}`);
+            return comments.data;
         });
-        core.debug(`issueResult: ${JSON.stringify(issueResult)}`);
-        return issueResult.data;
     }
-    async processIssues(page = 1, result, ...functions) {
-        const issues = await this.getIssues(page);
-        if (issues.length < 0) {
-            return result;
-        }
-        functions.forEach(f => {
-            result = f.call(this, issues, result);
+    getIssues(page) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issueResult = yield this.client.issues.listForRepo({
+                owner: this.owner,
+                repo: this.repo,
+                state: 'open',
+                creator: this.owner,
+                per_page: 100,
+                direction: 'desc',
+                page
+            });
+            core.debug(`issueResult: ${JSON.stringify(issueResult)}`);
+            return issueResult.data;
         });
-        // Do the next page
-        return this.processIssues(page + 1, result, ...functions);
+    }
+    processIssues(page = 1, result, ...functions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issues = yield this.getIssues(page);
+            if (issues.length < 0) {
+                return result;
+            }
+            functions.forEach(f => {
+                result = f.call(this, issues, result);
+            });
+            // Do the next page
+            return this.processIssues(page + 1, result, ...functions);
+        });
     }
 }
 exports.IssuesUtil = IssuesUtil;
