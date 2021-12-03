@@ -4,4 +4,4 @@ My personal blog using issues and GitHub Actions
 ## 友情链接
 | Name | Link | Desc | 
  | ---- | ---- | ---- |
-| FriendsA2 | https://blog.duanfei.org | 跑步的朋友 |
+| FriendsA3 | https://blog.duanfei.org | 跑步的朋友 |
