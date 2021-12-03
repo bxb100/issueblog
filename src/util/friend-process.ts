@@ -16,7 +16,7 @@ import * as core from "@actions/core";
 
 const FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE =
-    (name: string, link: string, desc: string) => `| ${name} | ${link} | ${desc} |\n`
+    (name: string, link: string, desc: string) => `| ${name} | ${link} | ${desc} |`
 const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
 const FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n"
 
@@ -29,7 +29,7 @@ function _makeFriendTableString(comment: IComment): string {
         .forEach(s => {
             dict[s[0]] = s[1].trim()
         });
-    core.debug(JSON.stringify(dict))
+    core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`)
     return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
 }
 
@@ -62,6 +62,6 @@ export async function add_md_friends(this: IssuesUtil, issues: IIssue[], result:
         );
     }
     const stringArray = await Promise.all(all);
-    result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('')}`);
+    result += (`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}${stringArray.join('\n')}`);
     return result;
 }
