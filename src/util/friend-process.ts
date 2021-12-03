@@ -16,9 +16,9 @@ import * as core from "@actions/core";
 
 const FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE =
-    (name: string, link: string, desc: string) => `\t| ${name} | ${link} | ${desc} |\n`
+    (name: string, link: string, desc: string) => `| ${name} | ${link} | ${desc} |\n`
 const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
-const FRIENDS_TABLE_HEAD = "\t| Name | Link | Desc |\n\t| ---- | ---- | ---- |\n"
+const FRIENDS_TABLE_HEAD = "| Name | Link | Desc |\n| ---- | ---- | ---- |\n"
 
 function _makeFriendTableString(comment: IComment): string {
     const dict: { [k: string]: string } = {}

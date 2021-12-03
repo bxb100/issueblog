@@ -4,7 +4,7 @@ import {context} from '@actions/github'
 import * as core from   '@actions/core'
 
 const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
-const FRIENDS_TABLE_HEAD = "\t| Name | Link | Desc |\n\t| ---- | ---- | ---- |\n"
+const FRIENDS_TABLE_HEAD = "| Name | Link | Desc |\n| ---- | ---- | ---- |\n"
 
 jest.mock('@actions/github')
 jest.spyOn(core, 'debug').mockImplementation(() => {})
@@ -36,7 +36,7 @@ test('test generate string', async () => {
     let result = ''
     result += await add_md_friends.call(utils, await utils.getIssues(1), result)
     expect(result).toEqual(`${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}` +
-        '\t| FriendsA3 | https://blog.duanfei.org | 跑步的朋友 |\n' +
-        '\t| FriendsA4 | https://blog.duanfei.org | 跑步的朋友 |\n'
+        '| FriendsA3 | https://blog.duanfei.org | 跑步的朋友 |\n' +
+        '| FriendsA4 | https://blog.duanfei.org | 跑步的朋友 |\n'
     )
 })

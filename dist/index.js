@@ -227,9 +227,9 @@ const core = __importStar(__nccwpck_require__(2186));
  */
 // -----------------------------------------------------------------------------
 const FRIEND_TABLE_HEAD = 'Friends';
-const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `\t| ${name} | ${link} | ${desc} |\n`;
+const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
 const FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
-const FRIENDS_TABLE_HEAD = "\t| Name | Link | Desc |\n\t| ---- | ---- | ---- |\n";
+const FRIENDS_TABLE_HEAD = "| Name | Link | Desc |\n| ---- | ---- | ---- |\n";
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
