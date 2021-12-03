@@ -1,0 +1,23 @@
+name: 'Git Log'
+description: 'Tiny Blog based on github issues'
+author: '@bxb100 aka John Bi'
+inputs:
+  github_token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
+  md_header:
+    description: The header of content
+    default: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)"
+    required: false
+  issue_number:
+    description: The event issue number
+    default: ${{ github.event.issue.number }}
+    required: false
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+  post: 'dist/post/index.js'
+branding:
+  icon: 'edit-3'
+  color: 'blue'
