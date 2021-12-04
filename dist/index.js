@@ -309,6 +309,7 @@ function run() {
         core.startGroup('Calculate diff');
         const editedFiles = [];
         const submodules = yield (0, git_1.submodulePath)();
+        core.info(`submodules: \n${submodules}`);
         for (const filename of editedFilenames) {
             core.debug(`git adding ${filename}…`);
             yield (0, exec_1.exec)('git', ['add', filename]);
@@ -547,8 +548,8 @@ function submodulePath() {
         yield (0, exec_1.exec)('git', ['ls-files', '-s'], {
             listeners: {
                 stdline: (data) => {
-                    if (data.trim().startsWith('160000 ')) {
-                        raw.push(data.trim().split(' ')[3]);
+                    if (data.trim().startsWith('160000')) {
+                        raw.push(data.trim().split('\t')[1]);
                     }
                 }
             }

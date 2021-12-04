@@ -131,8 +131,8 @@ export async function submodulePath(): Promise<string[]> {
     await exec('git', ['ls-files', '-s'], {
         listeners: {
             stdline: (data: string) => {
-                if (data.trim().startsWith('160000 ')) {
-                    raw.push(data.trim().split(' ')[3])
+                if (data.trim().startsWith('160000')) {
+                    raw.push(data.trim().split('\t')[1])
                 }
             }
         }
