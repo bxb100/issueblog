@@ -49,15 +49,16 @@ async function run(): Promise<void> {
     core.startGroup('Calculate diff')
     const editedFiles = []
     const submodules = await submodulePath()
-    core.info(`submodules: \n${submodules}`)
+    core.info(`submodules: ${submodules}`)
     for (const filename of editedFilenames) {
         core.debug(`git adding ${filename}…`)
         await exec('git', ['add', filename])
-        let bytes = -1
-        if (!submodules.includes(filename)) {
-            bytes = await diff(filename)
+        if (submodules.includes(filename)) {
+            editedFiles.push({name: filename, 'submodule': true})
+        } else {
+            const bytes = await diff(filename)
+            editedFiles.push({name: filename, deltaBytes: bytes})
         }
-        editedFiles.push({name: filename, deltaBytes: bytes})
     }
     core.endGroup()
 

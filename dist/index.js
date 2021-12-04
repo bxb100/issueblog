@@ -309,15 +309,17 @@ function run() {
         core.startGroup('Calculate diff');
         const editedFiles = [];
         const submodules = yield (0, git_1.submodulePath)();
-        core.info(`submodules: \n${submodules}`);
+        core.info(`submodules: ${submodules}`);
         for (const filename of editedFilenames) {
             core.debug(`git adding ${filename}…`);
             yield (0, exec_1.exec)('git', ['add', filename]);
-            let bytes = -1;
-            if (!submodules.includes(filename)) {
-                bytes = yield (0, git_1.diff)(filename);
+            if (submodules.includes(filename)) {
+                editedFiles.push({ name: filename, 'submodule': true });
             }
-            editedFiles.push({ name: filename, deltaBytes: bytes });
+            else {
+                const bytes = yield (0, git_1.diff)(filename);
+                editedFiles.push({ name: filename, deltaBytes: bytes });
+            }
         }
         core.endGroup();
         // 6. 存储变更文件等待 POST 提交
