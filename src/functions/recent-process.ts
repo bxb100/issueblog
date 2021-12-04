@@ -2,7 +2,7 @@ import {IssuesUtil} from '../util/issue-kit'
 import {Issue} from '../common/clazz/issue'
 
 export const RECENT_ISSUE_LIMIT_DEFAULT = 5
-export const RECENT_ISSUE_TITLE = '## 最近更新\n'
+export const RECENT_ISSUE_TITLE = '\n## 最近更新\n'
 
 export async function add_md_recent(
     this: IssuesUtil<string>,

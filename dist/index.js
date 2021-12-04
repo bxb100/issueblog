@@ -155,7 +155,7 @@ const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 exports.FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
-exports.FRIENDS_TABLE_TITLE = '## 友情链接\n';
+exports.FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
 exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
 function _makeFriendTableString(comment) {
     var _a;
@@ -210,7 +210,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_recent = exports.RECENT_ISSUE_TITLE = exports.RECENT_ISSUE_LIMIT_DEFAULT = void 0;
 exports.RECENT_ISSUE_LIMIT_DEFAULT = 5;
-exports.RECENT_ISSUE_TITLE = '## 最近更新\n';
+exports.RECENT_ISSUE_TITLE = '\n## 最近更新\n';
 function add_md_recent(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         let limit = exports.RECENT_ISSUE_LIMIT_DEFAULT;
@@ -246,7 +246,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_top = exports.TOP_ISSUE_TITLE = exports.TOP_ISSUE_LABEL = void 0;
 exports.TOP_ISSUE_LABEL = 'Top';
-exports.TOP_ISSUE_TITLE = '## 置顶文章\n';
+exports.TOP_ISSUE_TITLE = '\n## 置顶文章\n';
 function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const selfTopIssues = issues

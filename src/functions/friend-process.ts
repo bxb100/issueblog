@@ -18,7 +18,7 @@ import {Issue} from '../common/clazz/issue'
 export const FRIEND_TABLE_HEAD = 'Friends'
 const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) =>
     `| ${name} | ${link} | ${desc} |\n`
-export const FRIENDS_TABLE_TITLE = '## 友情链接\n'
+export const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
 export const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
 function _makeFriendTableString(comment: IComment): string {
