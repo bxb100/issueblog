@@ -527,13 +527,13 @@ const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function
 });
 function getUnstagedFiles() {
     return __awaiter(this, void 0, void 0, function* () {
-        return lsFile('git', ['ls-files', '--others', '--exclude-standard', '|', 'grep', '-v', '^16', '|', 'cut', '-f', '2']);
+        return lsFile('git', ['ls-files', '--others', '--exclude-standard']);
     });
 }
 exports.getUnstagedFiles = getUnstagedFiles;
 function getModifiedUnstagedFiles() {
     return __awaiter(this, void 0, void 0, function* () {
-        return lsFile('git', ['ls-files', '-m', '|', 'grep', '-v', '^16', '|', 'cut', '-f', '2']);
+        return lsFile('git', ['ls-files', '-m']);
     });
 }
 exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
@@ -627,7 +627,7 @@ class IssuesUtil {
                 direction: 'desc',
                 page
             });
-            core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`);
+            core.info(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`);
             return issue_1.Issue.cast(issueResult.data);
         });
     }

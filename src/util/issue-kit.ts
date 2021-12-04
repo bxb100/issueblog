@@ -61,7 +61,7 @@ export class IssuesUtil {
             direction: 'desc',
             page
         })
-        core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`)
+        core.info(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`)
         return Issue.cast(issueResult.data)
     }
 
