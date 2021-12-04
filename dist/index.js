@@ -334,12 +334,12 @@ function parse(issue) {
     const done = lines.filter(line => line.startsWith('- [x]'));
     if (undone.length === 0) {
         return {
-            title: `[${issue.title}](${issue.html_url}) all done`,
+            title: `[${issue.title}](${issue.html_url}) all done\n`,
             list: []
         };
     }
     return {
-        title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done`,
+        title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done\n`,
         list: undone.concat(done)
     };
 }
