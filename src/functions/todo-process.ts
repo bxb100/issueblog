@@ -17,12 +17,15 @@ export async function add_md_todo(
     }
 
     this.result += TODO_ISSUE_TITLE
-    const {title, list} = parse(todoIssues[0])
-    this.result += title
-    for (let string of list) {
-        this.result += `${string}\n`
+
+    for (let todoIssue of todoIssues) {
+        const {title, list} = parse(todoIssue)
+        this.result += title
+        for (let string of list) {
+            this.result += `${string}\n`
+        }
+        this.result += '\n'
     }
-    this.result += '\n'
 }
 
 function parse(issue: Issue): {title: string, list: string[]} {
