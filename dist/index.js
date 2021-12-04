@@ -527,13 +527,13 @@ const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function
 });
 function getUnstagedFiles() {
     return __awaiter(this, void 0, void 0, function* () {
-        return lsFile('git', ['ls-files', '--others', '--exclude-standard']);
+        return lsFile('git ls-files --others --exclude-standard | grep -v ^16 | cut -f2-');
     });
 }
 exports.getUnstagedFiles = getUnstagedFiles;
 function getModifiedUnstagedFiles() {
     return __awaiter(this, void 0, void 0, function* () {
-        return lsFile('git', ['ls-files', '-m']);
+        return lsFile('git ls-files -m  | grep -v ^16 | cut -f2-');
     });
 }
 exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;

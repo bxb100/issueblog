@@ -119,9 +119,9 @@ const lsFile = async (
 }
 
 export async function getUnstagedFiles(): Promise<string[]> {
-    return lsFile('git', ['ls-files', '--others', '--exclude-standard'])
+    return lsFile('git ls-files --others --exclude-standard | grep -v ^16 | cut -f2-')
 }
 
 export async function getModifiedUnstagedFiles(): Promise<string[]> {
-    return lsFile('git', ['ls-files', '-m'])
+    return lsFile('git ls-files -m  | grep -v ^16 | cut -f2-')
 }
