@@ -1,7 +1,7 @@
 import {IComment} from '../interface/comment'
 import {Reactions} from '../interface/reactions'
 import {IUser} from '../interface/user'
-import {IssuesUtil} from '../../util/issue'
+import {IssuesUtil} from '../../util/issue-kit'
 
 export class Comment implements IComment {
 

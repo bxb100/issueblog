@@ -34,6 +34,55 @@ exports.Comment = Comment;
 
 /***/ }),
 
+/***/ 7751:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Issue = void 0;
+class Issue {
+    constructor(data) {
+        this.assignees = data.assignees;
+        this.comments = data.comments;
+        this.created_at = data.created_at;
+        this.labels = data.labels;
+        this.locked = data.locked;
+        this.milestone = data.milestone;
+        this.number = data.number;
+        this.pull_request = data.pull_request;
+        this.state = data.state;
+        this.title = data.title;
+        this.updated_at = data.updated_at;
+        this.user = data.user;
+        this.html_url = data.html_url;
+        // easy way get yyyy-MM-dd
+        this.created_at_sub = this.created_at.substring(0, 10);
+    }
+    static cast(data) {
+        return data.map(data => new Issue(data));
+    }
+    containsLabel(label) {
+        return this.labels.some(l => {
+            if (typeof l === 'string') {
+                return l === label;
+            }
+            else if (typeof l === 'object') {
+                return l.name === label;
+            }
+            return false;
+        });
+    }
+    isOwnBy(username) {
+        var _a;
+        return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.login) === username;
+    }
+}
+exports.Issue = Issue;
+
+
+/***/ }),
+
 /***/ 4943:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -114,15 +163,7 @@ function _makeFriendTableString(comment) {
 }
 function add_md_friends(issues, result) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.labels.find(label => {
-            if (typeof label === 'string') {
-                return label === FRIEND_TABLE_HEAD;
-            }
-            else if (typeof label === 'object') {
-                return label.name === FRIEND_TABLE_HEAD;
-            }
-            return false;
-        }));
+        const friendIssues = issues.filter(issue => issue.containsLabel(FRIEND_TABLE_HEAD));
         const all = [];
         for (let issue of friendIssues) {
             all.push(this.getIssueComments(issue)
@@ -146,6 +187,44 @@ function add_md_friends(issues, result) {
     });
 }
 exports.add_md_friends = add_md_friends;
+
+
+/***/ }),
+
+/***/ 2686:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_top = void 0;
+const TOP_ISSUE_LABEL = 'Top';
+const TOP_ISSUE_TITLE = '\n## 置顶文章\n';
+function _makeTopString(issue) {
+    return `- [${issue.title}](${issue.html_url})---${issue.created_at_sub}\n`;
+}
+function add_md_top(issues, result) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const selfTopIssues = issues
+            .filter(issue => issue.containsLabel(TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
+        if (selfTopIssues.length <= 0) {
+            return result;
+        }
+        result += TOP_ISSUE_TITLE;
+        result += selfTopIssues.map(_makeTopString).join('');
+        return result;
+    });
+}
+exports.add_md_top = add_md_top;
 
 
 /***/ }),
@@ -187,10 +266,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const config_1 = __nccwpck_require__(2156);
 const exec_1 = __nccwpck_require__(1514);
-const issue_1 = __nccwpck_require__(1398);
+const issue_kit_1 = __nccwpck_require__(2833);
 const friend_process_1 = __nccwpck_require__(8556);
 const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
+const top_process_1 = __nccwpck_require__(2686);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -208,9 +288,9 @@ function run() {
         core.endGroup();
         // 2. 处理 issues
         core.startGroup('Process issues');
-        const issuesUtil = new issue_1.IssuesUtil(config.github_token);
+        const issuesUtil = new issue_kit_1.IssuesUtil(config.github_token);
         let text = config.md_header;
-        text = yield issuesUtil.processIssues(1, text, friend_process_1.add_md_friends);
+        text = yield issuesUtil.processIssues(1, text, friend_process_1.add_md_friends, top_process_1.add_md_top);
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');
@@ -461,7 +541,7 @@ exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
 
 /***/ }),
 
-/***/ 1398:
+/***/ 2833:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -500,6 +580,7 @@ const github_1 = __nccwpck_require__(5438);
 const core = __importStar(__nccwpck_require__(2186));
 const reaction_content_1 = __nccwpck_require__(4943);
 const comment_1 = __nccwpck_require__(8802);
+const issue_1 = __nccwpck_require__(7751);
 class IssuesUtil {
     constructor(token) {
         this.client = (0, github_1.getOctokit)(token);
@@ -509,7 +590,6 @@ class IssuesUtil {
     isHeartBySelf(comment) {
         return __awaiter(this, void 0, void 0, function* () {
             const reactions = yield this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
-            core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`);
             return !!reactions.find(r => { var _a; return ((_a = r.user) === null || _a === void 0 ? void 0 : _a.login) === this.owner; });
         });
     }
@@ -548,7 +628,7 @@ class IssuesUtil {
                 page
             });
             core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`);
-            return issueResult.data;
+            return issue_1.Issue.cast(issueResult.data);
         });
     }
     processIssues(page = 1, result, ...functions) {

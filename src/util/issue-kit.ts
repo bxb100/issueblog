@@ -6,6 +6,7 @@ import {IComment} from '../common/interface/comment'
 import {Reaction} from '../common/interface/reaction'
 import {ReactionContent} from '../common/enum/reaction-content'
 import {Comment} from '../common/clazz/comment'
+import {Issue} from '../common/clazz/issue'
 
 export class IssuesUtil {
     readonly client: InstanceType<typeof GitHub>
@@ -23,7 +24,6 @@ export class IssuesUtil {
             comment,
             ReactionContent.HEART
         )
-        core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
         return !!reactions.find(r => r.user?.login === this.owner)
     }
 
@@ -51,7 +51,7 @@ export class IssuesUtil {
         return Comment.cast(comments.data)
     }
 
-    async getIssues(page: number): Promise<IIssue[]> {
+    async getIssues(page: number): Promise<Issue[]> {
         const issueResult = await this.client.rest.issues.listForRepo({
             owner: this.owner,
             repo: this.repo,
@@ -62,7 +62,7 @@ export class IssuesUtil {
             page
         })
         core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`)
-        return issueResult.data
+        return Issue.cast(issueResult.data)
     }
 
     async processIssues<T>(
@@ -70,7 +70,7 @@ export class IssuesUtil {
         result: T,
         ...functions: Function[]
     ): Promise<T> {
-        const issues: IIssue[] = await this.getIssues(page)
+        const issues: Issue[] = await this.getIssues(page)
         if (issues.length <= 0) {
             return result
         }

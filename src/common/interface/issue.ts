@@ -1,7 +1,8 @@
-import {IsoDateString} from '../types/iso-date-string';
-import {IAssignee} from './assignee';
-import {ILabel} from './label';
-import {IMilestone} from './milestone';
+import {IsoDateString} from '../types/iso-date-string'
+import {IAssignee} from './assignee'
+import {ILabel} from './label'
+import {IMilestone} from './milestone'
+import {IUser} from './user'
 
 export interface IIssue {
     title: string;
@@ -13,6 +14,8 @@ export interface IIssue {
     state: string;
     locked: boolean;
     milestone?: IMilestone | null;
+    user: IUser | null
     assignees?: IAssignee[] | null;
     comments: number;
+    html_url: string;
 }

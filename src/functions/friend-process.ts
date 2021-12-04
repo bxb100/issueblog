@@ -1,8 +1,8 @@
-import {IIssue} from '../common/interface/issue'
-import {IssuesUtil} from '../util/issue'
+import {IssuesUtil} from '../util/issue-kit'
 import {IComment} from '../common/interface/comment'
 import * as core from '@actions/core'
 import {Comment} from '../common/clazz/comment'
+import {Issue} from '../common/clazz/issue'
 
 // -----------------------------------------------------------------------------
 /**
@@ -35,19 +35,11 @@ function _makeFriendTableString(comment: IComment): string {
 
 export async function add_md_friends(
     this: IssuesUtil,
-    issues: IIssue[],
+    issues: Issue[],
     result: string
 ): Promise<string> {
-    const friendIssues = issues.filter(issue =>
-        issue.labels.find(label => {
-            if (typeof label === 'string') {
-                return label === FRIEND_TABLE_HEAD
-            } else if (typeof label === 'object') {
-                return label.name === FRIEND_TABLE_HEAD
-            }
-            return false
-        })
-    )
+
+    const friendIssues = issues.filter(issue => issue.containsLabel(FRIEND_TABLE_HEAD))
 
     const all: Promise<string[]>[] = []
     for (let issue of friendIssues) {
