@@ -627,7 +627,7 @@ class IssuesUtil {
                 direction: 'desc',
                 page
             });
-            core.info(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`);
+            core.debug(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`);
             return issue_1.Issue.cast(issueResult.data);
         });
     }
