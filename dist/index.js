@@ -252,9 +252,9 @@ function add_md_label(issues) {
             }
             // because the last i++
             if (i > anchorNumber) {
-                this.result += '</details>\n';
-                this.result += '\n';
+                this.result += '</details>';
             }
+            this.result += '\n';
         }
     });
 }

@@ -44,8 +44,8 @@ export async function add_md_label(
         }
         // because the last i++
         if (i > anchorNumber) {
-            this.result += '</details>\n'
-            this.result += '\n'
+            this.result += '</details>'
         }
+        this.result += '\n'
     }
 }
