@@ -10,7 +10,7 @@ export async function add_md_top(
 ): Promise<void> {
 
     const selfTopIssues = issues
-        .filter(issue => issue.containsLabel(TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner))
+        .filter(issue => issue.containLabel(TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner))
 
     if (selfTopIssues.length <= 0) {
         return

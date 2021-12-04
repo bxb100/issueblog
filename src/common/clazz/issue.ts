@@ -45,7 +45,7 @@ export class Issue implements IIssue {
         return data.map(data => new Issue(data))
     }
 
-    containsLabel(label: string): boolean {
+    containLabel(label: string): boolean {
         return this.labels.some(l => {
             if (typeof l === 'string') {
                 return l === label
@@ -54,6 +54,15 @@ export class Issue implements IIssue {
             }
             return false
         })
+    }
+
+    notContainLabels(...labels: string[]): boolean {
+        for (let label of labels) {
+            if (this.containLabel(label)) {
+                return false
+            }
+        }
+        return true
     }
 
     isOwnBy(username: string): boolean {

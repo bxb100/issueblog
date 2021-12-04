@@ -15,7 +15,7 @@ import {Issue} from '../common/clazz/issue'
  */
 // -----------------------------------------------------------------------------
 
-export const FRIEND_TABLE_HEAD = 'Friends'
+export const FRIEND_ISSUE_LABEL = 'Friends'
 const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) =>
     `| ${name} | ${link} | ${desc} |\n`
 export const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
@@ -38,7 +38,7 @@ export async function add_md_friends(
     issues: Issue[]
 ): Promise<void> {
 
-    const friendIssues = issues.filter(issue => issue.containsLabel(FRIEND_TABLE_HEAD))
+    const friendIssues = issues.filter(issue => issue.containLabel(FRIEND_ISSUE_LABEL))
 
     const all: Promise<string[]>[] = []
     for (let issue of friendIssues) {

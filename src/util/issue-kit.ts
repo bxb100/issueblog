@@ -70,18 +70,29 @@ export class IssuesUtil<T> {
         return Issue.cast(issueResult.data)
     }
 
-    async processIssues(
-        page: Readonly<number> = 1,
-        ...functions: Function[]
-    ): Promise<T> {
-        const issues: Issue[] = await this.getIssues(page)
-        if (issues.length <= 0) {
-            return this.result
+    async getAllIssues(): Promise<Issue[]> {
+        let page = 1
+        let issues: Issue[] = []
+        while (true) {
+            const result = await this.getIssues(page)
+            if (result.length === 0) {
+                break
+            }
+            issues = issues.concat(result)
+            page++
         }
+        return issues
+    }
+
+    async processIssues(...functions: Function[]): Promise<T> {
+        const issues: Issue[] = await this.getAllIssues()
         for (const f of functions) {
-            await f.call(this, issues)
+            try {
+                await f.call(this, issues)
+            } catch (error) {
+                core.warning(`${f.name} run error: ${error}`)
+            }
         }
-        // Do the next page
-        return this.processIssues(page + 1, ...functions)
+        return this.result
     }
 }

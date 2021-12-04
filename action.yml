@@ -17,6 +17,11 @@ inputs:
   recent_limit:
     description: The number of recent issues to display
     required: false
+    default: '10'
+  anchor_number:
+    description: The number of issues to display
+    required: false
+    default: '5'
 runs:
   using: 'node12'
   main: 'dist/index.js'

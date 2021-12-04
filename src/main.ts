@@ -7,6 +7,7 @@ import * as fs from 'fs'
 import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from './util/git'
 import {add_md_top} from './functions/top-process'
 import {add_md_recent} from './functions/recent-process'
+import {add_md_label} from './functions/label-process'
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')
@@ -28,8 +29,7 @@ async function run(): Promise<void> {
     core.startGroup('Process issues')
     const issuesUtil = new IssuesUtil(config, config.md_header)
     const text = await issuesUtil.processIssues(
-        1,
-        add_md_friends, add_md_top, add_md_recent
+        add_md_friends, add_md_top, add_md_recent, add_md_label
     )
     core.endGroup()
 

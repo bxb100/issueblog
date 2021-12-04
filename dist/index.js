@@ -62,7 +62,7 @@ class Issue {
     static cast(data) {
         return data.map(data => new Issue(data));
     }
-    containsLabel(label) {
+    containLabel(label) {
         return this.labels.some(l => {
             if (typeof l === 'string') {
                 return l === label;
@@ -72,6 +72,14 @@ class Issue {
             }
             return false;
         });
+    }
+    notContainLabels(...labels) {
+        for (let label of labels) {
+            if (this.containLabel(label)) {
+                return false;
+            }
+        }
+        return true;
     }
     isOwnBy(username) {
         var _a;
@@ -141,7 +149,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_friends = exports.FRIENDS_TABLE_HEAD = exports.FRIENDS_TABLE_TITLE = exports.FRIEND_TABLE_HEAD = void 0;
+exports.add_md_friends = exports.FRIENDS_TABLE_HEAD = exports.FRIENDS_TABLE_TITLE = exports.FRIEND_ISSUE_LABEL = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 /**
@@ -153,7 +161,7 @@ const core = __importStar(__nccwpck_require__(2186));
  * 描述：xxxxxx
  */
 // -----------------------------------------------------------------------------
-exports.FRIEND_TABLE_HEAD = 'Friends';
+exports.FRIEND_ISSUE_LABEL = 'Friends';
 const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
 exports.FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
 exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
@@ -166,7 +174,7 @@ function _makeFriendTableString(comment) {
 }
 function add_md_friends(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.containsLabel(exports.FRIEND_TABLE_HEAD));
+        const friendIssues = issues.filter(issue => issue.containLabel(exports.FRIEND_ISSUE_LABEL));
         const all = [];
         for (let issue of friendIssues) {
             all.push(this.getIssueComments(issue)
@@ -193,6 +201,75 @@ exports.add_md_friends = add_md_friends;
 
 /***/ }),
 
+/***/ 4476:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_label = void 0;
+const friend_process_1 = __nccwpck_require__(8556);
+const top_process_1 = __nccwpck_require__(2686);
+const UN_LABEL_ISSUE_KEY = '无题';
+function add_md_label(issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const otherIssues = issues
+            .filter(issues => issues.notContainLabels(friend_process_1.FRIEND_ISSUE_LABEL, top_process_1.TOP_ISSUE_LABEL));
+        const bucket = {};
+        bucket[UN_LABEL_ISSUE_KEY] = [];
+        otherIssues.forEach(i => {
+            const labels = i.labels.map(l => {
+                if (typeof l === 'object') {
+                    return l.name;
+                }
+                return l;
+            });
+            labels.forEach(l => {
+                if (l === undefined) {
+                    bucket[UN_LABEL_ISSUE_KEY].push(i);
+                }
+                else {
+                    if (bucket[l] === undefined) {
+                        bucket[l] = [];
+                    }
+                    bucket[l].push(i);
+                }
+            });
+        });
+        const anchorNumber = parseInt(this.config.anchor_number);
+        for (const key of Object.keys(bucket).sort()) {
+            this.result += `\n## ${key}\n`;
+            const issues = bucket[key];
+            let i = 0;
+            for (; i < issues.length; i++) {
+                if (i === anchorNumber) {
+                    this.result += '<details><summary>显示更多</summary>\n';
+                    this.result += '\n';
+                }
+                this.result += issues[i].mdIssueInfo();
+            }
+            // because the last i++
+            if (i > anchorNumber) {
+                this.result += '</details>\n';
+                this.result += '\n';
+            }
+        }
+    });
+}
+exports.add_md_label = add_md_label;
+
+
+/***/ }),
+
 /***/ 5688:
 /***/ (function(__unused_webpack_module, exports) {
 
@@ -208,15 +285,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_recent = exports.RECENT_ISSUE_TITLE = exports.RECENT_ISSUE_LIMIT_DEFAULT = void 0;
-exports.RECENT_ISSUE_LIMIT_DEFAULT = 5;
+exports.add_md_recent = exports.RECENT_ISSUE_TITLE = void 0;
 exports.RECENT_ISSUE_TITLE = '\n## 最近更新\n';
 function add_md_recent(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        let limit = exports.RECENT_ISSUE_LIMIT_DEFAULT;
-        if (this.config.recent_limit) {
-            limit = parseInt(this.config.recent_limit);
-        }
+        let limit = parseInt(this.config.recent_limit);
         const recentIssues = issues
             .filter(issue => issue.isOwnBy(this.owner))
             .slice(0, limit);
@@ -250,7 +323,7 @@ exports.TOP_ISSUE_TITLE = '\n## 置顶文章\n';
 function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const selfTopIssues = issues
-            .filter(issue => issue.containsLabel(exports.TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
+            .filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
         if (selfTopIssues.length <= 0) {
             return;
         }
@@ -306,6 +379,7 @@ const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
 const top_process_1 = __nccwpck_require__(2686);
 const recent_process_1 = __nccwpck_require__(5688);
+const label_process_1 = __nccwpck_require__(4476);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -324,7 +398,7 @@ function run() {
         // 2. 处理 issues
         core.startGroup('Process issues');
         const issuesUtil = new issue_kit_1.IssuesUtil(config, config.md_header);
-        const text = yield issuesUtil.processIssues(1, friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent);
+        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label);
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');
@@ -402,12 +476,13 @@ exports.getConfig = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const z = __importStar(__nccwpck_require__(3301));
 // schema
-const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit'];
+const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number'];
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
     issue_number: z.string().optional(),
-    recent_limit: z.string().optional()
+    recent_limit: z.string().default('5'),
+    anchor_number: z.string().default('5')
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象
@@ -691,17 +766,33 @@ class IssuesUtil {
             return issue_1.Issue.cast(issueResult.data);
         });
     }
-    processIssues(page = 1, ...functions) {
+    getAllIssues() {
         return __awaiter(this, void 0, void 0, function* () {
-            const issues = yield this.getIssues(page);
-            if (issues.length <= 0) {
-                return this.result;
+            let page = 1;
+            let issues = [];
+            while (true) {
+                const result = yield this.getIssues(page);
+                if (result.length === 0) {
+                    break;
+                }
+                issues = issues.concat(result);
+                page++;
             }
+            return issues;
+        });
+    }
+    processIssues(...functions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issues = yield this.getAllIssues();
             for (const f of functions) {
-                yield f.call(this, issues);
+                try {
+                    yield f.call(this, issues);
+                }
+                catch (error) {
+                    core.warning(`${f.name} run error: ${error}`);
+                }
             }
-            // Do the next page
-            return this.processIssues(page + 1, ...functions);
+            return this.result;
         });
     }
 }

@@ -2,13 +2,14 @@ import * as core from '@actions/core'
 import * as z from 'zod'
 
 // schema
-const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit']
+const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number']
 
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
     issue_number: z.string().optional(),
-    recent_limit: z.string().optional()
+    recent_limit: z.string().default('5'),
+    anchor_number: z.string().default('5')
 })
 
 export type Config = z.infer<typeof commonConfigSchema>
