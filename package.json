@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/jest": "27.0.3",
     "@types/node": "16.11.11",
-    "@vercel/ncc": "0.31.1",
+    "@vercel/ncc": "0.33.0",
     "husky": "7.0.4",
     "jest": "27.4.3",
     "prettier": "2.4.1",
