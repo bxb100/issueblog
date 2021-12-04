@@ -1,27 +1,21 @@
 import {IssuesUtil} from '../util/issue-kit'
 import {Issue} from '../common/clazz/issue'
 
-const TOP_ISSUE_LABEL = 'Top'
-const TOP_ISSUE_TITLE = '\n## 置顶文章\n'
-
-function _makeTopString(issue: Issue): string {
-    return `- [${issue.title}](${issue.html_url})---${issue.created_at_sub}\n`
-}
+export const TOP_ISSUE_LABEL = 'Top'
+export const TOP_ISSUE_TITLE = '## 置顶文章\n'
 
 export async function add_md_top(
-    this: IssuesUtil,
-    issues: Issue[],
-    result: string
-): Promise<string> {
+    this: IssuesUtil<string>,
+    issues: Issue[]
+): Promise<void> {
 
     const selfTopIssues = issues
         .filter(issue => issue.containsLabel(TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner))
 
     if (selfTopIssues.length <= 0) {
-        return result
+        return
     }
 
-    result += TOP_ISSUE_TITLE
-    result += selfTopIssues.map(_makeTopString).join('')
-    return result
+    this.result += TOP_ISSUE_TITLE
+    this.result += selfTopIssues.map(i => i.mdIssueInfo()).join('')
 }

@@ -15,11 +15,11 @@ import {Issue} from '../common/clazz/issue'
  */
 // -----------------------------------------------------------------------------
 
-const FRIEND_TABLE_HEAD = 'Friends'
+export const FRIEND_TABLE_HEAD = 'Friends'
 const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) =>
     `| ${name} | ${link} | ${desc} |\n`
-const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
-const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
+export const FRIENDS_TABLE_TITLE = '## 友情链接\n'
+export const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
 function _makeFriendTableString(comment: IComment): string {
     const dict: {[k: string]: string} = {}
@@ -34,10 +34,9 @@ function _makeFriendTableString(comment: IComment): string {
 }
 
 export async function add_md_friends(
-    this: IssuesUtil,
-    issues: Issue[],
-    result: string
-): Promise<string> {
+    this: IssuesUtil<string>,
+    issues: Issue[]
+): Promise<void> {
 
     const friendIssues = issues.filter(issue => issue.containsLabel(FRIEND_TABLE_HEAD))
 
@@ -58,9 +57,8 @@ export async function add_md_friends(
         )
     }
     const stringArray = await Promise.all(all).then(arr => arr.flat())
-    result += FRIENDS_TABLE_TITLE
-    result += FRIENDS_TABLE_HEAD
-    result += stringArray.join('')
-    core.debug(`add_md_friends:\n\n${result}\n\n`)
-    return result
+    this.result += FRIENDS_TABLE_TITLE
+    this.result += FRIENDS_TABLE_HEAD
+    this.result += stringArray.join('')
+    core.debug(`add_md_friends:\n\n${this.result}\n\n`)
 }

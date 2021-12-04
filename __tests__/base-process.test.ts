@@ -9,7 +9,10 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new IssuesUtil('123')
+export const utils = new IssuesUtil<string>({
+    github_token: '123',
+    md_header: ''
+}, "")
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const isHeartBySelfMock = jest.spyOn(utils, 'isHeartBySelf')
 export const getIssueCommentsMock = jest.spyOn(utils, 'getIssueComments')

@@ -59,4 +59,8 @@ export class Issue implements IIssue {
     isOwnBy(username: string): boolean {
         return this.user?.login === username
     }
+
+    mdIssueInfo() {
+        return `- [${this.title}](${this.html_url})---${this.created_at_sub}\n`
+    }
 }

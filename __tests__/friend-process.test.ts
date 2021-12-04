@@ -1,11 +1,8 @@
-import {add_md_friends} from '../src/functions/friend-process'
+import {add_md_friends, FRIENDS_TABLE_HEAD, FRIENDS_TABLE_TITLE} from '../src/functions/friend-process'
 import {Comment} from '../src/common/clazz/comment'
 import {Issue} from '../src/common/clazz/issue'
 // @ts-ignore
 import {delay, getIssueCommentsMock, getIssuesMock, isHeartBySelfMock, utils} from './base-process.test'
-
-const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
-const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
 test('test generate string', async () => {
     const issueResult =
@@ -23,9 +20,8 @@ test('test generate string', async () => {
         return []
     })
 
-    let result = ''
-    result += await add_md_friends.call(utils, await utils.getIssues(1), result)
-    expect(result).toEqual(
+    await add_md_friends.call(utils, await utils.getIssues(1))
+    expect(utils.result).toEqual(
         `${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}` +
         '| FriendsA3 | https://blog.duanfei.org | 跑步的朋友 |\n' +
         '| FriendsA4 | https://blog.duanfei.org | 跑步的朋友 |\n'

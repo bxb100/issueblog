@@ -6,6 +6,7 @@ import {add_md_friends} from './functions/friend-process'
 import * as fs from 'fs'
 import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from './util/git'
 import {add_md_top} from './functions/top-process'
+import {add_md_recent} from './functions/recent-process'
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')
@@ -25,9 +26,11 @@ async function run(): Promise<void> {
 
     // 2. 处理 issues
     core.startGroup('Process issues')
-    const issuesUtil = new IssuesUtil(config.github_token)
-    let text = config.md_header
-    text = await issuesUtil.processIssues(1, text, add_md_friends, add_md_top)
+    const issuesUtil = new IssuesUtil(config, config.md_header)
+    const text = await issuesUtil.processIssues(
+        1,
+        add_md_friends, add_md_top, add_md_recent
+    )
     core.endGroup()
 
     // 3. 处理需要修改或新增的文件

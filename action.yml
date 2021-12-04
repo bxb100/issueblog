@@ -8,11 +8,14 @@ inputs:
     required: false
   md_header:
     description: The header of content
-    default: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)"
+    default: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)\n"
     required: false
   issue_number:
     description: The event issue number
     default: ${{ github.event.issue.number }}
+    required: false
+  recent_limit:
+    description: The number of recent issues to display
     required: false
 runs:
   using: 'node12'

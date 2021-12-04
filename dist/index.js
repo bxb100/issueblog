@@ -77,6 +77,9 @@ class Issue {
         var _a;
         return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.login) === username;
     }
+    mdIssueInfo() {
+        return `- [${this.title}](${this.html_url})---${this.created_at_sub}\n`;
+    }
 }
 exports.Issue = Issue;
 
@@ -138,7 +141,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_friends = void 0;
+exports.add_md_friends = exports.FRIENDS_TABLE_HEAD = exports.FRIENDS_TABLE_TITLE = exports.FRIEND_TABLE_HEAD = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 /**
@@ -150,10 +153,10 @@ const core = __importStar(__nccwpck_require__(2186));
  * 描述：xxxxxx
  */
 // -----------------------------------------------------------------------------
-const FRIEND_TABLE_HEAD = 'Friends';
+exports.FRIEND_TABLE_HEAD = 'Friends';
 const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
-const FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
-const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
+exports.FRIENDS_TABLE_TITLE = '## 友情链接\n';
+exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
@@ -161,9 +164,9 @@ function _makeFriendTableString(comment) {
     core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`);
     return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
 }
-function add_md_friends(issues, result) {
+function add_md_friends(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.containsLabel(FRIEND_TABLE_HEAD));
+        const friendIssues = issues.filter(issue => issue.containsLabel(exports.FRIEND_TABLE_HEAD));
         const all = [];
         for (let issue of friendIssues) {
             all.push(this.getIssueComments(issue)
@@ -179,14 +182,49 @@ function add_md_friends(issues, result) {
                 .then(approved => approved.map(_makeFriendTableString)));
         }
         const stringArray = yield Promise.all(all).then(arr => arr.flat());
-        result += FRIENDS_TABLE_TITLE;
-        result += FRIENDS_TABLE_HEAD;
-        result += stringArray.join('');
-        core.debug(`add_md_friends:\n\n${result}\n\n`);
-        return result;
+        this.result += exports.FRIENDS_TABLE_TITLE;
+        this.result += exports.FRIENDS_TABLE_HEAD;
+        this.result += stringArray.join('');
+        core.debug(`add_md_friends:\n\n${this.result}\n\n`);
     });
 }
 exports.add_md_friends = add_md_friends;
+
+
+/***/ }),
+
+/***/ 5688:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_recent = exports.RECENT_ISSUE_TITLE = exports.RECENT_ISSUE_LIMIT_DEFAULT = void 0;
+exports.RECENT_ISSUE_LIMIT_DEFAULT = 5;
+exports.RECENT_ISSUE_TITLE = '## 最近更新\n';
+function add_md_recent(issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let limit = exports.RECENT_ISSUE_LIMIT_DEFAULT;
+        if (this.config.recent_limit) {
+            limit = parseInt(this.config.recent_limit);
+        }
+        const recentIssues = issues
+            .filter(issue => issue.isOwnBy(this.owner))
+            .slice(0, limit);
+        this.result += exports.RECENT_ISSUE_TITLE;
+        this.result += recentIssues.map(i => i.mdIssueInfo()).join('');
+    });
+}
+exports.add_md_recent = add_md_recent;
 
 
 /***/ }),
@@ -206,22 +244,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_top = void 0;
-const TOP_ISSUE_LABEL = 'Top';
-const TOP_ISSUE_TITLE = '\n## 置顶文章\n';
-function _makeTopString(issue) {
-    return `- [${issue.title}](${issue.html_url})---${issue.created_at_sub}\n`;
-}
-function add_md_top(issues, result) {
+exports.add_md_top = exports.TOP_ISSUE_TITLE = exports.TOP_ISSUE_LABEL = void 0;
+exports.TOP_ISSUE_LABEL = 'Top';
+exports.TOP_ISSUE_TITLE = '## 置顶文章\n';
+function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const selfTopIssues = issues
-            .filter(issue => issue.containsLabel(TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
+            .filter(issue => issue.containsLabel(exports.TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
         if (selfTopIssues.length <= 0) {
-            return result;
+            return;
         }
-        result += TOP_ISSUE_TITLE;
-        result += selfTopIssues.map(_makeTopString).join('');
-        return result;
+        this.result += exports.TOP_ISSUE_TITLE;
+        this.result += selfTopIssues.map(i => i.mdIssueInfo()).join('');
     });
 }
 exports.add_md_top = add_md_top;
@@ -271,6 +305,7 @@ const friend_process_1 = __nccwpck_require__(8556);
 const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
 const top_process_1 = __nccwpck_require__(2686);
+const recent_process_1 = __nccwpck_require__(5688);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -288,9 +323,8 @@ function run() {
         core.endGroup();
         // 2. 处理 issues
         core.startGroup('Process issues');
-        const issuesUtil = new issue_kit_1.IssuesUtil(config.github_token);
-        let text = config.md_header;
-        text = yield issuesUtil.processIssues(1, text, friend_process_1.add_md_friends, top_process_1.add_md_top);
+        const issuesUtil = new issue_kit_1.IssuesUtil(config, config.md_header);
+        const text = yield issuesUtil.processIssues(1, friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent);
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');
@@ -368,11 +402,12 @@ exports.getConfig = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const z = __importStar(__nccwpck_require__(3301));
 // schema
-const keys = ['github_token', 'md_header', 'issue_number'];
+const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit'];
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
-    issue_number: z.string().optional()
+    issue_number: z.string().optional(),
+    recent_limit: z.string().optional()
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象
@@ -605,10 +640,12 @@ const reaction_content_1 = __nccwpck_require__(4943);
 const comment_1 = __nccwpck_require__(8802);
 const issue_1 = __nccwpck_require__(7751);
 class IssuesUtil {
-    constructor(token) {
-        this.client = (0, github_1.getOctokit)(token);
+    constructor(config, initResult) {
+        this.config = config;
+        this.client = (0, github_1.getOctokit)(config.github_token);
         this.owner = github_1.context.repo.owner;
         this.repo = github_1.context.repo.repo;
+        this.result = initResult;
     }
     isHeartBySelf(comment) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -654,17 +691,17 @@ class IssuesUtil {
             return issue_1.Issue.cast(issueResult.data);
         });
     }
-    processIssues(page = 1, result, ...functions) {
+    processIssues(page = 1, ...functions) {
         return __awaiter(this, void 0, void 0, function* () {
             const issues = yield this.getIssues(page);
             if (issues.length <= 0) {
-                return result;
+                return this.result;
             }
             for (const f of functions) {
-                result = yield f.call(this, issues, result);
+                yield f.call(this, issues);
             }
             // Do the next page
-            return this.processIssues(page + 1, result, ...functions);
+            return this.processIssues(page + 1, ...functions);
         });
     }
 }

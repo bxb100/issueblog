@@ -2,15 +2,17 @@ import * as core from '@actions/core'
 import * as z from 'zod'
 
 // schema
-const keys = ['github_token', 'md_header', 'issue_number']
+const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit']
 
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
-    issue_number: z.string().optional()
+    issue_number: z.string().optional(),
+    recent_limit: z.string().optional()
 })
 
 export type Config = z.infer<typeof commonConfigSchema>
+
 /**
  * 将 action.yml 中的 input 入参转换为对象
  *

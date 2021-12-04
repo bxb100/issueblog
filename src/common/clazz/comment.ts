@@ -21,7 +21,7 @@ export class Comment implements IComment {
         return comments.map((c: IComment): Comment => new Comment(c))
     }
 
-    isHeartBySelf(util: IssuesUtil): Promise<boolean> {
+    isHeartBySelf(util: IssuesUtil<any>): Promise<boolean> {
         if (this._existHeartReaction()) {
             return util.isHeartBySelf(this)
         }

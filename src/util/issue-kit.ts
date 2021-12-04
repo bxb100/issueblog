@@ -7,16 +7,21 @@ import {Reaction} from '../common/interface/reaction'
 import {ReactionContent} from '../common/enum/reaction-content'
 import {Comment} from '../common/clazz/comment'
 import {Issue} from '../common/clazz/issue'
+import {Config} from './config'
 
-export class IssuesUtil {
+export class IssuesUtil<T> {
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
     readonly repo: string
+    readonly config: Config
+    result: T
 
-    constructor(token: string) {
-        this.client = getOctokit(token)
+    constructor(config: Config, initResult: T) {
+        this.config = config
+        this.client = getOctokit(config.github_token)
         this.owner = context.repo.owner
         this.repo = context.repo.repo
+        this.result = initResult
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
@@ -65,19 +70,18 @@ export class IssuesUtil {
         return Issue.cast(issueResult.data)
     }
 
-    async processIssues<T>(
+    async processIssues(
         page: Readonly<number> = 1,
-        result: T,
         ...functions: Function[]
     ): Promise<T> {
         const issues: Issue[] = await this.getIssues(page)
         if (issues.length <= 0) {
-            return result
+            return this.result
         }
         for (const f of functions) {
-            result = await f.call(this, issues, result)
+            await f.call(this, issues)
         }
         // Do the next page
-        return this.processIssues(page + 1, result, ...functions)
+        return this.processIssues(page + 1, ...functions)
     }
 }
