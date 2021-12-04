@@ -18,4 +18,5 @@ export interface IIssue {
     assignees?: IAssignee[] | null;
     comments: number;
     html_url: string;
+    body?: string | null;
 }

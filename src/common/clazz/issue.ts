@@ -21,6 +21,7 @@ export class Issue implements IIssue {
     readonly updated_at: IsoDateString
     readonly user: IUser | null
     readonly html_url: string
+    readonly body: string | null | undefined
 
     constructor(data: IIssue) {
         this.assignees = data.assignees
@@ -36,6 +37,7 @@ export class Issue implements IIssue {
         this.updated_at = data.updated_at
         this.user = data.user
         this.html_url = data.html_url
+        this.body = data.body
 
         // easy way get yyyy-MM-dd
         this.created_at_sub = this.created_at.substring(0, 10)
@@ -56,8 +58,13 @@ export class Issue implements IIssue {
         })
     }
 
+    // ignore
     isOwnBy(username: string): boolean {
         return this.user?.login === username
+    }
+
+    bodyToLines(): string[] {
+        return this.body?.split('\n').map(line => line.trim()) || []
     }
 
     mdIssueInfo() {

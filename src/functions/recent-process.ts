@@ -7,11 +7,9 @@ export async function add_md_recent(
     this: IssuesUtil<string>,
     issues: Issue[]
 ): Promise<void> {
-    let  limit = parseInt(this.config.recent_limit)
+    let limit = parseInt(this.config.recent_limit)
 
-    const recentIssues = issues
-        .filter(issue => issue.isOwnBy(this.owner))
-        .slice(0, limit)
+    const recentIssues = issues.slice(0, limit)
 
     this.result += RECENT_ISSUE_TITLE
     this.result += recentIssues.map(i => i.mdIssueInfo()).join('')

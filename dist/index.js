@@ -56,6 +56,7 @@ class Issue {
         this.updated_at = data.updated_at;
         this.user = data.user;
         this.html_url = data.html_url;
+        this.body = data.body;
         // easy way get yyyy-MM-dd
         this.created_at_sub = this.created_at.substring(0, 10);
     }
@@ -73,9 +74,14 @@ class Issue {
             return false;
         });
     }
+    // ignore
     isOwnBy(username) {
         var _a;
         return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.login) === username;
+    }
+    bodyToLines() {
+        var _a;
+        return ((_a = this.body) === null || _a === void 0 ? void 0 : _a.split('\n').map(line => line.trim())) || [];
     }
     mdIssueInfo() {
         return `- [${this.title}](${this.html_url})---${this.created_at_sub}\n`;
@@ -211,6 +217,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_label = void 0;
 const friend_process_1 = __nccwpck_require__(8556);
 const top_process_1 = __nccwpck_require__(2686);
+const todo_process_1 = __nccwpck_require__(269);
 const UN_LABEL_ISSUE_KEY = '无题';
 function add_md_label(issues) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -221,7 +228,7 @@ function add_md_label(issues) {
                     return l.name || UN_LABEL_ISSUE_KEY;
                 }
                 return l;
-            }).filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL && l !== top_process_1.TOP_ISSUE_LABEL);
+            }).filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL && l !== top_process_1.TOP_ISSUE_LABEL && l !== todo_process_1.TODO_ISSUE_LABEL);
             // ignore issue without label or
             // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
             labels.forEach(l => {
@@ -276,14 +283,66 @@ exports.RECENT_ISSUE_TITLE = '\n## 最近更新\n';
 function add_md_recent(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         let limit = parseInt(this.config.recent_limit);
-        const recentIssues = issues
-            .filter(issue => issue.isOwnBy(this.owner))
-            .slice(0, limit);
+        const recentIssues = issues.slice(0, limit);
         this.result += exports.RECENT_ISSUE_TITLE;
         this.result += recentIssues.map(i => i.mdIssueInfo()).join('');
     });
 }
 exports.add_md_recent = add_md_recent;
+
+
+/***/ }),
+
+/***/ 269:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_todo = exports.TODO_ISSUE_TITLE = exports.TODO_ISSUE_LABEL = void 0;
+exports.TODO_ISSUE_LABEL = 'Todo';
+exports.TODO_ISSUE_TITLE = '## TODO\n';
+function add_md_todo(issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const todoIssues = issues
+            .filter(issue => issue.containLabel(exports.TODO_ISSUE_LABEL));
+        if (todoIssues.length === 0) {
+            return;
+        }
+        this.result += exports.TODO_ISSUE_TITLE;
+        const { title, list } = parse(todoIssues[0]);
+        this.result += title;
+        for (let string of list) {
+            this.result += `${string}\n`;
+        }
+        this.result += '\n';
+    });
+}
+exports.add_md_todo = add_md_todo;
+function parse(issue) {
+    const lines = issue.bodyToLines();
+    const undone = lines.filter(line => line.startsWith('- [ ]'));
+    const done = lines.filter(line => line.startsWith('- [x]'));
+    if (undone.length === 0) {
+        return {
+            title: `[${issue.title}](${issue.html_url}) all done`,
+            list: []
+        };
+    }
+    return {
+        title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done`,
+        list: undone.concat(done)
+    };
+}
 
 
 /***/ }),
@@ -308,13 +367,13 @@ exports.TOP_ISSUE_LABEL = 'Top';
 exports.TOP_ISSUE_TITLE = '\n## 置顶文章\n';
 function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const selfTopIssues = issues
-            .filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL) && issue.isOwnBy(this.owner));
-        if (selfTopIssues.length <= 0) {
+        const topIssues = issues
+            .filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL));
+        if (topIssues.length <= 0) {
             return;
         }
         this.result += exports.TOP_ISSUE_TITLE;
-        this.result += selfTopIssues.map(i => i.mdIssueInfo()).join('');
+        this.result += topIssues.map(i => i.mdIssueInfo()).join('');
     });
 }
 exports.add_md_top = add_md_top;
@@ -366,6 +425,7 @@ const git_1 = __nccwpck_require__(7023);
 const top_process_1 = __nccwpck_require__(2686);
 const recent_process_1 = __nccwpck_require__(5688);
 const label_process_1 = __nccwpck_require__(4476);
+const todo_process_1 = __nccwpck_require__(269);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -384,7 +444,7 @@ function run() {
         // 2. 处理 issues
         core.startGroup('Process issues');
         const issuesUtil = new issue_kit_1.IssuesUtil(config, config.md_header);
-        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label);
+        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label, todo_process_1.add_md_todo);
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');

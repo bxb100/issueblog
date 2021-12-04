@@ -8,6 +8,7 @@ import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from '.
 import {add_md_top} from './functions/top-process'
 import {add_md_recent} from './functions/recent-process'
 import {add_md_label} from './functions/label-process'
+import {add_md_todo} from './functions/todo-process'
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')
@@ -29,7 +30,7 @@ async function run(): Promise<void> {
     core.startGroup('Process issues')
     const issuesUtil = new IssuesUtil(config, config.md_header)
     const text = await issuesUtil.processIssues(
-        add_md_friends, add_md_top, add_md_recent, add_md_label
+        add_md_friends, add_md_top, add_md_recent, add_md_label, add_md_todo
     )
     core.endGroup()
 

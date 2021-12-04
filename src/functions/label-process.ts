@@ -2,6 +2,7 @@ import {IssuesUtil} from '../util/issue-kit'
 import {Issue} from '../common/clazz/issue'
 import {FRIEND_ISSUE_LABEL} from './friend-process'
 import {TOP_ISSUE_LABEL} from './top-process'
+import {TODO_ISSUE_LABEL} from './todo-process'
 
 const UN_LABEL_ISSUE_KEY = '无题'
 
@@ -17,7 +18,7 @@ export async function add_md_label(
                 return l.name || UN_LABEL_ISSUE_KEY
             }
             return l
-        }).filter(l => l !== FRIEND_ISSUE_LABEL && l !== TOP_ISSUE_LABEL)
+        }).filter(l => l !== FRIEND_ISSUE_LABEL && l !== TOP_ISSUE_LABEL && l !== TODO_ISSUE_LABEL)
 
         // ignore issue without label or
         // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
