@@ -1,8 +1,7 @@
-import {exec, ExecOptions} from '@actions/exec'
+import {exec} from '@actions/exec'
 import {statSync} from 'fs'
 import path from 'path'
 import * as core from '@actions/core'
-import {string} from "zod";
 
 export type GitStatus = {
     flag: string
@@ -34,15 +33,15 @@ export async function gitStatus(): Promise<GitStatus[]> {
 
 async function getHeadSize(path: string): Promise<number | undefined> {
     let raw = ''
-    const exitcode = await exec('git', ['cat-file', '-s', `HEAD:${path}`], {
+    const exitCode = await exec('git', ['cat-file', '-s', `HEAD:${path}`], {
         listeners: {
             stdline: (data: string) => {
                 raw += data
             }
         }
     })
-    core.debug(`raw cat-file output: ${exitcode} '${raw}'`)
-    if (exitcode === 0) {
+    core.debug(`raw cat-file output: ${exitCode} '${raw}'`)
+    if (exitCode === 0) {
         return parseInt(raw, 10)
     }
 }
@@ -104,19 +103,19 @@ export async function diff(filename: string): Promise<number> {
     return await diffSize(status)
 }
 
-const lsFile = async (commandLine: string, args?: string[]): Promise<string[]> => {
-    let raw: string = ''
-    const options: ExecOptions = {}
-    options.listeners = {
-        stdout: (data: Buffer) => {
-            raw += data.toString();
+const lsFile = async (
+    commandLine: string,
+    args?: string[]
+): Promise<string[]> => {
+    let raw: string[] = []
+    await exec(commandLine, args, {
+        listeners: {
+            stdline: (data: string) => {
+                raw.push(data.trim())
+            }
         }
-    }
-    await exec(commandLine, args, options)
-    return raw
-        .split('\n')
-        .filter(l => l != '')
-        .map(l => l.trim())
+    })
+    return raw.filter(l => l != '')
 }
 
 export async function getUnstagedFiles(): Promise<string[]> {

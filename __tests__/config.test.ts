@@ -1,6 +1,6 @@
-import {getConfig} from '../src/config'
+import {getConfig} from '../src/util/config'
 import * as core from '@actions/core'
-import {ZodError} from "zod";
+import {ZodError} from 'zod'
 
 jest.mock('@actions/core')
 const coreMock = jest.spyOn(core, 'getInput')
@@ -28,14 +28,14 @@ test('basic get config', () => {
     expect(getConfig().issue_number).toEqual('1')
 })
 
-test('not empty check', ()=> {
+test('not empty check', () => {
     const config = {}
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])
     expect(() => getConfig()).toThrow(ZodError)
 })
 
-test('not empty check2', ()=> {
+test('not empty check2', () => {
     const config = {md_header: '', github_token: ''}
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])

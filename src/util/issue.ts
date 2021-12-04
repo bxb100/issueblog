@@ -1,10 +1,11 @@
-import {context, getOctokit} from "@actions/github"
-import {GitHub} from "@actions/github/lib/utils";
-import * as core from "@actions/core";
-import {IIssue} from "../common/interface/issue";
-import {IComment} from "../common/interface/comment";
-import {Reaction} from "../common/interface/reaction";
-import {ReactionContent} from "../common/enum/reaction-content";
+import {context, getOctokit} from '@actions/github'
+import {GitHub} from '@actions/github/lib/utils'
+import * as core from '@actions/core'
+import {IIssue} from '../common/interface/issue'
+import {IComment} from '../common/interface/comment'
+import {Reaction} from '../common/interface/reaction'
+import {ReactionContent} from '../common/enum/reaction-content'
+import {Comment} from '../common/clazz/comment'
 
 export class IssuesUtil {
     readonly client: InstanceType<typeof GitHub>
@@ -18,56 +19,65 @@ export class IssuesUtil {
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
-        const reactions = await this.getCommentReactions(comment, ReactionContent.HEART);
+        const reactions = await this.getCommentReactions(
+            comment,
+            ReactionContent.HEART
+        )
         core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
-        return reactions.filter(r => r.user?.login === this.owner).length > 0
+        return !!reactions.find(r => r.user?.login === this.owner)
     }
 
-    async getCommentReactions(comment: IComment, content?: ReactionContent): Promise<Reaction[]> {
-        const reactions = await this.client.reactions.listForIssueComment({
+    async getCommentReactions(
+        comment: IComment,
+        content?: ReactionContent
+    ): Promise<Reaction[]> {
+        const reactions = await this.client.rest.reactions.listForIssueComment({
             owner: this.owner,
             repo: this.repo,
             comment_id: comment.id,
             content: content
-        });
+        })
         core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
-        return reactions.data;
+        return reactions.data
     }
 
-    async getIssueComments(issue: IIssue): Promise<IComment[]> {
-        const comments = await this.client.issues.listComments({
+    async getIssueComments(issue: IIssue): Promise<Comment[]> {
+        const comments = await this.client.rest.issues.listComments({
             owner: this.owner,
             repo: this.repo,
             issue_number: issue.number
         })
         core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`)
-        return comments.data;
+        return Comment.cast(comments.data)
     }
 
     async getIssues(page: number): Promise<IIssue[]> {
-        const issueResult =
-            await this.client.issues.listForRepo({
-                owner: this.owner,
-                repo: this.repo,
-                state: 'open',
-                creator: this.owner,
-                per_page: 100,
-                direction: 'desc',
-                page
-            });
+        const issueResult = await this.client.rest.issues.listForRepo({
+            owner: this.owner,
+            repo: this.repo,
+            state: 'open',
+            creator: this.owner,
+            per_page: 100,
+            direction: 'desc',
+            page
+        })
         core.debug(`issueResult:\n\n${JSON.stringify(issueResult)}\n\n`)
-        return issueResult.data;
+        return issueResult.data
     }
 
-    async processIssues<T>(page: Readonly<number> = 1, result: T, ...functions: Function[]): Promise<T> {
-        const issues: IIssue[] = await this.getIssues(page);
+    async processIssues<T>(
+        page: Readonly<number> = 1,
+        result: T,
+        ...functions: Function[]
+    ): Promise<T> {
+        const issues: IIssue[] = await this.getIssues(page)
         if (issues.length <= 0) {
-            return result;
+            return result
         }
         functions.forEach(f => {
-            result = f.call(this, issues, result);
-        });
+            result = f.call(this, issues, result)
+        })
         // Do the next page
-        return this.processIssues(page + 1, result, ...functions);
+        return this.processIssues(page + 1, result, ...functions)
     }
 }

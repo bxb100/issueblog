@@ -1,6 +1,6 @@
-import {IUser} from "./user";
+import {IUser} from './user'
 
 export interface Reaction {
-    user: IUser | null;
-    content: string;
+    user: IUser | null
+    content: string
 }
