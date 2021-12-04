@@ -4,7 +4,7 @@ import {exec} from '@actions/exec'
 import {IssuesUtil} from './util/issue-kit'
 import {add_md_friends} from './functions/friend-process'
 import * as fs from 'fs'
-import {diff, getModifiedUnstagedFiles, getUnstagedFiles} from './util/git'
+import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from './util/git'
 import {add_md_top} from './functions/top-process'
 
 async function run(): Promise<void> {
@@ -48,11 +48,14 @@ async function run(): Promise<void> {
     // 5. 计算是否有修改
     core.startGroup('Calculate diff')
     const editedFiles = []
+    const submodules = await submodulePath()
     for (const filename of editedFilenames) {
         core.debug(`git adding ${filename}…`)
         await exec('git', ['add', filename])
-        const bytes = await diff(filename)
-
+        let bytes = -1
+        if (!submodules.includes(filename)) {
+            bytes = await diff(filename)
+        }
         editedFiles.push({name: filename, deltaBytes: bytes})
     }
     core.endGroup()

@@ -125,3 +125,17 @@ export async function getUnstagedFiles(): Promise<string[]> {
 export async function getModifiedUnstagedFiles(): Promise<string[]> {
     return lsFile('git', ['ls-files', '-m'])
 }
+
+export async function submodulePath(): Promise<string[]> {
+    let raw: string[] = []
+    await exec('git', ['ls-files', '-s'], {
+        listeners: {
+            stdline: (data: string) => {
+                if (data.trim().startsWith('160000 ')) {
+                    raw.push(data.trim().split(' ')[3])
+                }
+            }
+        }
+    })
+    return raw
+}

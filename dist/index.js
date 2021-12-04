@@ -308,10 +308,14 @@ function run() {
         // 5. 计算是否有修改
         core.startGroup('Calculate diff');
         const editedFiles = [];
+        const submodules = yield (0, git_1.submodulePath)();
         for (const filename of editedFilenames) {
             core.debug(`git adding ${filename}…`);
             yield (0, exec_1.exec)('git', ['add', filename]);
-            const bytes = yield (0, git_1.diff)(filename);
+            let bytes = -1;
+            if (!submodules.includes(filename)) {
+                bytes = yield (0, git_1.diff)(filename);
+            }
             editedFiles.push({ name: filename, deltaBytes: bytes });
         }
         core.endGroup();
@@ -425,7 +429,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getModifiedUnstagedFiles = exports.getUnstagedFiles = exports.diff = exports.gitStatus = void 0;
+exports.submodulePath = exports.getModifiedUnstagedFiles = exports.getUnstagedFiles = exports.diff = exports.gitStatus = void 0;
 const exec_1 = __nccwpck_require__(1514);
 const fs_1 = __nccwpck_require__(7147);
 const path_1 = __importDefault(__nccwpck_require__(1017));
@@ -537,6 +541,22 @@ function getModifiedUnstagedFiles() {
     });
 }
 exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
+function submodulePath() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let raw = [];
+        yield (0, exec_1.exec)('git', ['ls-files', '-s'], {
+            listeners: {
+                stdline: (data) => {
+                    if (data.trim().startsWith('160000 ')) {
+                        raw.push(data.trim().split(' ')[3]);
+                    }
+                }
+            }
+        });
+        return raw;
+    });
+}
+exports.submodulePath = submodulePath;
 
 
 /***/ }),
