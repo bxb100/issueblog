@@ -11,7 +11,6 @@ export async function add_md_label(
 ): Promise<void> {
 
     const bucket: {[k: string]: Issue[]} = {}
-    bucket[UN_LABEL_ISSUE_KEY] = []
     issues.forEach(i => {
         const labels = i.labels.map(l => {
             if (typeof l === 'object') {
@@ -20,16 +19,14 @@ export async function add_md_label(
             return l
         }).filter(l => l !== FRIEND_ISSUE_LABEL && l !== TOP_ISSUE_LABEL)
 
-        if (labels.length === 0) {
-            bucket[UN_LABEL_ISSUE_KEY].push(i)
-        } else {
-            labels.forEach(l => {
-                if (!bucket[l]) {
-                    bucket[l] = []
-                }
-                bucket[l].push(i)
-            })
-        }
+        // ignore issue without label or
+        // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
+        labels.forEach(l => {
+            if (!bucket[l]) {
+                bucket[l] = []
+            }
+            bucket[l].push(i)
+        })
     })
     const anchorNumber: number = parseInt(this.config.anchor_number)
 

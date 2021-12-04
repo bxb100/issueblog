@@ -215,7 +215,6 @@ const UN_LABEL_ISSUE_KEY = '无题';
 function add_md_label(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const bucket = {};
-        bucket[UN_LABEL_ISSUE_KEY] = [];
         issues.forEach(i => {
             const labels = i.labels.map(l => {
                 if (typeof l === 'object') {
@@ -223,17 +222,14 @@ function add_md_label(issues) {
                 }
                 return l;
             }).filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL && l !== top_process_1.TOP_ISSUE_LABEL);
-            if (labels.length === 0) {
-                bucket[UN_LABEL_ISSUE_KEY].push(i);
-            }
-            else {
-                labels.forEach(l => {
-                    if (!bucket[l]) {
-                        bucket[l] = [];
-                    }
-                    bucket[l].push(i);
-                });
-            }
+            // ignore issue without label or
+            // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
+            labels.forEach(l => {
+                if (!bucket[l]) {
+                    bucket[l] = [];
+                }
+                bucket[l].push(i);
+            });
         });
         const anchorNumber = parseInt(this.config.anchor_number);
         for (const key of Object.keys(bucket).sort()) {
