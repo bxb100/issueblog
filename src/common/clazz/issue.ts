@@ -56,15 +56,6 @@ export class Issue implements IIssue {
         })
     }
 
-    notContainLabels(...labels: string[]): boolean {
-        for (let label of labels) {
-            if (this.containLabel(label)) {
-                return false
-            }
-        }
-        return true
-    }
-
     isOwnBy(username: string): boolean {
         return this.user?.login === username
     }

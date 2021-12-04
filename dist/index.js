@@ -73,14 +73,6 @@ class Issue {
             return false;
         });
     }
-    notContainLabels(...labels) {
-        for (let label of labels) {
-            if (this.containLabel(label)) {
-                return false;
-            }
-        }
-        return true;
-    }
     isOwnBy(username) {
         var _a;
         return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.login) === username;
@@ -222,28 +214,26 @@ const top_process_1 = __nccwpck_require__(2686);
 const UN_LABEL_ISSUE_KEY = '无题';
 function add_md_label(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const otherIssues = issues
-            .filter(issues => issues.notContainLabels(friend_process_1.FRIEND_ISSUE_LABEL, top_process_1.TOP_ISSUE_LABEL));
         const bucket = {};
         bucket[UN_LABEL_ISSUE_KEY] = [];
-        otherIssues.forEach(i => {
+        issues.forEach(i => {
             const labels = i.labels.map(l => {
                 if (typeof l === 'object') {
-                    return l.name;
+                    return l.name || UN_LABEL_ISSUE_KEY;
                 }
                 return l;
-            }) || [];
-            labels.forEach(l => {
-                if (l === undefined) {
-                    bucket[UN_LABEL_ISSUE_KEY].push(i);
-                }
-                else {
-                    if (bucket[l] === undefined) {
+            }).filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL && l !== top_process_1.TOP_ISSUE_LABEL);
+            if (labels.length === 0) {
+                bucket[UN_LABEL_ISSUE_KEY].push(i);
+            }
+            else {
+                labels.forEach(l => {
+                    if (!bucket[l]) {
                         bucket[l] = [];
                     }
                     bucket[l].push(i);
-                }
-            });
+                });
+            }
         });
         const anchorNumber = parseInt(this.config.anchor_number);
         for (const key of Object.keys(bucket).sort()) {

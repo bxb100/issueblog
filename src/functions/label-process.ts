@@ -10,29 +10,26 @@ export async function add_md_label(
     issues: Issue[]
 ): Promise<void> {
 
-    const otherIssues = issues
-        .filter(issues => issues.notContainLabels(FRIEND_ISSUE_LABEL, TOP_ISSUE_LABEL))
-
     const bucket: {[k: string]: Issue[]} = {}
     bucket[UN_LABEL_ISSUE_KEY] = []
-    otherIssues.forEach(i => {
+    issues.forEach(i => {
         const labels = i.labels.map(l => {
             if (typeof l === 'object') {
-                return l.name
+                return l.name || UN_LABEL_ISSUE_KEY
             }
             return l
-        }) || []
+        }).filter(l => l !== FRIEND_ISSUE_LABEL && l !== TOP_ISSUE_LABEL)
 
-        labels.forEach(l => {
-            if (l === undefined) {
-                bucket[UN_LABEL_ISSUE_KEY].push(i)
-            } else {
-                if (bucket[l] === undefined) {
+        if (labels.length === 0) {
+            bucket[UN_LABEL_ISSUE_KEY].push(i)
+        } else {
+            labels.forEach(l => {
+                if (!bucket[l]) {
                     bucket[l] = []
                 }
                 bucket[l].push(i)
-            }
-        })
+            })
+        }
     })
     const anchorNumber: number = parseInt(this.config.anchor_number)
 
