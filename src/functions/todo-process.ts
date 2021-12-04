@@ -20,7 +20,7 @@ export async function add_md_todo(
 
     for (let todoIssue of todoIssues) {
         const {title, list} = parse(todoIssue)
-        this.result += title
+        this.result += `TODO list from ${title}\n`
         for (let string of list) {
             this.result += `${string}\n`
         }
@@ -35,13 +35,13 @@ function parse(issue: Issue): {title: string, list: string[]} {
 
     if (undone.length === 0) {
         return {
-            title: `[${issue.title}](${issue.html_url}) all done\n`,
+            title: `[${issue.title}](${issue.html_url}) all done`,
             list: []
         }
     }
 
     return {
-        title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done\n`,
+        title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done`,
         list: undone.concat(done)
     }
 }
