@@ -21,7 +21,7 @@ export async function add_md_label(
                 return l.name
             }
             return l
-        })
+        }) || []
 
         labels.forEach(l => {
             if (l === undefined) {

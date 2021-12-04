@@ -232,7 +232,7 @@ function add_md_label(issues) {
                     return l.name;
                 }
                 return l;
-            });
+            }) || [];
             labels.forEach(l => {
                 if (l === undefined) {
                     bucket[UN_LABEL_ISSUE_KEY].push(i);
