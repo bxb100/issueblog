@@ -5,7 +5,7 @@ const run = async () => {
     core.startGroup('Post cleanup script')
 
     if (process.env.HAS_RUN_POST_JOB) {
-        core.info('Files already committed')
+        core.notice('Files already committed')
         core.endGroup()
         return
     }
@@ -24,7 +24,11 @@ const run = async () => {
     const msg = `Refresh README AND BACK UP (${date})`
 
     // Don't want to commit if there aren't any files changed!
-    if (!files.length) return
+    if (!files.length) {
+        core.notice('No files changed')
+        core.endGroup()
+        return
+    }
 
     // these should already be staged, in main.ts
     core.info(`Committing "${msg}"`)

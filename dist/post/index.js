@@ -40,7 +40,7 @@ const exec_1 = __nccwpck_require__(514);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     core.startGroup('Post cleanup script');
     if (process.env.HAS_RUN_POST_JOB) {
-        core.info('Files already committed');
+        core.notice('Files already committed');
         core.endGroup();
         return;
     }
@@ -52,8 +52,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     }, undefined, 2);
     const msg = `Refresh README AND BACK UP (${date})`;
     // Don't want to commit if there aren't any files changed!
-    if (!files.length)
+    if (!files.length) {
+        core.notice('No files changed');
+        core.endGroup();
         return;
+    }
     // these should already be staged, in main.ts
     core.info(`Committing "${msg}"`);
     core.debug(meta);
