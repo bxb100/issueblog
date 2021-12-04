@@ -74,9 +74,9 @@ export class IssuesUtil {
         if (issues.length <= 0) {
             return result
         }
-        functions.forEach(f => {
-            result = f.call(this, issues, result)
-        })
+        for (const f of functions) {
+            result = await f.call(this, issues, result)
+        }
         // Do the next page
         return this.processIssues(page + 1, result, ...functions)
     }
