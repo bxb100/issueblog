@@ -8,6 +8,7 @@ import {ReactionContent} from '../enum/reaction-content'
 import {Comment} from './comment'
 import {Issue} from './issue'
 import {Config} from '../../util/config'
+import {ProcessFunction} from "../types/process-function";
 
 export class IssuesKit<T> {
 
@@ -51,7 +52,8 @@ export class IssuesKit<T> {
         const comments = await this.client.rest.issues.listComments({
             owner: this.owner,
             repo: this.repo,
-            issue_number: issue.number
+            issue_number: issue.number,
+            per_page: 100
         })
         core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`)
         return Comment.cast(comments.data)
@@ -85,7 +87,7 @@ export class IssuesKit<T> {
         return issues
     }
 
-    async processIssues(...functions: Function[]): Promise<T> {
+    async processIssues(...functions: ProcessFunction<T>[]): Promise<T> {
         const issues: Issue[] = await this.getAllIssues()
         for (const f of functions) {
             try {

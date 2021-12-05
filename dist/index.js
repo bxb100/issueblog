@@ -26,7 +26,7 @@ class Comment {
     }
     _existHeartReaction() {
         var _a;
-        return ((_a = this.reactions) === null || _a === void 0 ? void 0 : _a.heart) === 1;
+        return (((_a = this.reactions) === null || _a === void 0 ? void 0 : _a.heart) || 0) >= 1;
     }
 }
 exports.Comment = Comment;
@@ -105,7 +105,8 @@ class IssuesKit {
             const comments = yield this.client.rest.issues.listComments({
                 owner: this.owner,
                 repo: this.repo,
-                issue_number: issue.number
+                issue_number: issue.number,
+                per_page: 100
             });
             core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`);
             return comment_1.Comment.cast(comments.data);
@@ -231,6 +232,123 @@ var ReactionContent;
     ReactionContent["ROCKET"] = "rocket";
     ReactionContent["EYES"] = "eyes";
 })(ReactionContent = exports.ReactionContent || (exports.ReactionContent = {}));
+
+
+/***/ }),
+
+/***/ 6252:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.compareUpdateTime = void 0;
+function compareUpdateTime(a, b) {
+    return new Date(a.updatedAt).getTime() - Date.parse(b);
+}
+exports.compareUpdateTime = compareUpdateTime;
+
+
+/***/ }),
+
+/***/ 6169:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.backup = void 0;
+const fs = __importStar(__nccwpck_require__(7147));
+const metadata_1 = __nccwpck_require__(6252);
+const util_1 = __nccwpck_require__(7657);
+const core = __importStar(__nccwpck_require__(2186));
+const BACKUP_PATH = './backup/';
+const METADATA_NAME = '.metadata';
+const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
+function backup(issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // make sure backup directory exists
+        fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH);
+        // make sure metadata file exists
+        fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '');
+        // read metadata
+        const metadata = fs.readFileSync(METADATA_PATH, 'utf8');
+        let parse = JSON.parse(metadata);
+        // filter need backup issues
+        const needBackupIssues = [];
+        for (const issue of issues) {
+            if (parse[issue.number]) {
+                if ((0, metadata_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
+                    needBackupIssues.push(issue);
+                }
+            }
+            else {
+                needBackupIssues.push(issue);
+            }
+        }
+        // backup issue
+        const flatMap = needBackupIssues.flatMap(issue => saveIssue(this, issue));
+        yield Promise.all(flatMap);
+        // update metadata
+        parse = needBackupIssues.reduce((acc, issue) => {
+            acc[issue.number] = {
+                name: (0, util_1.backupFileName)(issue),
+                createdAt: issue.created_at,
+                updatedAt: issue.updated_at
+            };
+            return acc;
+        }, parse);
+        core.debug(`backup metadata: ${JSON.stringify(parse)}`);
+        // write metadata
+        fs.writeFileSync(METADATA_PATH, JSON.stringify(parse));
+    });
+}
+exports.backup = backup;
+function saveIssue(kit, issue) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const backupPath = BACKUP_PATH + (0, util_1.backupFileName)(issue);
+        let content = `[${issue.title}](${issue.html_url})\n\n`;
+        content += issue.body;
+        if (issue.comments > 0) {
+            // just focus on the first hundred comments
+            const comments = yield kit.getIssueComments(issue)
+                .then(comments => comments.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
+            for (const comment of comments) {
+                content += `\n\n---\n\n`;
+                content += comment.body;
+            }
+        }
+        fs.writeFileSync(backupPath, content);
+    });
+}
 
 
 /***/ }),
@@ -540,6 +658,7 @@ const top_process_1 = __nccwpck_require__(2686);
 const recent_process_1 = __nccwpck_require__(5688);
 const label_process_1 = __nccwpck_require__(4476);
 const todo_process_1 = __nccwpck_require__(269);
+const backup_1 = __nccwpck_require__(6169);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -558,13 +677,10 @@ function run() {
         // 2. 处理 issues
         core.startGroup('Process issues');
         const issuesUtil = new issue_kit_1.IssuesKit(config, config.md_header);
-        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label, todo_process_1.add_md_todo);
-        core.endGroup();
-        // 3. 处理需要修改或新增的文件
-        core.startGroup('Modify or create file');
+        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label, todo_process_1.add_md_todo, backup_1.backup);
         fs.writeFileSync('README.md', text);
         core.endGroup();
-        // 4. 暂存需要提交的文件
+        // 3. 暂存需要提交的文件
         core.startGroup('Monitor file changes');
         const newUnstagedFiles = yield (0, git_1.getUnstagedFiles)();
         const modifiedUnstagedFiles = yield (0, git_1.getModifiedUnstagedFiles)();
@@ -573,7 +689,7 @@ function run() {
         core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`);
         core.info(`editedFilenames: \n${editedFilenames}`);
         core.endGroup();
-        // 5. 计算是否有修改
+        // 4. 计算是否有修改
         core.startGroup('Calculate diff');
         const editedFiles = [];
         const submodules = yield (0, git_1.submodulePath)();
@@ -590,7 +706,7 @@ function run() {
             }
         }
         core.endGroup();
-        // 6. 存储变更文件等待 POST 提交
+        // 5. 存储变更文件等待 POST 提交
         core.startGroup('Committing with metadata');
         const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]');
         const files = [...alreadyEditedFiles, ...editedFiles];
@@ -847,7 +963,7 @@ exports.submodulePath = submodulePath;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wrapDetails = exports.isOwnBy = void 0;
+exports.backupFileName = exports.wrapDetails = exports.isOwnBy = void 0;
 function isOwnBy(obj, username) {
     var _a;
     return ((_a = obj.user) === null || _a === void 0 ? void 0 : _a.login) === username;
@@ -869,6 +985,10 @@ function wrapDetails(shows, hides, wrapper) {
     return result;
 }
 exports.wrapDetails = wrapDetails;
+function backupFileName(issue) {
+    return `${issue.number}-${issue.title.replace(' ', '.')}.md`;
+}
+exports.backupFileName = backupFileName;
 
 
 /***/ }),

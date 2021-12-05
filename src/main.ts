@@ -9,6 +9,7 @@ import {add_md_top} from './functions/top-process'
 import {add_md_recent} from './functions/recent-process'
 import {add_md_label} from './functions/label-process'
 import {add_md_todo} from './functions/todo-process'
+import {backup} from "./functions/backup";
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')
@@ -28,18 +29,15 @@ async function run(): Promise<void> {
 
     // 2. 处理 issues
     core.startGroup('Process issues')
-    const issuesUtil = new IssuesKit(config, config.md_header)
-    const text = await issuesUtil.processIssues(
-        add_md_friends, add_md_top, add_md_recent, add_md_label, add_md_todo
+    const issuesUtil: IssuesKit<string> = new IssuesKit(config, config.md_header)
+    const text: string = await issuesUtil.processIssues(
+        add_md_friends, add_md_top, add_md_recent, add_md_label, add_md_todo,
+        backup,
     )
-    core.endGroup()
-
-    // 3. 处理需要修改或新增的文件
-    core.startGroup('Modify or create file')
     fs.writeFileSync('README.md', text)
     core.endGroup()
 
-    // 4. 暂存需要提交的文件
+    // 3. 暂存需要提交的文件
     core.startGroup('Monitor file changes')
     const newUnstagedFiles = await getUnstagedFiles()
     const modifiedUnstagedFiles = await getModifiedUnstagedFiles()
@@ -49,7 +47,7 @@ async function run(): Promise<void> {
     core.info(`editedFilenames: \n${editedFilenames}`)
     core.endGroup()
 
-    // 5. 计算是否有修改
+    // 4. 计算是否有修改
     core.startGroup('Calculate diff')
     const editedFiles = []
     const submodules = await submodulePath()
@@ -66,7 +64,7 @@ async function run(): Promise<void> {
     }
     core.endGroup()
 
-    // 6. 存储变更文件等待 POST 提交
+    // 5. 存储变更文件等待 POST 提交
     core.startGroup('Committing with metadata')
     const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]')
     const files = [...alreadyEditedFiles, ...editedFiles]

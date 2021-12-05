@@ -2,11 +2,7 @@ import {exec} from '@actions/exec'
 import {statSync} from 'fs'
 import path from 'path'
 import * as core from '@actions/core'
-
-export type GitStatus = {
-    flag: string
-    path: string
-}
+import {GitStatus} from "../common/types/git-status";
 
 export async function gitStatus(): Promise<GitStatus[]> {
     core.debug('Getting gitStatus()')

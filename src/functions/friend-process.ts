@@ -17,13 +17,12 @@ import {Config} from "../util/config";
 // -----------------------------------------------------------------------------
 
 export const FRIEND_ISSUE_LABEL = 'Friends'
-const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) =>
-    `| ${name} | ${link} | ${desc} |\n`
+const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) => `| ${name} | ${link} | ${desc} |\n`
 export const FRIENDS_TABLE_TITLE = (config: Config) => `\n## ${config.links_title}\n`
 export const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
 function _makeFriendTableString(comment: IComment): string {
-    const dict: {[k: string]: string} = {}
+    const dict: { [k: string]: string } = {}
     comment.body
         ?.split('\n')
         .filter(line => line.trim() !== '')

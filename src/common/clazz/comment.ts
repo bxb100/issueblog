@@ -29,6 +29,6 @@ export class Comment implements IComment {
     }
 
     private _existHeartReaction(): boolean {
-        return this.reactions?.heart === 1
+        return (this.reactions?.heart || 0) >= 1
     }
 }
