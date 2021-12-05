@@ -25,6 +25,7 @@ async function run(): Promise<void> {
         'user.email',
         'github-actions[bot]@users.noreply.github.com'
     ])
+    await exec('git', ['config', 'core.quotePath', 'false'])
     core.endGroup()
 
     // 2. 处理 issues

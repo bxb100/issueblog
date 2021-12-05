@@ -673,6 +673,7 @@ function run() {
             'user.email',
             'github-actions[bot]@users.noreply.github.com'
         ]);
+        yield (0, exec_1.exec)('git', ['config', 'core.quotePath', 'false']);
         core.endGroup();
         // 2. 处理 issues
         core.startGroup('Process issues');
