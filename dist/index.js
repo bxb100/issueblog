@@ -306,6 +306,7 @@ function backup(issues) {
         const needBackupIssues = [];
         for (const issue of issues) {
             if (parse[issue.number]) {
+                // don't use event trigger issue_number, may be the action is concurrency
                 if ((0, metadata_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
                     needBackupIssues.push(issue);
                 }
@@ -315,8 +316,7 @@ function backup(issues) {
             }
         }
         // backup issue
-        const flatMap = needBackupIssues.flatMap(issue => saveIssue(this, issue));
-        yield Promise.all(flatMap);
+        yield Promise.all(needBackupIssues.flatMap(issue => saveIssue(this, issue, parse[issue.number])));
         // update metadata
         parse = needBackupIssues.reduce((acc, issue) => {
             acc[issue.number] = {
@@ -332,9 +332,15 @@ function backup(issues) {
     });
 }
 exports.backup = backup;
-function saveIssue(kit, issue) {
+function saveIssue(kit, issue, info) {
     return __awaiter(this, void 0, void 0, function* () {
-        const backupPath = BACKUP_PATH + (0, util_1.backupFileName)(issue);
+        const fileName = (0, util_1.backupFileName)(issue);
+        if (fileName !== info.name) {
+            // change the issue title
+            // remove the old file
+            fs.unlinkSync(BACKUP_PATH + info.name);
+        }
+        const backupPath = BACKUP_PATH + fileName;
         let content = `[${issue.title}](${issue.html_url})\n\n`;
         content += issue.body || "No description provided.";
         if (issue.comments > 0) {

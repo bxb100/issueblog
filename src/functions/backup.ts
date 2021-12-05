@@ -1,7 +1,7 @@
 import {IssuesKit} from "../common/clazz/issue-kit";
 import {Issue} from "../common/clazz/issue";
 import * as fs from 'fs';
-import {compareUpdateTime, Metadata} from "../common/types/metadata";
+import {compareUpdateTime, Metadata, MetadataInfo} from "../common/types/metadata";
 import {backupFileName, isOwnBy} from "../util/util";
 import {Comment} from "../common/clazz/comment";
 import * as core from '@actions/core';
@@ -26,6 +26,7 @@ export async function backup(
     const needBackupIssues: Issue[] = []
     for (const issue of issues) {
         if (parse[issue.number]) {
+            // don't use event trigger issue_number, may be the action is concurrency
             if (compareUpdateTime(parse[issue.number], issue.updated_at) < 0) {
                 needBackupIssues.push(issue);
             }
@@ -35,8 +36,7 @@ export async function backup(
     }
 
     // backup issue
-    const flatMap: Promise<void>[] = needBackupIssues.flatMap(issue => saveIssue(this, issue));
-    await Promise.all(flatMap);
+    await Promise.all(needBackupIssues.flatMap(issue => saveIssue(this, issue, parse[issue.number])));
     // update metadata
     parse = needBackupIssues.reduce((acc, issue) => {
         acc[issue.number] = {
@@ -51,8 +51,14 @@ export async function backup(
     fs.writeFileSync(METADATA_PATH, JSON.stringify(parse));
 }
 
-async function saveIssue(kit: IssuesKit<any>, issue: Issue): Promise<void> {
-    const backupPath = BACKUP_PATH + backupFileName(issue);
+async function saveIssue(kit: IssuesKit<any>, issue: Issue, info: MetadataInfo): Promise<void> {
+    const fileName = backupFileName(issue);
+    if (fileName !== info.name) {
+        // change the issue title
+        // remove the old file
+        fs.unlinkSync(BACKUP_PATH + info.name);
+    }
+    const backupPath = BACKUP_PATH + fileName;
     let content: string = `[${issue.title}](${issue.html_url})\n\n`;
     content += issue.body || "No description provided."
     if (issue.comments > 0) {
