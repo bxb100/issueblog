@@ -22,6 +22,22 @@ inputs:
     description: The number of issues to display
     required: false
     default: '5'
+  links_title:
+    description: The title of the links section
+    required: false
+    default: 'Links'
+  recent_title:
+    description: The title of the recent issues group
+    required: false
+    default: 'Recent'
+  top_title:
+    description: The title of the top issues group
+    required: false
+    default: 'Top'
+  unlabeled_title:
+    description: The title of the unlabeled issues group
+    required: false
+    default: 'Reverie'
 runs:
   using: 'node12'
   main: 'dist/index.js'

@@ -283,7 +283,8 @@ const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 exports.FRIEND_ISSUE_LABEL = 'Friends';
 const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
-exports.FRIENDS_TABLE_TITLE = '\n## 友情链接\n';
+const FRIENDS_TABLE_TITLE = (config) => `\n## ${config.links_title}\n`;
+exports.FRIENDS_TABLE_TITLE = FRIENDS_TABLE_TITLE;
 exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
 function _makeFriendTableString(comment) {
     var _a;
@@ -310,7 +311,7 @@ function add_md_friends(issues) {
                 .then(approved => approved.map(_makeFriendTableString)));
         }
         const stringArray = yield Promise.all(all).then(arr => arr.flat());
-        this.result += exports.FRIENDS_TABLE_TITLE;
+        this.result += (0, exports.FRIENDS_TABLE_TITLE)(this.config);
         this.result += exports.FRIENDS_TABLE_HEAD;
         this.result += stringArray.join('');
         core.debug(`add_md_friends:\n\n${this.result}\n\n`);
@@ -390,12 +391,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_recent = exports.RECENT_ISSUE_TITLE = void 0;
-exports.RECENT_ISSUE_TITLE = '\n## 最近更新\n';
+const RECENT_ISSUE_TITLE = (config) => `\n## ${config.recent_title}\n`;
+exports.RECENT_ISSUE_TITLE = RECENT_ISSUE_TITLE;
 function add_md_recent(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         let limit = parseInt(this.config.recent_limit);
         const recentIssues = issues.slice(0, limit);
-        this.result += exports.RECENT_ISSUE_TITLE;
+        this.result += (0, exports.RECENT_ISSUE_TITLE)(this.config);
         this.result += recentIssues.map(i => i.mdIssueInfo()).join('');
     });
 }
@@ -475,7 +477,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_top = exports.TOP_ISSUE_TITLE = exports.TOP_ISSUE_LABEL = void 0;
 exports.TOP_ISSUE_LABEL = 'Top';
-exports.TOP_ISSUE_TITLE = '\n## 置顶文章\n';
+const TOP_ISSUE_TITLE = (config) => `\n## ${config.top_title}\n`;
+exports.TOP_ISSUE_TITLE = TOP_ISSUE_TITLE;
 function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const topIssues = issues
@@ -483,7 +486,7 @@ function add_md_top(issues) {
         if (topIssues.length <= 0) {
             return;
         }
-        this.result += exports.TOP_ISSUE_TITLE;
+        this.result += (0, exports.TOP_ISSUE_TITLE)(this.config);
         this.result += topIssues.map(i => i.mdIssueInfo()).join('');
     });
 }
@@ -633,13 +636,20 @@ exports.getConfig = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const z = __importStar(__nccwpck_require__(3301));
 // schema
-const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number'];
+const keys = [
+    'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
+    'links_title', 'recent_title', 'top_title', 'unlabeled_title'
+];
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
     issue_number: z.string().optional(),
     recent_limit: z.string().default('5'),
-    anchor_number: z.string().default('5')
+    anchor_number: z.string().default('5'),
+    links_title: z.string(),
+    recent_title: z.string(),
+    top_title: z.string(),
+    unlabeled_title: z.string()
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象

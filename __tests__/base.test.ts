@@ -10,9 +10,10 @@ Object.defineProperty(context, 'repo', {
 })
 
 export const utils = new IssuesKit<string>({
+    links_title: "", recent_title: "", top_title: "", unlabeled_title: "",
     github_token: '123',
     md_header: '',
-    anchor_number: '', recent_limit: '',
+    anchor_number: '', recent_limit: ''
 }, '')
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const isHeartBySelfMock = jest.spyOn(utils, 'isHeartBySelf')

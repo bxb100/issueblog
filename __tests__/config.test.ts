@@ -5,15 +5,23 @@ import {ZodError} from 'zod'
 jest.mock('@actions/core')
 const coreMock = jest.spyOn(core, 'getInput')
 
+const base_config = {
+    md_header:
+        '## GitLog\n' +
+        'My personal blog using issues and GitHub Actions\n' +
+        '[RSS Feed](https://raw.githubusercontent.com/bxb100/gitlog/master/feed.xml)',
+    github_token: '1234567',
+    issue_number: '1',
+    recent_limit: 'recent_limit',
+    anchor_number: 'anchor_number',
+    links_title: 'links_title',
+    recent_title: 'recent_title',
+    top_title: 'top_title',
+    unlabeled_title: 'unlabeled_title'
+}
+
 test('basic get config', () => {
-    const config = {
-        md_header:
-            '## GitLog\n' +
-            'My personal blog using issues and GitHub Actions\n' +
-            '[RSS Feed](https://raw.githubusercontent.com/bxb100/gitlog/master/feed.xml)',
-        github_token: '1234567',
-        issue_number: '1'
-    }
+    const config = {...base_config}
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])
 
@@ -28,15 +36,15 @@ test('basic get config', () => {
     expect(getConfig().issue_number).toEqual('1')
 })
 
-test('not empty check', () => {
+test('undefined check', () => {
     const config = {}
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])
     expect(() => getConfig()).toThrow(ZodError)
 })
 
-test('not empty check2', () => {
-    const config = {md_header: '', github_token: ''}
+test('empty value check', () => {
+    const config = {...base_config, md_header: '', github_token: ''}
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])
     expect(() => getConfig()).toThrow(ZodError)
@@ -44,8 +52,8 @@ test('not empty check2', () => {
 
 test('optional check', () => {
     const config = {
-        md_header: 'cs',
-        github_token: 'cs'
+        ...base_config,
+        issue_number: undefined,
     }
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])

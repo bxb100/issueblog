@@ -22,7 +22,7 @@ test('test generate string', async () => {
 
     await add_md_friends.call(utils, await utils.getIssues(1))
     expect(utils.result).toEqual(
-        `${FRIENDS_TABLE_TITLE}${FRIENDS_TABLE_HEAD}` +
+        `${FRIENDS_TABLE_TITLE(utils.config)}${FRIENDS_TABLE_HEAD}` +
         '| FriendsA3 | https://blog.duanfei.org | 跑步的朋友 |\n' +
         '| FriendsA4 | https://blog.duanfei.org | 跑步的朋友 |\n'
     )

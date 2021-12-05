@@ -3,6 +3,7 @@ import {IComment} from '../common/interface/comment'
 import * as core from '@actions/core'
 import {Comment} from '../common/clazz/comment'
 import {Issue} from '../common/clazz/issue'
+import {Config} from "../util/config";
 
 // -----------------------------------------------------------------------------
 /**
@@ -18,7 +19,7 @@ import {Issue} from '../common/clazz/issue'
 export const FRIEND_ISSUE_LABEL = 'Friends'
 const FRIENDS_TABLE_TEMPLATE = (name: string, link: string, desc: string) =>
     `| ${name} | ${link} | ${desc} |\n`
-export const FRIENDS_TABLE_TITLE = '\n## 友情链接\n'
+export const FRIENDS_TABLE_TITLE = (config: Config) => `\n## ${config.links_title}\n`
 export const FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
 function _makeFriendTableString(comment: IComment): string {
@@ -57,7 +58,7 @@ export async function add_md_friends(
         )
     }
     const stringArray = await Promise.all(all).then(arr => arr.flat())
-    this.result += FRIENDS_TABLE_TITLE
+    this.result += FRIENDS_TABLE_TITLE(this.config)
     this.result += FRIENDS_TABLE_HEAD
     this.result += stringArray.join('')
     core.debug(`add_md_friends:\n\n${this.result}\n\n`)

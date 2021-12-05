@@ -2,14 +2,21 @@ import * as core from '@actions/core'
 import * as z from 'zod'
 
 // schema
-const keys = ['github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number']
+const keys = [
+    'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
+    'links_title', 'recent_title', 'top_title', 'unlabeled_title'
+]
 
 const commonConfigSchema = z.object({
     github_token: z.string(),
     md_header: z.string(),
     issue_number: z.string().optional(),
     recent_limit: z.string().default('5'),
-    anchor_number: z.string().default('5')
+    anchor_number: z.string().default('5'),
+    links_title: z.string(),
+    recent_title: z.string(),
+    top_title: z.string(),
+    unlabeled_title: z.string()
 })
 
 export type Config = z.infer<typeof commonConfigSchema>
@@ -20,7 +27,7 @@ export type Config = z.infer<typeof commonConfigSchema>
  * @returns {Config} 映射的对象
  */
 export function getConfig(): Config {
-    const raw: {[key: string]: string} = {}
+    const raw: { [key: string]: string } = {}
 
     keys.forEach(key => {
         const v = core.getInput(key)
