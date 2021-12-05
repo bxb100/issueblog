@@ -74,11 +74,6 @@ class Issue {
             return false;
         });
     }
-    // ignore
-    isOwnBy(username) {
-        var _a;
-        return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.login) === username;
-    }
     bodyToLines() {
         var _a;
         return ((_a = this.body) === null || _a === void 0 ? void 0 : _a.split('\n').map(line => line.trim())) || [];
@@ -218,6 +213,7 @@ exports.add_md_label = void 0;
 const friend_process_1 = __nccwpck_require__(8556);
 const top_process_1 = __nccwpck_require__(2686);
 const todo_process_1 = __nccwpck_require__(269);
+const util_1 = __nccwpck_require__(7657);
 const UN_LABEL_ISSUE_KEY = '无题';
 function add_md_label(issues) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -242,19 +238,7 @@ function add_md_label(issues) {
         for (const key of Object.keys(bucket).sort()) {
             this.result += `\n## ${key}\n`;
             const issues = bucket[key];
-            let i = 0;
-            for (; i < issues.length; i++) {
-                if (i === anchorNumber) {
-                    this.result += '<details><summary>显示更多</summary>\n';
-                    this.result += '\n';
-                }
-                this.result += issues[i].mdIssueInfo();
-            }
-            // because the last i++
-            if (i > anchorNumber) {
-                this.result += '</details>';
-            }
-            this.result += '\n';
+            this.result += (0, util_1.wrapDetails)(issues.slice(0, anchorNumber), issues.slice(anchorNumber), i => i.mdIssueInfo());
         }
     });
 }
@@ -294,7 +278,7 @@ exports.add_md_recent = add_md_recent;
 /***/ }),
 
 /***/ 269:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -309,6 +293,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_todo = exports.TODO_ISSUE_TITLE = exports.TODO_ISSUE_LABEL = void 0;
+const util_1 = __nccwpck_require__(7657);
 exports.TODO_ISSUE_LABEL = 'Todo';
 exports.TODO_ISSUE_TITLE = '## TODO\n';
 function add_md_todo(issues) {
@@ -320,12 +305,9 @@ function add_md_todo(issues) {
         }
         this.result += exports.TODO_ISSUE_TITLE;
         for (let todoIssue of todoIssues) {
-            const { title, list } = parse(todoIssue);
+            const { title, undone, done } = parse(todoIssue);
             this.result += `TODO list from ${title}\n`;
-            for (let string of list) {
-                this.result += `${string}\n`;
-            }
-            this.result += '\n';
+            this.result += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
         }
     });
 }
@@ -337,12 +319,12 @@ function parse(issue) {
     if (undone.length === 0) {
         return {
             title: `[${issue.title}](${issue.html_url}) all done`,
-            list: []
+            undone, done
         };
     }
     return {
         title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done`,
-        list: undone.concat(done)
+        undone, done
     };
 }
 
@@ -422,7 +404,7 @@ const config_1 = __nccwpck_require__(2156);
 const exec_1 = __nccwpck_require__(1514);
 const issue_kit_1 = __nccwpck_require__(2833);
 const friend_process_1 = __nccwpck_require__(8556);
-const fs = __importStar(__nccwpck_require__(7147));
+const promises_1 = __nccwpck_require__(3292);
 const git_1 = __nccwpck_require__(7023);
 const top_process_1 = __nccwpck_require__(2686);
 const recent_process_1 = __nccwpck_require__(5688);
@@ -450,7 +432,7 @@ function run() {
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');
-        fs.writeFileSync('README.md', text);
+        yield (0, promises_1.writeFile)('README.md', text);
         core.endGroup();
         // 4. 暂存需要提交的文件
         core.startGroup('Monitor file changes');
@@ -845,6 +827,38 @@ class IssuesUtil {
     }
 }
 exports.IssuesUtil = IssuesUtil;
+
+
+/***/ }),
+
+/***/ 7657:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.wrapDetails = exports.isOwnBy = void 0;
+function isOwnBy(obj, username) {
+    var _a;
+    return ((_a = obj.user) === null || _a === void 0 ? void 0 : _a.login) === username;
+}
+exports.isOwnBy = isOwnBy;
+function wrapDetails(shows, hides, wrapper) {
+    let result = '';
+    if (shows.length != 0) {
+        result += shows.map(wrapper).join('');
+    }
+    if (hides.length != 0) {
+        result += '<details><summary>显示更多</summary>';
+        result += '\n';
+        result += hides.map(wrapper).join('');
+        result += '</details>';
+        result += '\n';
+    }
+    result += '\n';
+    return result;
+}
+exports.wrapDetails = wrapDetails;
 
 
 /***/ }),
@@ -13865,6 +13879,14 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 3292:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs/promises");
 
 /***/ }),
 

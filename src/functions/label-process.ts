@@ -3,6 +3,7 @@ import {Issue} from '../common/clazz/issue'
 import {FRIEND_ISSUE_LABEL} from './friend-process'
 import {TOP_ISSUE_LABEL} from './top-process'
 import {TODO_ISSUE_LABEL} from './todo-process'
+import {wrapDetails} from '../util/util'
 
 const UN_LABEL_ISSUE_KEY = '无题'
 
@@ -34,18 +35,11 @@ export async function add_md_label(
     for (const key of Object.keys(bucket).sort()) {
         this.result += `\n## ${key}\n`
         const issues = bucket[key]
-        let i = 0
-        for (; i < issues.length; i++) {
-            if (i === anchorNumber) {
-                this.result += '<details><summary>显示更多</summary>\n'
-                this.result += '\n'
-            }
-            this.result += issues[i].mdIssueInfo()
-        }
-        // because the last i++
-        if (i > anchorNumber) {
-            this.result += '</details>'
-        }
-        this.result += '\n'
+
+        this.result += wrapDetails(
+            issues.slice(0, anchorNumber),
+            issues.slice(anchorNumber),
+            i => i.mdIssueInfo()
+        )
     }
 }

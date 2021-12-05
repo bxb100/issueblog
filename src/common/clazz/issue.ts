@@ -58,11 +58,6 @@ export class Issue implements IIssue {
         })
     }
 
-    // ignore
-    isOwnBy(username: string): boolean {
-        return this.user?.login === username
-    }
-
     bodyToLines(): string[] {
         return this.body?.split('\n').map(line => line.trim()) || []
     }
