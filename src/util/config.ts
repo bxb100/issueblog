@@ -4,7 +4,7 @@ import * as z from 'zod'
 // schema
 const keys = [
     'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
-    'links_title', 'recent_title', 'top_title', 'unlabeled_title'
+    'links_title', 'recent_title', 'top_title', 'unlabeled_title', 'blog_image_url'
 ]
 
 const commonConfigSchema = z.object({
@@ -16,7 +16,8 @@ const commonConfigSchema = z.object({
     links_title: z.string(),
     recent_title: z.string(),
     top_title: z.string(),
-    unlabeled_title: z.string()
+    unlabeled_title: z.string(),
+    blog_image_url: z.string().default("blog.png")
 })
 
 export type Config = z.infer<typeof commonConfigSchema>

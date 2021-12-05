@@ -704,6 +704,7 @@ function rss(issues) {
             link: `https://github.com/${this.owner}/${this.repo}`,
             title: `${this.owner}'s Blog`,
             lastBuildDate: new Date().toUTCString(),
+            itunes_image: this.config.blog_image_url
         };
         feeds.items = [];
         // insert issues
@@ -984,7 +985,7 @@ const z = __importStar(__nccwpck_require__(3301));
 // schema
 const keys = [
     'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
-    'links_title', 'recent_title', 'top_title', 'unlabeled_title'
+    'links_title', 'recent_title', 'top_title', 'unlabeled_title', 'blog_image_url'
 ];
 const commonConfigSchema = z.object({
     github_token: z.string(),
@@ -995,7 +996,8 @@ const commonConfigSchema = z.object({
     links_title: z.string(),
     recent_title: z.string(),
     top_title: z.string(),
-    unlabeled_title: z.string()
+    unlabeled_title: z.string(),
+    blog_image_url: z.string().default("blog.png")
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象

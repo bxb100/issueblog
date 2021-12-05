@@ -11,23 +11,17 @@ export interface IRssFeed {
 
     ttl?: number;
     language?: string;
-    image?: RssImage;
+    image?: string;
     items?: RssItem[];
 
     itunes_owner?: RssOwner
     itunes_author?: string;
     itunes_category?: string;
-    itunes_image?: RssImage;
+    itunes_image?: string;
 }
 
 export type RssOwner = {
     email: string;
-}
-
-export type RssImage = {
-    title: string;
-    url: string;
-    link: string;
 }
 
 export type RssItem = {

@@ -15,6 +15,9 @@
         {{ if itunes_category }}<itunes:category text="{{ itunes_category }}"/>{{ /if }}
         {{ if itunes_author }}<itunes:explicit>{{ itunes_explicit || 'no' }}</itunes:explicit>{{ /if }}
         <language>{{ language || 'zh-cn' }}</language>
+        {{ if itunes_image }}
+        <itunes:image href="{{ itunes_image }}"/>
+        {{ /if }}
         {{ if image }}
         <image>
             <url>{{ image }}</url>

@@ -17,6 +17,7 @@ export async function rss(
         link: `https://github.com/${this.owner}/${this.repo}`,
         title: `${this.owner}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
+        itunes_image: this.config.blog_image_url
     };
     feeds.items = []
     // insert issues
