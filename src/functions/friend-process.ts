@@ -1,4 +1,4 @@
-import {IssuesKit} from '../common/clazz/issue-kit'
+import {GithubKit} from '../common/clazz/github-kit'
 import {IComment} from '../common/interface/comment'
 import * as core from '@actions/core'
 import {Comment} from '../common/clazz/comment'
@@ -34,7 +34,7 @@ function _makeFriendTableString(comment: IComment): string {
 }
 
 export async function add_md_friends(
-    this: IssuesKit<string>,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
 

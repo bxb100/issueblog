@@ -1,11 +1,11 @@
-import {IssuesKit} from '../common/clazz/issue-kit'
+import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {Config} from "../util/config";
 
 export const RECENT_ISSUE_TITLE = (config: Config) => `\n## ${config.recent_title}\n`
 
 export async function add_md_recent(
-    this: IssuesKit<string>,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
     let limit = parseInt(this.config.recent_limit)

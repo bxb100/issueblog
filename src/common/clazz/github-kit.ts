@@ -9,8 +9,10 @@ import {Comment} from './comment'
 import {Issue} from './issue'
 import {Config} from '../../util/config'
 import {ProcessFunction} from "../types/process-function";
+import {IRelease} from "../interface/release";
+import {Release} from "./release";
 
-export class IssuesKit<T> {
+export class GithubKit<T> {
 
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
@@ -71,6 +73,40 @@ export class IssuesKit<T> {
         })
         core.debug(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`)
         return Issue.cast(issueResult.data)
+    }
+
+    async getRelease(page: number): Promise<IRelease[]> {
+        const releases = await this.client.rest.repos.listReleases({
+            owner: this.owner,
+            repo: this.repo,
+            per_page: 100,
+            page
+        })
+        core.debug(`releases:\n\n${JSON.stringify(releases)}\n\n`)
+        return releases.data
+    }
+
+    async getAllReleases(): Promise<Release[]> {
+        let page = 1
+        let releases: IRelease[] = []
+        while (true) {
+            const result = await this.getRelease(page)
+            if (result.length === 0) {
+                break
+            }
+            releases = releases.concat(result)
+            page++
+        }
+        return Release.cast(releases)
+    }
+
+    async renderMarkdown(markdown: string): Promise<string> {
+        const rendered = await this.client.rest.markdown.render({
+            text: markdown,
+            mode: 'markdown'
+        })
+        core.debug(`rendered:\n\n${JSON.stringify(rendered)}\n\n`)
+        return rendered.data
     }
 
     async getAllIssues(): Promise<Issue[]> {

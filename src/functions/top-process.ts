@@ -1,4 +1,4 @@
-import {IssuesKit} from '../common/clazz/issue-kit'
+import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {Config} from "../util/config";
 
@@ -6,7 +6,7 @@ export const TOP_ISSUE_LABEL = 'Top'
 export const TOP_ISSUE_TITLE = (config: Config) => `\n## ${config.top_title}\n`
 
 export async function add_md_top(
-    this: IssuesKit<string>,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
 

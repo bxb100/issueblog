@@ -1,4 +1,4 @@
 import {Issue} from "../clazz/issue";
-import {IssuesKit} from "../clazz/issue-kit";
+import {GithubKit} from "../clazz/github-kit";
 
-export type ProcessFunction<T> = (this: IssuesKit<T>, issues: Issue[]) => Promise<void>
+export type ProcessFunction<T> = (this: GithubKit<T>, issues: Issue[]) => Promise<void>

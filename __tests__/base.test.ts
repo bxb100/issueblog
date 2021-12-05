@@ -1,5 +1,5 @@
 import {context} from '@actions/github'
-import {IssuesKit} from '../src/common/clazz/issue-kit'
+import {GithubKit} from '../src/common/clazz/github-kit'
 import {randomInt} from 'crypto'
 
 Object.defineProperty(context, 'repo', {
@@ -9,7 +9,7 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new IssuesKit<string>({
+export const utils = new GithubKit<string>({
     links_title: "", recent_title: "", top_title: "", unlabeled_title: "",
     github_token: '123',
     md_header: '',
@@ -21,4 +21,7 @@ export const getIssueCommentsMock = jest.spyOn(utils, 'getIssueComments')
 
 export const delay = <T>(result: T): Promise<T> => new Promise(resolve => {
     setTimeout(() => resolve(result), randomInt(500, 3000))
+})
+
+test("empty", () => {
 })

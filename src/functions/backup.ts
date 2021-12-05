@@ -1,4 +1,4 @@
-import {IssuesKit} from "../common/clazz/issue-kit";
+import {GithubKit} from "../common/clazz/github-kit";
 import {Issue} from "../common/clazz/issue";
 import * as fs from 'fs';
 import {compareUpdateTime, Metadata, MetadataInfo} from "../common/types/metadata";
@@ -11,7 +11,7 @@ const METADATA_NAME = '.metadata'
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
 
 export async function backup(
-    this: IssuesKit<any>,
+    this: GithubKit<any>,
     issues: Issue[]
 ): Promise<void> {
     // make sure backup directory exists
@@ -51,7 +51,7 @@ export async function backup(
     fs.writeFileSync(METADATA_PATH, JSON.stringify(parse));
 }
 
-async function saveIssue(kit: IssuesKit<any>, issue: Issue, info: MetadataInfo): Promise<void> {
+async function saveIssue(kit: GithubKit<any>, issue: Issue, info: MetadataInfo): Promise<void> {
     const fileName = backupFileName(issue);
     if (fileName !== info.name) {
         // change the issue title

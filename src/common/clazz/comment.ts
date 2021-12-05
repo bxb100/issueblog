@@ -1,7 +1,7 @@
 import {IComment} from '../interface/comment'
 import {Reactions} from '../interface/reactions'
 import {IUser} from '../interface/user'
-import {IssuesKit} from './issue-kit'
+import {GithubKit} from './github-kit'
 
 export class Comment implements IComment {
 
@@ -21,7 +21,7 @@ export class Comment implements IComment {
         return comments.map((c: IComment): Comment => new Comment(c))
     }
 
-    isHeartBySelf(util: IssuesKit<any>): Promise<boolean> {
+    isHeartBySelf(util: GithubKit<any>): Promise<boolean> {
         if (this._existHeartReaction()) {
             return util.isHeartBySelf(this)
         }

@@ -1,14 +1,12 @@
-import {IssuesKit} from '../common/clazz/issue-kit'
+import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {FRIEND_ISSUE_LABEL} from './friend-process'
 import {TOP_ISSUE_LABEL} from './top-process'
 import {TODO_ISSUE_LABEL} from './todo-process'
 import {wrapDetails} from '../util/util'
 
-const UN_LABEL_ISSUE_KEY = '无题'
-
 export async function add_md_label(
-    this: IssuesKit<string>,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
 
@@ -16,7 +14,7 @@ export async function add_md_label(
     issues.forEach(i => {
         const labels = i.labels.map(l => {
             if (typeof l === 'object') {
-                return l.name || UN_LABEL_ISSUE_KEY
+                return l.name || this.config.unlabeled_title
             }
             return l
         }).filter(l => l !== FRIEND_ISSUE_LABEL && l !== TOP_ISSUE_LABEL && l !== TODO_ISSUE_LABEL)

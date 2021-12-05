@@ -4,6 +4,7 @@ import {IsoDateString} from '../types/iso-date-string'
 import {IAssignee} from '../interface/assignee'
 import {ILabel} from '../interface/label'
 import {IUser} from '../interface/user'
+import {GithubKit} from "./github-kit";
 
 export class Issue implements IIssue {
 
@@ -45,6 +46,18 @@ export class Issue implements IIssue {
 
     static cast(data: IIssue[]): Issue[] {
         return data.map(data => new Issue(data))
+    }
+
+    getLabels(kit: GithubKit<any>): string[] {
+        return this.labels.map(l => {
+            let name: string | undefined
+            if (typeof l === 'string') {
+                name = l
+            } else if (typeof l === 'object') {
+                name = l.name
+            }
+            return name || kit.config.unlabeled_title
+        }).filter(Boolean)
     }
 
     containLabel(label: string): boolean {
