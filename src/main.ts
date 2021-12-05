@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {getConfig} from './util/config'
 import {exec} from '@actions/exec'
-import {IssuesUtil} from './util/issue-kit'
+import {IssuesKit} from './common/clazz/issue-kit'
 import {add_md_friends} from './functions/friend-process'
 import * as fs from 'fs'
 import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from './util/git'
@@ -28,7 +28,7 @@ async function run(): Promise<void> {
 
     // 2. 处理 issues
     core.startGroup('Process issues')
-    const issuesUtil = new IssuesUtil(config, config.md_header)
+    const issuesUtil = new IssuesKit(config, config.md_header)
     const text = await issuesUtil.processIssues(
         add_md_friends, add_md_top, add_md_recent, add_md_label, add_md_todo
     )

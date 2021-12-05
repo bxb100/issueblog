@@ -1,4 +1,4 @@
-name: 'Git Log'
+name: 'Issue Blog'
 description: 'Tiny Blog based on github issues'
 author: '@bxb100 aka John Bi'
 inputs:

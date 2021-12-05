@@ -1,4 +1,4 @@
-import {IssuesUtil} from '../util/issue-kit'
+import {IssuesKit} from '../common/clazz/issue-kit'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
 
@@ -6,7 +6,7 @@ export const TODO_ISSUE_LABEL = 'Todo'
 export const TODO_ISSUE_TITLE = '## TODO\n'
 
 export async function add_md_todo(
-    this: IssuesUtil<string>,
+    this: IssuesKit<string>,
     issues: Issue[]
 ): Promise<void> {
 

@@ -34,6 +34,133 @@ exports.Comment = Comment;
 
 /***/ }),
 
+/***/ 8751:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IssuesKit = void 0;
+const github_1 = __nccwpck_require__(5438);
+const core = __importStar(__nccwpck_require__(2186));
+const reaction_content_1 = __nccwpck_require__(4943);
+const comment_1 = __nccwpck_require__(8802);
+const issue_1 = __nccwpck_require__(7751);
+class IssuesKit {
+    constructor(config, initResult) {
+        this.config = config;
+        this.client = (0, github_1.getOctokit)(config.github_token);
+        this.owner = github_1.context.repo.owner;
+        this.repo = github_1.context.repo.repo;
+        this.result = initResult;
+    }
+    isHeartBySelf(comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reactions = yield this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
+            return !!reactions.find(r => { var _a; return ((_a = r.user) === null || _a === void 0 ? void 0 : _a.login) === this.owner; });
+        });
+    }
+    getCommentReactions(comment, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reactions = yield this.client.rest.reactions.listForIssueComment({
+                owner: this.owner,
+                repo: this.repo,
+                comment_id: comment.id,
+                content: content
+            });
+            core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`);
+            return reactions.data;
+        });
+    }
+    getIssueComments(issue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comments = yield this.client.rest.issues.listComments({
+                owner: this.owner,
+                repo: this.repo,
+                issue_number: issue.number
+            });
+            core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`);
+            return comment_1.Comment.cast(comments.data);
+        });
+    }
+    getIssues(page) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issueResult = yield this.client.rest.issues.listForRepo({
+                owner: this.owner,
+                repo: this.repo,
+                state: 'open',
+                creator: this.owner,
+                per_page: 100,
+                direction: 'desc',
+                page
+            });
+            core.debug(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`);
+            return issue_1.Issue.cast(issueResult.data);
+        });
+    }
+    getAllIssues() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let page = 1;
+            let issues = [];
+            while (true) {
+                const result = yield this.getIssues(page);
+                if (result.length === 0) {
+                    break;
+                }
+                issues = issues.concat(result);
+                page++;
+            }
+            return issues;
+        });
+    }
+    processIssues(...functions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issues = yield this.getAllIssues();
+            for (const f of functions) {
+                try {
+                    yield f.call(this, issues);
+                }
+                catch (error) {
+                    core.warning(`${f.name} run error: ${error}`);
+                }
+            }
+            return this.result;
+        });
+    }
+}
+exports.IssuesKit = IssuesKit;
+
+
+/***/ }),
+
 /***/ 7751:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -402,7 +529,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const config_1 = __nccwpck_require__(2156);
 const exec_1 = __nccwpck_require__(1514);
-const issue_kit_1 = __nccwpck_require__(2833);
+const issue_kit_1 = __nccwpck_require__(8751);
 const friend_process_1 = __nccwpck_require__(8556);
 const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
@@ -427,7 +554,7 @@ function run() {
         core.endGroup();
         // 2. 处理 issues
         core.startGroup('Process issues');
-        const issuesUtil = new issue_kit_1.IssuesUtil(config, config.md_header);
+        const issuesUtil = new issue_kit_1.IssuesKit(config, config.md_header);
         const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label, todo_process_1.add_md_todo);
         core.endGroup();
         // 3. 处理需要修改或新增的文件
@@ -700,133 +827,6 @@ function submodulePath() {
     });
 }
 exports.submodulePath = submodulePath;
-
-
-/***/ }),
-
-/***/ 2833:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IssuesUtil = void 0;
-const github_1 = __nccwpck_require__(5438);
-const core = __importStar(__nccwpck_require__(2186));
-const reaction_content_1 = __nccwpck_require__(4943);
-const comment_1 = __nccwpck_require__(8802);
-const issue_1 = __nccwpck_require__(7751);
-class IssuesUtil {
-    constructor(config, initResult) {
-        this.config = config;
-        this.client = (0, github_1.getOctokit)(config.github_token);
-        this.owner = github_1.context.repo.owner;
-        this.repo = github_1.context.repo.repo;
-        this.result = initResult;
-    }
-    isHeartBySelf(comment) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const reactions = yield this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
-            return !!reactions.find(r => { var _a; return ((_a = r.user) === null || _a === void 0 ? void 0 : _a.login) === this.owner; });
-        });
-    }
-    getCommentReactions(comment, content) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const reactions = yield this.client.rest.reactions.listForIssueComment({
-                owner: this.owner,
-                repo: this.repo,
-                comment_id: comment.id,
-                content: content
-            });
-            core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`);
-            return reactions.data;
-        });
-    }
-    getIssueComments(issue) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const comments = yield this.client.rest.issues.listComments({
-                owner: this.owner,
-                repo: this.repo,
-                issue_number: issue.number
-            });
-            core.debug(`comments:\n\n${JSON.stringify(comments)}\n\n`);
-            return comment_1.Comment.cast(comments.data);
-        });
-    }
-    getIssues(page) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const issueResult = yield this.client.rest.issues.listForRepo({
-                owner: this.owner,
-                repo: this.repo,
-                state: 'open',
-                creator: this.owner,
-                per_page: 100,
-                direction: 'desc',
-                page
-            });
-            core.debug(`issueResult:\n\n${JSON.stringify(issueResult.data)}\n\n`);
-            return issue_1.Issue.cast(issueResult.data);
-        });
-    }
-    getAllIssues() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let page = 1;
-            let issues = [];
-            while (true) {
-                const result = yield this.getIssues(page);
-                if (result.length === 0) {
-                    break;
-                }
-                issues = issues.concat(result);
-                page++;
-            }
-            return issues;
-        });
-    }
-    processIssues(...functions) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const issues = yield this.getAllIssues();
-            for (const f of functions) {
-                try {
-                    yield f.call(this, issues);
-                }
-                catch (error) {
-                    core.warning(`${f.name} run error: ${error}`);
-                }
-            }
-            return this.result;
-        });
-    }
-}
-exports.IssuesUtil = IssuesUtil;
 
 
 /***/ }),

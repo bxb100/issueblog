@@ -1,5 +1,5 @@
 import {context} from '@actions/github'
-import {IssuesUtil} from '../src/util/issue-kit'
+import {IssuesKit} from '../src/common/clazz/issue-kit'
 import {randomInt} from 'crypto'
 
 Object.defineProperty(context, 'repo', {
@@ -9,10 +9,11 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new IssuesUtil<string>({
+export const utils = new IssuesKit<string>({
     github_token: '123',
-    md_header: ''
-}, "")
+    md_header: '',
+    anchor_number: '', recent_limit: '',
+}, '')
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const isHeartBySelfMock = jest.spyOn(utils, 'isHeartBySelf')
 export const getIssueCommentsMock = jest.spyOn(utils, 'getIssueComments')

@@ -1,4 +1,4 @@
-import {IssuesUtil} from '../util/issue-kit'
+import {IssuesKit} from '../common/clazz/issue-kit'
 import {Issue} from '../common/clazz/issue'
 import {FRIEND_ISSUE_LABEL} from './friend-process'
 import {TOP_ISSUE_LABEL} from './top-process'
@@ -8,7 +8,7 @@ import {wrapDetails} from '../util/util'
 const UN_LABEL_ISSUE_KEY = '无题'
 
 export async function add_md_label(
-    this: IssuesUtil<string>,
+    this: IssuesKit<string>,
     issues: Issue[]
 ): Promise<void> {
 

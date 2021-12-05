@@ -1,15 +1,16 @@
 import {context, getOctokit} from '@actions/github'
 import {GitHub} from '@actions/github/lib/utils'
 import * as core from '@actions/core'
-import {IIssue} from '../common/interface/issue'
-import {IComment} from '../common/interface/comment'
-import {Reaction} from '../common/interface/reaction'
-import {ReactionContent} from '../common/enum/reaction-content'
-import {Comment} from '../common/clazz/comment'
-import {Issue} from '../common/clazz/issue'
-import {Config} from './config'
+import {IIssue} from '../interface/issue'
+import {IComment} from '../interface/comment'
+import {Reaction} from '../interface/reaction'
+import {ReactionContent} from '../enum/reaction-content'
+import {Comment} from './comment'
+import {Issue} from './issue'
+import {Config} from '../../util/config'
 
-export class IssuesUtil<T> {
+export class IssuesKit<T> {
+
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
     readonly repo: string

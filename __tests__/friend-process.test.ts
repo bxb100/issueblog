@@ -2,7 +2,7 @@ import {add_md_friends, FRIENDS_TABLE_HEAD, FRIENDS_TABLE_TITLE} from '../src/fu
 import {Comment} from '../src/common/clazz/comment'
 import {Issue} from '../src/common/clazz/issue'
 // @ts-ignore
-import {delay, getIssueCommentsMock, getIssuesMock, isHeartBySelfMock, utils} from './base-process.test'
+import {delay, getIssueCommentsMock, getIssuesMock, isHeartBySelfMock, utils} from './base.test'
 
 test('test generate string', async () => {
     const issueResult =

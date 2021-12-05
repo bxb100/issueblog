@@ -1,1 +1,1 @@
-## GitLog Action
+## Issue Blog Action
