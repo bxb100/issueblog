@@ -404,7 +404,7 @@ const config_1 = __nccwpck_require__(2156);
 const exec_1 = __nccwpck_require__(1514);
 const issue_kit_1 = __nccwpck_require__(2833);
 const friend_process_1 = __nccwpck_require__(8556);
-const promises_1 = __nccwpck_require__(3292);
+const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
 const top_process_1 = __nccwpck_require__(2686);
 const recent_process_1 = __nccwpck_require__(5688);
@@ -432,7 +432,7 @@ function run() {
         core.endGroup();
         // 3. 处理需要修改或新增的文件
         core.startGroup('Modify or create file');
-        yield (0, promises_1.writeFile)('README.md', text);
+        fs.writeFileSync('README.md', text);
         core.endGroup();
         // 4. 暂存需要提交的文件
         core.startGroup('Monitor file changes');
@@ -13879,14 +13879,6 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
-
-/***/ }),
-
-/***/ 3292:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("fs/promises");
 
 /***/ }),
 

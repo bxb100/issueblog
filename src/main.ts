@@ -3,7 +3,7 @@ import {getConfig} from './util/config'
 import {exec} from '@actions/exec'
 import {IssuesUtil} from './util/issue-kit'
 import {add_md_friends} from './functions/friend-process'
-import {writeFile} from 'fs/promises'
+import * as fs from 'fs'
 import {diff, getModifiedUnstagedFiles, getUnstagedFiles, submodulePath} from './util/git'
 import {add_md_top} from './functions/top-process'
 import {add_md_recent} from './functions/recent-process'
@@ -36,7 +36,7 @@ async function run(): Promise<void> {
 
     // 3. 处理需要修改或新增的文件
     core.startGroup('Modify or create file')
-    await writeFile('README.md', text)
+    fs.writeFileSync('README.md', text)
     core.endGroup()
 
     // 4. 暂存需要提交的文件
