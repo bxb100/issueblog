@@ -986,7 +986,7 @@ function wrapDetails(shows, hides, wrapper) {
 }
 exports.wrapDetails = wrapDetails;
 function backupFileName(issue) {
-    return `${issue.number}-${issue.title.replace(' ', '.')}.md`;
+    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
 }
 exports.backupFileName = backupFileName;
 

@@ -28,5 +28,5 @@ export function wrapDetails<T>(shows: T[], hides: T[], wrapper: WrapperToString<
 }
 
 export function backupFileName(issue: Issue): string {
-    return `${issue.number}-${issue.title.replace(' ', '.')}.md`;
+    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
 }
