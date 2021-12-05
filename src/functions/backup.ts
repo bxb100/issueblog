@@ -17,7 +17,7 @@ export async function backup(
     // make sure backup directory exists
     fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH);
     // make sure metadata file exists
-    fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '');
+    fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '{}');
     // read metadata
     const metadata = fs.readFileSync(METADATA_PATH, 'utf8');
     let parse: Metadata = JSON.parse(metadata);
