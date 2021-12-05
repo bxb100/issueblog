@@ -336,7 +336,7 @@ function saveIssue(kit, issue) {
     return __awaiter(this, void 0, void 0, function* () {
         const backupPath = BACKUP_PATH + (0, util_1.backupFileName)(issue);
         let content = `[${issue.title}](${issue.html_url})\n\n`;
-        content += issue.body;
+        content += issue.body || "No description provided.";
         if (issue.comments > 0) {
             // just focus on the first hundred comments
             const comments = yield kit.getIssueComments(issue)
@@ -346,7 +346,7 @@ function saveIssue(kit, issue) {
                 content += comment.body;
             }
         }
-        fs.writeFileSync(new Buffer(backupPath), content);
+        fs.writeFileSync(backupPath, content);
     });
 }
 

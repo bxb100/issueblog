@@ -54,7 +54,7 @@ export async function backup(
 async function saveIssue(kit: IssuesKit<any>, issue: Issue): Promise<void> {
     const backupPath = BACKUP_PATH + backupFileName(issue);
     let content: string = `[${issue.title}](${issue.html_url})\n\n`;
-    content += issue.body
+    content += issue.body || "No description provided."
     if (issue.comments > 0) {
         // just focus on the first hundred comments
         const comments: Comment[] = await kit.getIssueComments(issue)
@@ -66,5 +66,5 @@ async function saveIssue(kit: IssuesKit<any>, issue: Issue): Promise<void> {
         }
     }
 
-    fs.writeFileSync(new Buffer(backupPath), content);
+    fs.writeFileSync(backupPath, content);
 }
