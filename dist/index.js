@@ -743,9 +743,12 @@ function rss(issues) {
             });
         }
         // generate rss xml file
-        const template = path.resolve(__dirname, '../view/rss.art');
-        let rssXml = (0, art_template_1.default)(template, feeds);
+        const templatePath = path.resolve(__dirname, '../view/rss.art');
+        let rssXml = (0, art_template_1.default)(templatePath, feeds);
         fs.writeFileSync('./feed.xml', rssXml);
+        const xslPath = path.resolve(__dirname, '../view/rss.xsl');
+        const xsl = fs.readFileSync(xslPath, 'utf8');
+        fs.writeFileSync('./rss.xsl', xsl);
     });
 }
 exports.rss = rss;
