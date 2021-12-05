@@ -185,6 +185,7 @@ class GithubKit {
             const issues = yield this.getAllIssues();
             for (const f of functions) {
                 try {
+                    // sub method path under the src
                     yield f.call(this, issues);
                 }
                 catch (error) {
@@ -675,7 +676,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.rss = void 0;
 const art_template_1 = __importDefault(__nccwpck_require__(5660));
-const path = __importStar(__nccwpck_require__(1017));
 const fs = __importStar(__nccwpck_require__(7147));
 function rss(issues) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -723,8 +723,7 @@ function rss(issues) {
             });
         }
         // generate rss xml file
-        const template = path.resolve(__dirname, '../view/rss.art');
-        let rssXml = (0, art_template_1.default)(template, feeds);
+        let rssXml = (0, art_template_1.default)('./view/rss.art', feeds);
         fs.writeFileSync('./feed.xml', rssXml);
     });
 }

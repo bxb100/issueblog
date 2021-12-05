@@ -127,6 +127,7 @@ export class GithubKit<T> {
         const issues: Issue[] = await this.getAllIssues()
         for (const f of functions) {
             try {
+                // sub method path under the src
                 await f.call(this, issues)
             } catch (error) {
                 core.warning(`${f.name} run error: ${error}`)

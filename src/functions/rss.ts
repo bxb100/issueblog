@@ -1,8 +1,7 @@
 import {GithubKit} from "../common/clazz/github-kit";
 import {Issue} from "../common/clazz/issue";
 import {IRssFeed} from "../common/interface/rss-feed";
-import artTemplate from "art-template";
-import * as path from "path";
+import art from "art-template";
 import * as fs from "fs";
 import {Release} from "../common/clazz/release";
 
@@ -57,7 +56,6 @@ export async function rss(
     }
 
     // generate rss xml file
-    const template = path.resolve(__dirname, '../view/rss.art');
-    let rssXml = artTemplate(template, feeds);
+    let rssXml = art('./view/rss.art', feeds);
     fs.writeFileSync('./feed.xml', rssXml);
 }
