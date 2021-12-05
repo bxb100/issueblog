@@ -461,7 +461,7 @@ exports.backup = backup;
 function saveIssue(kit, issue, info) {
     return __awaiter(this, void 0, void 0, function* () {
         const fileName = (0, util_1.backupFileName)(issue);
-        if (fileName !== info.name) {
+        if (info && fileName !== info.name) {
             // change the issue title
             // remove the old file
             fs.unlinkSync(BACKUP_PATH + info.name);

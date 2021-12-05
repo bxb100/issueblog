@@ -53,7 +53,7 @@ export async function backup(
 
 async function saveIssue(kit: GithubKit<any>, issue: Issue, info: MetadataInfo): Promise<void> {
     const fileName = backupFileName(issue);
-    if (fileName !== info.name) {
+    if (info && fileName !== info.name) {
         // change the issue title
         // remove the old file
         fs.unlinkSync(BACKUP_PATH + info.name);
