@@ -300,7 +300,7 @@ function backup(issues) {
         // make sure metadata file exists
         fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '{}');
         // read metadata
-        const metadata = fs.readFileSync(METADATA_PATH, 'utf8');
+        const metadata = fs.readFileSync(METADATA_PATH, 'utf8') || '{}';
         let parse = JSON.parse(metadata);
         // filter need backup issues
         const needBackupIssues = [];
