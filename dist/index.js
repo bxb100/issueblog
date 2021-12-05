@@ -849,8 +849,8 @@ function wrapDetails(shows, hides, wrapper) {
         result += shows.map(wrapper).join('');
     }
     if (hides.length != 0) {
-        result += '<details><summary>显示更多</summary>';
-        result += '\n';
+        result += '<details><summary>MORE</summary>';
+        result += '\n\n';
         result += hides.map(wrapper).join('');
         result += '</details>';
         result += '\n';

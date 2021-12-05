@@ -15,8 +15,8 @@ export function wrapDetails<T>(shows: T[], hides: T[], wrapper: wrapper<T>): str
     }
 
     if (hides.length != 0) {
-        result += '<details><summary>显示更多</summary>'
-        result += '\n'
+        result += '<details><summary>MORE</summary>'
+        result += '\n\n'
 
         result += hides.map(wrapper).join('')
 
