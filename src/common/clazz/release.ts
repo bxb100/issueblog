@@ -2,6 +2,7 @@ import {IRelease} from "../interface/release";
 import {IReleaseAsset} from "../interface/asset";
 import {IsoDateString} from "../types/iso-date-string";
 import {GithubKit} from "./github-kit";
+import * as core from "@actions/core"
 
 export class Release implements IRelease {
 
@@ -28,20 +29,19 @@ export class Release implements IRelease {
     async convertToPodcastInfo(kit: GithubKit<any>): Promise<Podcast | null> {
 
         // noinspection RegExpRedundantEscape
-        const markdownImageRegx = /!\[(.*?)\]\((.*?)\)/g;
+        const markdownImageRegx = /!\[.*?\]\((.*?)\)/;
         const defaultImage = 'https://cdn.jsdelivr.net/gh/bxb100/bxb100@master/png2.png'
         if (this.body) {
-            const split = this.body.split(/\r\n---*\r\n/);
+            const split = this.body.split(/\r\n---+\r\n/);
+            core.debug(`convertToPodcastInfo: ${split}`)
             const title = split[0];
-            let image = defaultImage
-            if (markdownImageRegx.test(split[1])) {
-                image = markdownImageRegx.exec(split[1])?.[1] || defaultImage;
-            }
+            const regexes = split[1].match(markdownImageRegx)
+            const image = regexes && regexes[1]
             const content = await kit.renderMarkdown(split[2]);
             return {
                 title,
-                image,
-                content,
+                image: image || defaultImage,
+                content: content,
             }
         }
         return null;
