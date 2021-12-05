@@ -15,7 +15,7 @@ export async function rss(
         atomLink: `https://github.com/${this.owner}/${this.repo}/feed.xml`,
         description: `RSS feed of ${this.owner}'s ${this.repo}`,
         link: `https://github.com/${this.owner}/${this.repo}`,
-        title: `RSS feed of ${this.owner}'s ${this.repo}`,
+        title: `${this.owner}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
     };
     feeds.items = []
