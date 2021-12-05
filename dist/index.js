@@ -346,7 +346,7 @@ function saveIssue(kit, issue) {
                 content += comment.body;
             }
         }
-        fs.writeFileSync(backupPath, content);
+        fs.writeFileSync(new Buffer(backupPath), content);
     });
 }
 

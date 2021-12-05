@@ -65,5 +65,6 @@ async function saveIssue(kit: IssuesKit<any>, issue: Issue): Promise<void> {
             content += comment.body
         }
     }
-    fs.writeFileSync(backupPath, content);
+
+    fs.writeFileSync(new Buffer(backupPath), content);
 }
