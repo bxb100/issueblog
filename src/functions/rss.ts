@@ -57,7 +57,7 @@ export async function rss(
     }
 
     // generate rss xml file
-    const template = path.resolve(__dirname, './view/rss.art');
+    const template = path.resolve(__dirname, '../view/rss.art');
     let rssXml = art(template, feeds);
     fs.writeFileSync('./feed.xml', rssXml);
 }

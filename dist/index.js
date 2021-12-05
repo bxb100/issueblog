@@ -724,7 +724,7 @@ function rss(issues) {
             });
         }
         // generate rss xml file
-        const template = path.resolve(__dirname, './view/rss.art');
+        const template = path.resolve(__dirname, '../view/rss.art');
         let rssXml = (0, art_template_1.default)(template, feeds);
         fs.writeFileSync('./feed.xml', rssXml);
     });
