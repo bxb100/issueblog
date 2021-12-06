@@ -9,10 +9,10 @@ Issue Blog is a GitHub Action that creates a blog from issues. It will search al
 
 Special label:
  * **Todo**: It will display at the todo category.
- * **Friends**: If you give a heart reaction to the comment, it will be added to the link category, rule see [THIS](#friends)
+ * **Friends**: If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
  * **Top**: It will display at the top category.
 
-Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3]
+Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
 
 ## Examples
 
@@ -46,7 +46,7 @@ jobs:
           md_header: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://bxb100.github.io/blog/feed.xml)"
 ```
 ### Advanced Usage
-If you want to generate podcast rss, you can create the release, rules see [THIS](#release).
+If you want to generate podcast rss, you can create the release, rules see [#release](#release).
 
 You can define `blog_image_url` to customized your rss image.
 
@@ -55,7 +55,7 @@ You can enable __GitHub Page__ (`branch main in /root`) to show human-readable [
 ## Inputs
 
 ### `github_token` (optional)
-The GitHub token used to create an authenticated client, the default `github.token` auth scope is current repository.[^6]
+The GitHub token used to create an authenticated client, the default `github.token` auth scope is current repository.[^7]
 
 ### `md_header` (optional)
 The header of `README.md`, default:
@@ -64,7 +64,11 @@ The header of `README.md`, default:
 ```
 
 ### `blog_image_url` (optional)
-The image url of the blog, default is `https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png`, that means the image is in the root of the repository.
+The image url of the blog, default is
+
+ `https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png`
+
+that means the image is in the root of the repository.
 
 ### `issue_number` (optional)
 The event issue number, default is `{{ github.event.number }}`, that not using currently.
@@ -119,4 +123,5 @@ description
 [^3]: https://github.com/actions/toolkit
 [^4]: https://github.com/actions/stale
 [^5]: https://github.com/DIYgod/RSSHub
-[^6]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+[^6]: https://typlog.com/featured/podcasts
+[^7]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
