@@ -62,11 +62,12 @@ export class Issue implements IIssue {
     }
 
     containLabel(label: string): boolean {
+        label = label.toLowerCase()
         return this.labels.some(l => {
             if (typeof l === 'string') {
-                return l === label
+                return l.toLowerCase() === label
             } else if (typeof l === 'object') {
-                return l.name === label
+                return l.name?.toLowerCase() === label
             }
             return false
         })

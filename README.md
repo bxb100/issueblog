@@ -96,9 +96,9 @@ Not using now.
 <a name="friends"></a>
 ### `friends` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
 ```markdown
-名字：兔子鮮笙
-链接：https://tuzi.moe
-描述：20 岁的天才少年
+name:GitBlog
+link:https://github.com/yihong0618/gitblog
+desc:Example description
 ```
 
 <a name="release"></a>

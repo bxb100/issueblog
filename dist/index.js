@@ -259,12 +259,14 @@ class Issue {
             .filter(Boolean);
     }
     containLabel(label) {
+        label = label.toLowerCase();
         return this.labels.some(l => {
+            var _a;
             if (typeof l === 'string') {
-                return l === label;
+                return l.toLowerCase() === label;
             }
             else if (typeof l === 'object') {
-                return l.name === label;
+                return ((_a = l.name) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === label;
             }
             return false;
         });
@@ -525,12 +527,9 @@ exports.add_md_friends = exports.FRIENDS_TABLE_HEAD = exports.FRIENDS_TABLE_TITL
 const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 /**
- * 格式如下:
- * 冒号为中文冒号 ：
- *
- * 名字：xxxxxx
- * 链接：xxxxxx
- * 描述：xxxxxx
+ * name:xxxxxx
+ * link:xxxxxx
+ * desc:xxxxxx
  */
 // -----------------------------------------------------------------------------
 exports.FRIEND_ISSUE_LABEL = 'Friends';
@@ -542,10 +541,10 @@ function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
     // eslint-disable-next-line github/array-foreach
-    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split('：')).filter(s => s.length >= 2).forEach(s => (dict[s[0]] = s[1].trim()));
+    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split(':')).filter(s => s.length >= 2).forEach(s => (dict[s[0]] = s[1].trim()));
     if (dict) {
         core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`);
-        return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
+        return FRIENDS_TABLE_TEMPLATE(dict['name'], dict['link'], dict['desc']);
     }
     return '';
 }
