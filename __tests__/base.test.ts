@@ -12,6 +12,7 @@ Object.defineProperty(context, 'repo', {
 export const utils = new GithubKit<string>(
     {
         blog_image_url: '',
+        blog_author: '',
         links_title: '',
         recent_title: '',
         top_title: '',

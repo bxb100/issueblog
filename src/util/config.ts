@@ -4,6 +4,7 @@ import * as z from 'zod'
 // schema
 const keys = [
     'github_token',
+    'blog_author',
     'md_header',
     'issue_number',
     'recent_limit',
@@ -17,6 +18,7 @@ const keys = [
 
 const commonConfigSchema = z.object({
     github_token: z.string(),
+    blog_author: z.string().default('repository_owner'),
     md_header: z.string(),
     issue_number: z.string().optional(),
     recent_limit: z.string().default('5'),

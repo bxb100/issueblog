@@ -6,6 +6,10 @@ inputs:
     description: The GitHub token used to create an authenticated client
     default: ${{ github.token }}
     required: false
+  blog_author:
+    description: The author of the blog
+    default: ${{ github.repository_owner }}
+    required: false
   md_header:
     description: The header of content
     default: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)"

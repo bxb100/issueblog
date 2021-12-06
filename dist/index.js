@@ -710,9 +710,9 @@ function rss(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const feeds = {
             atomLink: `https://github.com/${this.owner}/${this.repo}/feed.xml`,
-            description: `RSS feed of ${this.owner}'s ${this.repo}`,
+            description: `RSS feed of ${this.config.blog_author}'s ${this.repo}`,
             link: `https://github.com/${this.owner}/${this.repo}`,
-            title: `${this.owner}'s Blog`,
+            title: `${this.config.blog_author}'s Blog`,
             lastBuildDate: new Date().toUTCString(),
             itunes_image: this.config.blog_image_url
         };
@@ -998,6 +998,7 @@ const z = __importStar(__nccwpck_require__(3301));
 // schema
 const keys = [
     'github_token',
+    'blog_author',
     'md_header',
     'issue_number',
     'recent_limit',
@@ -1010,6 +1011,7 @@ const keys = [
 ];
 const commonConfigSchema = z.object({
     github_token: z.string(),
+    blog_author: z.string().default('repository_owner'),
     md_header: z.string(),
     issue_number: z.string().optional(),
     recent_limit: z.string().default('5'),

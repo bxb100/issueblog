@@ -12,9 +12,9 @@ export async function rss(
 ): Promise<void> {
     const feeds: IRssFeed = {
         atomLink: `https://github.com/${this.owner}/${this.repo}/feed.xml`,
-        description: `RSS feed of ${this.owner}'s ${this.repo}`,
+        description: `RSS feed of ${this.config.blog_author}'s ${this.repo}`,
         link: `https://github.com/${this.owner}/${this.repo}`,
-        title: `${this.owner}'s Blog`,
+        title: `${this.config.blog_author}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
         itunes_image: this.config.blog_image_url
     }
