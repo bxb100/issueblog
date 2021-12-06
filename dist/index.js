@@ -523,7 +523,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_friends = exports.FRIENDS_TABLE_HEAD = exports.FRIENDS_TABLE_TITLE = exports.FRIEND_ISSUE_LABEL = void 0;
+exports.add_md_friends = exports.friendTableTitle = exports.FRIENDS_TABLE_HEAD = exports.FRIEND_ISSUE_LABEL = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 // -----------------------------------------------------------------------------
 /**
@@ -533,18 +533,19 @@ const core = __importStar(__nccwpck_require__(2186));
  */
 // -----------------------------------------------------------------------------
 exports.FRIEND_ISSUE_LABEL = 'Friends';
-const FRIENDS_TABLE_TEMPLATE = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
-const FRIENDS_TABLE_TITLE = (config) => `\n## ${config.links_title}\n`;
-exports.FRIENDS_TABLE_TITLE = FRIENDS_TABLE_TITLE;
 exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
+const friendTableTitle = (config) => `\n## ${config.links_title}\n`;
+exports.friendTableTitle = friendTableTitle;
+const friendTableTemplate = (name, link, desc) => `| ${name} | ${link} | ${desc} |\n`;
+const friendRegex = (str) => /(\w+):(.+)/.exec(str) || [];
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
     // eslint-disable-next-line github/array-foreach
-    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split(':')).filter(s => s.length >= 2).forEach(s => (dict[s[0]] = s[1].trim()));
+    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => friendRegex(line)).filter(s => s !== null && s.length > 2).forEach(s => (dict[s[1]] = s[2].trim()));
     if (dict) {
         core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`);
-        return FRIENDS_TABLE_TEMPLATE(dict['name'], dict['link'], dict['desc']);
+        return friendTableTemplate(dict['name'], dict['link'], dict['desc']);
     }
     return '';
 }
@@ -566,7 +567,7 @@ function add_md_friends(issues) {
                 .then(approved => approved.map(_makeFriendTableString)));
         }
         const stringArray = yield Promise.all(all).then(arr => arr.flat());
-        this.result += (0, exports.FRIENDS_TABLE_TITLE)(this.config);
+        this.result += (0, exports.friendTableTitle)(this.config);
         this.result += exports.FRIENDS_TABLE_HEAD;
         this.result += stringArray.join('');
         core.debug(`add_md_friends:\n\n${this.result}\n\n`);

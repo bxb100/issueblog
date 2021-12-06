@@ -14,15 +14,18 @@ import {Issue} from '../common/clazz/issue'
 // -----------------------------------------------------------------------------
 
 export const FRIEND_ISSUE_LABEL = 'Friends'
-const FRIENDS_TABLE_TEMPLATE = (
+export const FRIENDS_TABLE_HEAD =
+    '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
+
+export const friendTableTitle = (config: Config): string =>
+    `\n## ${config.links_title}\n`
+const friendTableTemplate = (
     name: string,
     link: string,
     desc: string
 ): string => `| ${name} | ${link} | ${desc} |\n`
-export const FRIENDS_TABLE_TITLE = (config: Config): string =>
-    `\n## ${config.links_title}\n`
-export const FRIENDS_TABLE_HEAD =
-    '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
+const friendRegex = (str: string): RegExpExecArray | [] =>
+    /(\w+):(.+)/.exec(str) || []
 
 function _makeFriendTableString(comment: IComment): string {
     const dict: {[k: string]: string} = {}
@@ -30,12 +33,12 @@ function _makeFriendTableString(comment: IComment): string {
     comment.body
         ?.split('\n')
         .filter(line => line.trim() !== '')
-        .map(line => line.split(':'))
-        .filter(s => s.length >= 2)
-        .forEach(s => (dict[s[0]] = s[1].trim()))
+        .map(line => friendRegex(line))
+        .filter(s => s !== null && s.length > 2)
+        .forEach(s => (dict[s[1]] = s[2].trim()))
     if (dict) {
         core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`)
-        return FRIENDS_TABLE_TEMPLATE(dict['name'], dict['link'], dict['desc'])
+        return friendTableTemplate(dict['name'], dict['link'], dict['desc'])
     }
     return ''
 }
@@ -65,7 +68,7 @@ export async function add_md_friends(
         )
     }
     const stringArray = await Promise.all(all).then(arr => arr.flat())
-    this.result += FRIENDS_TABLE_TITLE(this.config)
+    this.result += friendTableTitle(this.config)
     this.result += FRIENDS_TABLE_HEAD
     this.result += stringArray.join('')
     core.debug(`add_md_friends:\n\n${this.result}\n\n`)
