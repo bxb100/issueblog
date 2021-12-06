@@ -5,12 +5,12 @@
 
 # Issue Blog GitHub Action
 
-Issue Blog is a GitHub Action that creates a blog from issues. It will search all issues to build a blog, the block section of blog is the issue label name.
+Issue Blog is a GitHub Action that creates a blog from issues. It will search all your issues to build a blog, the issue label name will be category name.
 
 Special label:
- * **Todo**: It will display at the todo category.
- * **Friends**: If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
- * **Top**: It will display at the top category.
+ * **Todo**: The `TODO` category.
+ * **Friends**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
+ * **Top**: The `Top` category.
 
 Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
 
