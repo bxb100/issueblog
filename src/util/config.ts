@@ -3,8 +3,16 @@ import * as z from 'zod'
 
 // schema
 const keys = [
-    'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
-    'links_title', 'recent_title', 'top_title', 'unlabeled_title', 'blog_image_url'
+    'github_token',
+    'md_header',
+    'issue_number',
+    'recent_limit',
+    'anchor_number',
+    'links_title',
+    'recent_title',
+    'top_title',
+    'unlabeled_title',
+    'blog_image_url'
 ]
 
 const commonConfigSchema = z.object({
@@ -17,7 +25,7 @@ const commonConfigSchema = z.object({
     recent_title: z.string(),
     top_title: z.string(),
     unlabeled_title: z.string(),
-    blog_image_url: z.string().default("blog.png")
+    blog_image_url: z.string().default('blog.png')
 })
 
 export type Config = z.infer<typeof commonConfigSchema>
@@ -28,14 +36,14 @@ export type Config = z.infer<typeof commonConfigSchema>
  * @returns {Config} 映射的对象
  */
 export function getConfig(): Config {
-    const raw: { [key: string]: string } = {}
+    const raw: {[key: string]: string} = {}
 
-    keys.forEach(key => {
+    for (const key of keys) {
         const v = core.getInput(key)
         if (v) {
             raw[key] = v
         }
-    })
+    }
 
     core.debug(`Raw config: ${JSON.stringify(raw)}`)
     return commonConfigSchema.parse(raw)

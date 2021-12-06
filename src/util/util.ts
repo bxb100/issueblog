@@ -1,20 +1,26 @@
-import {IIssue} from '../common/interface/issue'
 import {IComment} from '../common/interface/comment'
-import {WrapperToString} from "../common/types/wrapper-to-string";
-import {Issue} from "../common/clazz/issue";
+import {IIssue} from '../common/interface/issue'
+import {IsoDateString} from '../common/types/iso-date-string'
+import {Issue} from '../common/clazz/issue'
+import {MetadataInfo} from '../common/types/metadata'
+import {WrapperToString} from '../common/types/wrapper-to-string'
 
 export function isOwnBy(obj: IIssue | IComment, username: string): boolean {
     return obj.user?.login === username
 }
 
-export function wrapDetails<T>(shows: T[], hides: T[], wrapper: WrapperToString<T>): string {
-    let result: string = ''
+export function wrapDetails<T>(
+    shows: T[],
+    hides: T[],
+    wrapper: WrapperToString<T>
+): string {
+    let result = ''
 
-    if (shows.length != 0) {
+    if (shows.length !== 0) {
         result += shows.map(wrapper).join('')
     }
 
-    if (hides.length != 0) {
+    if (hides.length !== 0) {
         result += '<details><summary>MORE</summary>'
         result += '\n\n'
 
@@ -28,5 +34,9 @@ export function wrapDetails<T>(shows: T[], hides: T[], wrapper: WrapperToString<
 }
 
 export function backupFileName(issue: Issue): string {
-    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
+    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`
+}
+
+export function compareUpdateTime(a: MetadataInfo, b: IsoDateString): number {
+    return new Date(a.updatedAt).getTime() - Date.parse(b)
 }

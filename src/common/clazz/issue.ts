@@ -1,13 +1,12 @@
-import {IIssue} from '../interface/issue'
-import {IMilestone} from '../interface/milestone'
-import {IsoDateString} from '../types/iso-date-string'
+import {GithubKit} from './github-kit'
 import {IAssignee} from '../interface/assignee'
+import {IIssue} from '../interface/issue'
 import {ILabel} from '../interface/label'
+import {IMilestone} from '../interface/milestone'
 import {IUser} from '../interface/user'
-import {GithubKit} from "./github-kit";
+import {IsoDateString} from '../types/iso-date-string'
 
 export class Issue implements IIssue {
-
     readonly assignees: IAssignee[] | null | undefined
     readonly comments: number
     readonly created_at: IsoDateString
@@ -45,19 +44,21 @@ export class Issue implements IIssue {
     }
 
     static cast(data: IIssue[]): Issue[] {
-        return data.map(data => new Issue(data))
+        return data.map(d => new Issue(d))
     }
 
     getLabels(kit: GithubKit<any>): string[] {
-        return this.labels.map(l => {
-            let name: string | undefined
-            if (typeof l === 'string') {
-                name = l
-            } else if (typeof l === 'object') {
-                name = l.name
-            }
-            return name || kit.config.unlabeled_title
-        }).filter(Boolean)
+        return this.labels
+            .map(l => {
+                let name: string | undefined
+                if (typeof l === 'string') {
+                    name = l
+                } else if (typeof l === 'object') {
+                    name = l.name
+                }
+                return name || kit.config.unlabeled_title
+            })
+            .filter(Boolean)
     }
 
     containLabel(label: string): boolean {
@@ -75,7 +76,7 @@ export class Issue implements IIssue {
         return this.body?.split('\n').map(line => line.trim()) || []
     }
 
-    mdIssueInfo() {
+    mdIssueInfo(): string {
         return `- [${this.title}](${this.html_url})---${this.created_at_sub}\n`
     }
 }

@@ -9,19 +9,27 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new GithubKit<string>({
-    links_title: "", recent_title: "", top_title: "", unlabeled_title: "",
-    github_token: '123',
-    md_header: '',
-    anchor_number: '', recent_limit: ''
-}, '')
+export const utils = new GithubKit<string>(
+    {
+        blog_image_url: '',
+        links_title: '',
+        recent_title: '',
+        top_title: '',
+        unlabeled_title: '',
+        github_token: '123',
+        md_header: '',
+        anchor_number: '',
+        recent_limit: ''
+    },
+    ''
+)
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const isHeartBySelfMock = jest.spyOn(utils, 'isHeartBySelf')
 export const getIssueCommentsMock = jest.spyOn(utils, 'getIssueComments')
 
-export const delay = <T>(result: T): Promise<T> => new Promise(resolve => {
-    setTimeout(() => resolve(result), randomInt(500, 3000))
-})
+export const delay = <T>(result: T): Promise<T> =>
+    new Promise(resolve => {
+        setTimeout(() => resolve(result), randomInt(500, 3000))
+    })
 
-test("empty", () => {
-})
+test('empty', () => {})

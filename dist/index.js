@@ -2,10 +2,19 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 8802:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Comment = void 0;
 class Comment {
@@ -19,10 +28,12 @@ class Comment {
         return comments.map((c) => new Comment(c));
     }
     isHeartBySelf(util) {
-        if (this._existHeartReaction()) {
-            return util.isHeartBySelf(this);
-        }
-        return Promise.resolve(false);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._existHeartReaction()) {
+                return util.isHeartBySelf(this);
+            }
+            return Promise.resolve(false);
+        });
     }
     _existHeartReaction() {
         var _a;
@@ -69,11 +80,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GithubKit = void 0;
-const github_1 = __nccwpck_require__(5438);
 const core = __importStar(__nccwpck_require__(2186));
-const reaction_content_1 = __nccwpck_require__(4943);
+const github_1 = __nccwpck_require__(5438);
 const comment_1 = __nccwpck_require__(8802);
 const issue_1 = __nccwpck_require__(7751);
+const reaction_content_1 = __nccwpck_require__(4943);
 const release_1 = __nccwpck_require__(1401);
 class GithubKit {
     constructor(config, initResult) {
@@ -95,7 +106,7 @@ class GithubKit {
                 owner: this.owner,
                 repo: this.repo,
                 comment_id: comment.id,
-                content: content
+                content
             });
             core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`);
             return reactions.data;
@@ -144,6 +155,7 @@ class GithubKit {
         return __awaiter(this, void 0, void 0, function* () {
             let page = 1;
             let releases = [];
+            // eslint-disable-next-line no-constant-condition
             while (true) {
                 const result = yield this.getRelease(page);
                 if (result.length === 0) {
@@ -157,6 +169,7 @@ class GithubKit {
     }
     renderMarkdown(markdown) {
         return __awaiter(this, void 0, void 0, function* () {
+            // noinspection ES6RedundantAwait,TypeScriptValidateJSTypes
             const rendered = yield this.client.rest.markdown.render({
                 text: markdown,
                 mode: 'markdown'
@@ -169,6 +182,7 @@ class GithubKit {
         return __awaiter(this, void 0, void 0, function* () {
             let page = 1;
             let issues = [];
+            // eslint-disable-next-line no-constant-condition
             while (true) {
                 const result = yield this.getIssues(page);
                 if (result.length === 0) {
@@ -228,10 +242,11 @@ class Issue {
         this.created_at_sub = this.created_at.substring(0, 10);
     }
     static cast(data) {
-        return data.map(data => new Issue(data));
+        return data.map(d => new Issue(d));
     }
     getLabels(kit) {
-        return this.labels.map(l => {
+        return this.labels
+            .map(l => {
             let name;
             if (typeof l === 'string') {
                 name = l;
@@ -240,7 +255,8 @@ class Issue {
                 name = l.name;
             }
             return name || kit.config.unlabeled_title;
-        }).filter(Boolean);
+        })
+            .filter(Boolean);
     }
     containLabel(label) {
         return this.labels.some(l => {
@@ -329,7 +345,7 @@ class Release {
                 return {
                     title,
                     image: image || defaultImage,
-                    content: content,
+                    content
                 };
             }
             return null;
@@ -348,6 +364,7 @@ exports.Release = Release;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReactionContent = void 0;
+// eslint-disable-next-line no-shadow
 var ReactionContent;
 (function (ReactionContent) {
     ReactionContent["PLUS_ONE"] = "+1";
@@ -358,21 +375,6 @@ var ReactionContent;
     ReactionContent["ROCKET"] = "rocket";
     ReactionContent["EYES"] = "eyes";
 })(ReactionContent = exports.ReactionContent || (exports.ReactionContent = {}));
-
-
-/***/ }),
-
-/***/ 6252:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compareUpdateTime = void 0;
-function compareUpdateTime(a, b) {
-    return new Date(a.updatedAt).getTime() - Date.parse(b);
-}
-exports.compareUpdateTime = compareUpdateTime;
 
 
 /***/ }),
@@ -412,10 +414,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.backup = void 0;
-const fs = __importStar(__nccwpck_require__(7147));
-const metadata_1 = __nccwpck_require__(6252);
-const util_1 = __nccwpck_require__(7657);
 const core = __importStar(__nccwpck_require__(2186));
+const fs = __importStar(__nccwpck_require__(7147));
+const util_1 = __nccwpck_require__(7657);
 const BACKUP_PATH = './backup/';
 const METADATA_NAME = '.metadata';
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
@@ -433,7 +434,7 @@ function backup(issues) {
         for (const issue of issues) {
             if (parse[issue.number]) {
                 // don't use event trigger issue_number, may be the action is concurrency
-                if ((0, metadata_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
+                if ((0, util_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
                     needBackupIssues.push(issue);
                 }
             }
@@ -442,7 +443,7 @@ function backup(issues) {
             }
         }
         // backup issue
-        yield Promise.all(needBackupIssues.flatMap(issue => saveIssue(this, issue, parse[issue.number])));
+        yield Promise.all(needBackupIssues.flatMap((issue) => __awaiter(this, void 0, void 0, function* () { return saveIssue(this, issue, parse[issue.number]); })));
         // update metadata
         parse = needBackupIssues.reduce((acc, issue) => {
             acc[issue.number] = {
@@ -468,11 +469,12 @@ function saveIssue(kit, issue, info) {
         }
         const backupPath = BACKUP_PATH + fileName;
         let content = `[${issue.title}](${issue.html_url})\n\n`;
-        content += issue.body || "No description provided.";
+        content += issue.body || 'No description provided.';
         if (issue.comments > 0) {
             // just focus on the first hundred comments
-            const comments = yield kit.getIssueComments(issue)
-                .then(comments => comments.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
+            const comments = yield kit
+                .getIssueComments(issue)
+                .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
             for (const comment of comments) {
                 content += `\n\n---\n\n`;
                 content += comment.body;
@@ -539,15 +541,19 @@ exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
 function _makeFriendTableString(comment) {
     var _a;
     const dict = {};
-    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split('：')).filter(s => s.length >= 2).forEach(s => dict[s[0]] = s[1].trim());
-    core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`);
-    return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
+    // eslint-disable-next-line github/array-foreach
+    (_a = comment.body) === null || _a === void 0 ? void 0 : _a.split('\n').filter(line => line.trim() !== '').map(line => line.split('：')).filter(s => s.length >= 2).forEach(s => (dict[s[0]] = s[1].trim()));
+    if (dict) {
+        core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`);
+        return FRIENDS_TABLE_TEMPLATE(dict['名字'], dict['链接'], dict['描述']);
+    }
+    return '';
 }
 function add_md_friends(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const friendIssues = issues.filter(issue => issue.containLabel(exports.FRIEND_ISSUE_LABEL));
         const all = [];
-        for (let issue of friendIssues) {
+        for (const issue of friendIssues) {
             all.push(this.getIssueComments(issue)
                 .then((comments) => __awaiter(this, void 0, void 0, function* () {
                 const approved = [];
@@ -589,33 +595,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_label = void 0;
 const friend_process_1 = __nccwpck_require__(8556);
-const top_process_1 = __nccwpck_require__(2686);
 const todo_process_1 = __nccwpck_require__(269);
+const top_process_1 = __nccwpck_require__(2686);
 const util_1 = __nccwpck_require__(7657);
 function add_md_label(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const bucket = {};
-        issues.forEach(i => {
-            const labels = i.labels.map(l => {
+        for (const issue of issues) {
+            const labels = issue.labels
+                .map(l => {
                 if (typeof l === 'object') {
                     return l.name || this.config.unlabeled_title;
                 }
                 return l;
-            }).filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL && l !== top_process_1.TOP_ISSUE_LABEL && l !== todo_process_1.TODO_ISSUE_LABEL);
+            })
+                .filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL &&
+                l !== top_process_1.TOP_ISSUE_LABEL &&
+                l !== todo_process_1.TODO_ISSUE_LABEL);
             // ignore issue without label or
             // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
-            labels.forEach(l => {
-                if (!bucket[l]) {
-                    bucket[l] = [];
+            for (const label of labels) {
+                if (!bucket[label]) {
+                    bucket[label] = [];
                 }
-                bucket[l].push(i);
-            });
-        });
+                bucket[label].push(issue);
+            }
+        }
         const anchorNumber = parseInt(this.config.anchor_number);
-        for (const key of Object.keys(bucket).sort()) {
+        for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
             this.result += `\n## ${key}\n`;
-            const issues = bucket[key];
-            this.result += (0, util_1.wrapDetails)(issues.slice(0, anchorNumber), issues.slice(anchorNumber), i => i.mdIssueInfo());
+            const issueList = bucket[key];
+            this.result += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
         }
     });
 }
@@ -644,7 +654,7 @@ const RECENT_ISSUE_TITLE = (config) => `\n## ${config.recent_title}\n`;
 exports.RECENT_ISSUE_TITLE = RECENT_ISSUE_TITLE;
 function add_md_recent(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        let limit = parseInt(this.config.recent_limit);
+        const limit = parseInt(this.config.recent_limit);
         const recentIssues = issues.slice(0, limit);
         this.result += (0, exports.RECENT_ISSUE_TITLE)(this.config);
         this.result += recentIssues.map(i => i.mdIssueInfo()).join('');
@@ -693,9 +703,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.rss = void 0;
-const art_template_1 = __importDefault(__nccwpck_require__(5660));
-const path = __importStar(__nccwpck_require__(1017));
 const fs = __importStar(__nccwpck_require__(7147));
+const path = __importStar(__nccwpck_require__(1017));
+const art_template_1 = __importDefault(__nccwpck_require__(5660));
 function rss(issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const feeds = {
@@ -709,14 +719,14 @@ function rss(issues) {
         feeds.items = [];
         // insert issues
         for (const issue of issues) {
-            const content = issue.body && (yield this.renderMarkdown(issue.body)) || "";
+            const content = (issue.body && (yield this.renderMarkdown(issue.body))) || '';
             feeds.items.push({
                 title: issue.title,
                 description: content,
                 pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
                 link: issue.html_url,
                 author: this.owner,
-                category: issue.getLabels(this),
+                category: issue.getLabels(this)
             });
         }
         // insert release
@@ -735,16 +745,16 @@ function rss(issues) {
                 pubDate: new Date(release.published_at || new Date()).toUTCString(),
                 enclosure: release.assets[0] && {
                     url: release.assets[0].browser_download_url,
-                    length: release.assets[0].size + '',
-                    type: release.assets[0].content_type,
+                    length: `${release.assets[0].size}`,
+                    type: release.assets[0].content_type
                 },
-                category: "Podcast",
+                category: 'Podcast',
                 itunes_item_image: podcastInfo.image
             });
         }
         // generate rss xml file
         const templatePath = path.resolve(__dirname, '../view/rss.art');
-        let rssXml = (0, art_template_1.default)(templatePath, feeds);
+        const rssXml = (0, art_template_1.default)(templatePath, feeds);
         fs.writeFileSync('./feed.xml', rssXml);
         const xslPath = path.resolve(__dirname, '../view/rss.xsl');
         const xsl = fs.readFileSync(xslPath, 'utf8');
@@ -777,13 +787,12 @@ exports.TODO_ISSUE_LABEL = 'Todo';
 exports.TODO_ISSUE_TITLE = '## TODO\n';
 function add_md_todo(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const todoIssues = issues
-            .filter(issue => issue.containLabel(exports.TODO_ISSUE_LABEL));
+        const todoIssues = issues.filter(issue => issue.containLabel(exports.TODO_ISSUE_LABEL));
         if (todoIssues.length === 0) {
             return;
         }
         this.result += exports.TODO_ISSUE_TITLE;
-        for (let todoIssue of todoIssues) {
+        for (const todoIssue of todoIssues) {
             const { title, undone, done } = parse(todoIssue);
             this.result += `TODO list from ${title}\n`;
             this.result += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
@@ -798,12 +807,14 @@ function parse(issue) {
     if (undone.length === 0) {
         return {
             title: `[${issue.title}](${issue.html_url}) all done`,
-            undone, done
+            undone,
+            done
         };
     }
     return {
         title: `[${issue.title}](${issue.html_url})--${undone.length} jobs to do--${done.length} jobs done`,
-        undone, done
+        undone,
+        done
     };
 }
 
@@ -831,8 +842,7 @@ const TOP_ISSUE_TITLE = (config) => `\n## ${config.top_title}\n`;
 exports.TOP_ISSUE_TITLE = TOP_ISSUE_TITLE;
 function add_md_top(issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const topIssues = issues
-            .filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL));
+        const topIssues = issues.filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL));
         if (topIssues.length <= 0) {
             return;
         }
@@ -880,17 +890,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const config_1 = __nccwpck_require__(2156);
-const exec_1 = __nccwpck_require__(1514);
-const github_kit_1 = __nccwpck_require__(1403);
-const friend_process_1 = __nccwpck_require__(8556);
 const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
-const top_process_1 = __nccwpck_require__(2686);
-const recent_process_1 = __nccwpck_require__(5688);
+const github_kit_1 = __nccwpck_require__(1403);
+const friend_process_1 = __nccwpck_require__(8556);
 const label_process_1 = __nccwpck_require__(4476);
+const recent_process_1 = __nccwpck_require__(5688);
 const todo_process_1 = __nccwpck_require__(269);
+const top_process_1 = __nccwpck_require__(2686);
 const backup_1 = __nccwpck_require__(6169);
+const exec_1 = __nccwpck_require__(1514);
+const config_1 = __nccwpck_require__(2156);
 const rss_1 = __nccwpck_require__(4258);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -932,7 +942,7 @@ function run() {
             core.debug(`git adding ${filename}…`);
             yield (0, exec_1.exec)('git', ['add', filename]);
             if (submodules.includes(filename)) {
-                editedFiles.push({ name: filename, 'submodule': true });
+                editedFiles.push({ name: filename, submodule: true });
             }
             else {
                 const bytes = yield (0, git_1.diff)(filename);
@@ -951,7 +961,7 @@ function run() {
     });
 }
 run().catch(error => {
-    core.setFailed('Workflow failed! ' + error.message);
+    core.setFailed(`Workflow failed! ${error.message}`);
 });
 
 
@@ -987,8 +997,16 @@ const core = __importStar(__nccwpck_require__(2186));
 const z = __importStar(__nccwpck_require__(3301));
 // schema
 const keys = [
-    'github_token', 'md_header', 'issue_number', 'recent_limit', 'anchor_number',
-    'links_title', 'recent_title', 'top_title', 'unlabeled_title', 'blog_image_url'
+    'github_token',
+    'md_header',
+    'issue_number',
+    'recent_limit',
+    'anchor_number',
+    'links_title',
+    'recent_title',
+    'top_title',
+    'unlabeled_title',
+    'blog_image_url'
 ];
 const commonConfigSchema = z.object({
     github_token: z.string(),
@@ -1000,7 +1018,7 @@ const commonConfigSchema = z.object({
     recent_title: z.string(),
     top_title: z.string(),
     unlabeled_title: z.string(),
-    blog_image_url: z.string().default("blog.png")
+    blog_image_url: z.string().default('blog.png')
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象
@@ -1009,12 +1027,12 @@ const commonConfigSchema = z.object({
  */
 function getConfig() {
     const raw = {};
-    keys.forEach(key => {
+    for (const key of keys) {
         const v = core.getInput(key);
         if (v) {
             raw[key] = v;
         }
-    });
+    }
     core.debug(`Raw config: ${JSON.stringify(raw)}`);
     return commonConfigSchema.parse(raw);
 }
@@ -1061,10 +1079,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.submodulePath = exports.getModifiedUnstagedFiles = exports.getUnstagedFiles = exports.diff = exports.gitStatus = void 0;
-const exec_1 = __nccwpck_require__(1514);
-const fs_1 = __nccwpck_require__(7147);
-const path_1 = __importDefault(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
+const exec_1 = __nccwpck_require__(1514);
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const fs_1 = __nccwpck_require__(7147);
 function gitStatus() {
     return __awaiter(this, void 0, void 0, function* () {
         core.debug('Getting gitStatus()');
@@ -1079,9 +1097,10 @@ function gitStatus() {
         core.debug(`=== output was:\n${output}`);
         return output
             .split('\n')
-            .filter(l => l != '')
+            .map(l => l.trim())
+            .filter(l => l !== '')
             .map(l => {
-            const chunks = l.trim().split(/\s+/);
+            const chunks = l.split(/\s+/);
             return {
                 flag: chunks[0],
                 path: chunks[1]
@@ -1090,10 +1109,10 @@ function gitStatus() {
     });
 }
 exports.gitStatus = gitStatus;
-function getHeadSize(path) {
+function getHeadSize(filePath) {
     return __awaiter(this, void 0, void 0, function* () {
         let raw = '';
-        const exitCode = yield (0, exec_1.exec)('git', ['cat-file', '-s', `HEAD:${path}`], {
+        const exitCode = yield (0, exec_1.exec)('git', ['cat-file', '-s', `HEAD:${filePath}`], {
             listeners: {
                 stdline: (data) => {
                     raw += data;
@@ -1150,7 +1169,7 @@ function diff(filename) {
 }
 exports.diff = diff;
 const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function* () {
-    let raw = [];
+    const raw = [];
     yield (0, exec_1.exec)(commandLine, args, {
         listeners: {
             stdline: (data) => {
@@ -1158,7 +1177,7 @@ const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function
             }
         }
     });
-    return raw.filter(l => l != '');
+    return raw.filter(l => l !== '');
 });
 function getUnstagedFiles() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1174,7 +1193,7 @@ function getModifiedUnstagedFiles() {
 exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
 function submodulePath() {
     return __awaiter(this, void 0, void 0, function* () {
-        let raw = [];
+        const raw = [];
         yield (0, exec_1.exec)('git', ['ls-files', '-s'], {
             listeners: {
                 stdline: (data) => {
@@ -1198,7 +1217,7 @@ exports.submodulePath = submodulePath;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.backupFileName = exports.wrapDetails = exports.isOwnBy = void 0;
+exports.compareUpdateTime = exports.backupFileName = exports.wrapDetails = exports.isOwnBy = void 0;
 function isOwnBy(obj, username) {
     var _a;
     return ((_a = obj.user) === null || _a === void 0 ? void 0 : _a.login) === username;
@@ -1206,10 +1225,10 @@ function isOwnBy(obj, username) {
 exports.isOwnBy = isOwnBy;
 function wrapDetails(shows, hides, wrapper) {
     let result = '';
-    if (shows.length != 0) {
+    if (shows.length !== 0) {
         result += shows.map(wrapper).join('');
     }
-    if (hides.length != 0) {
+    if (hides.length !== 0) {
         result += '<details><summary>MORE</summary>';
         result += '\n\n';
         result += hides.map(wrapper).join('');
@@ -1224,6 +1243,10 @@ function backupFileName(issue) {
     return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
 }
 exports.backupFileName = backupFileName;
+function compareUpdateTime(a, b) {
+    return new Date(a.updatedAt).getTime() - Date.parse(b);
+}
+exports.compareUpdateTime = compareUpdateTime;
 
 
 /***/ }),

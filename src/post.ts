@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
-import { exec } from '@actions/exec'
+import {exec} from '@actions/exec'
 
-const run = async () => {
+const run = async (): Promise<void> => {
     core.startGroup('Post cleanup script')
 
     if (process.env.HAS_RUN_POST_JOB) {
@@ -16,7 +16,7 @@ const run = async () => {
     const meta = JSON.stringify(
         {
             date,
-            files,
+            files
         },
         undefined,
         2
@@ -33,7 +33,7 @@ const run = async () => {
     // these should already be staged, in main.ts
     core.info(`Committing "${msg}"`)
     core.debug(meta)
-    await exec('git', ['commit', '-m', msg + '\n' + meta])
+    await exec('git', ['commit', '-m', `${msg}\n${meta}`])
     await exec('git', ['push'])
     core.info(`Pushed!`)
     core.exportVariable('HAS_RUN_POST_JOB', 'true')
@@ -42,5 +42,5 @@ const run = async () => {
 }
 
 run().catch(error => {
-    core.setFailed('Post script failed! ' + error.message)
+    core.setFailed(`Post script failed! ${error.message}`)
 })

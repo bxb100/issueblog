@@ -53,7 +53,7 @@ test('empty value check', () => {
 test('optional check', () => {
     const config = {
         ...base_config,
-        issue_number: undefined,
+        issue_number: undefined
     }
     // @ts-ignore
     coreMock.mockImplementation(k => config[k])
