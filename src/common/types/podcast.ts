@@ -1,5 +1,5 @@
-type Podcast = {
-    title: string;
-    image: string;
-    content: string;
+export type Podcast = {
+    title: string
+    image: string
+    content: string
 }

@@ -1,10 +1,9 @@
-import {IComment} from '../interface/comment'
-import {Reactions} from '../interface/reactions'
-import {IUser} from '../interface/user'
 import {GithubKit} from './github-kit'
+import {IComment} from '../interface/comment'
+import {IUser} from '../interface/user'
+import {Reactions} from '../interface/reactions'
 
 export class Comment implements IComment {
-
     readonly id: number
     readonly user: IUser | null
     readonly reactions: Reactions | undefined
@@ -21,7 +20,7 @@ export class Comment implements IComment {
         return comments.map((c: IComment): Comment => new Comment(c))
     }
 
-    isHeartBySelf(util: GithubKit<any>): Promise<boolean> {
+    async isHeartBySelf(util: GithubKit<any>): Promise<boolean> {
         if (this._existHeartReaction()) {
             return util.isHeartBySelf(this)
         }

@@ -48,7 +48,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     const date = new Date().toISOString();
     const meta = JSON.stringify({
         date,
-        files,
+        files
     }, undefined, 2);
     const msg = `Refresh README AND BACK UP (${date})`;
     // Don't want to commit if there aren't any files changed!
@@ -60,14 +60,14 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     // these should already be staged, in main.ts
     core.info(`Committing "${msg}"`);
     core.debug(meta);
-    yield (0, exec_1.exec)('git', ['commit', '-m', msg + '\n' + meta]);
+    yield (0, exec_1.exec)('git', ['commit', '-m', `${msg}\n${meta}`]);
     yield (0, exec_1.exec)('git', ['push']);
     core.info(`Pushed!`);
     core.exportVariable('HAS_RUN_POST_JOB', 'true');
     core.endGroup();
 });
 run().catch(error => {
-    core.setFailed('Post script failed! ' + error.message);
+    core.setFailed(`Post script failed! ${error.message}`);
 });
 
 

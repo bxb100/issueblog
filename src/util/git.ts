@@ -1,8 +1,8 @@
-import {exec} from '@actions/exec'
-import {statSync} from 'fs'
-import path from 'path'
 import * as core from '@actions/core'
-import {GitStatus} from "../common/types/git-status";
+import {GitStatus} from '../common/types/git-status'
+import {exec} from '@actions/exec'
+import path from 'path'
+import {statSync} from 'fs'
 
 export async function gitStatus(): Promise<GitStatus[]> {
     core.debug('Getting gitStatus()')
@@ -17,9 +17,10 @@ export async function gitStatus(): Promise<GitStatus[]> {
     core.debug(`=== output was:\n${output}`)
     return output
         .split('\n')
-        .filter(l => l != '')
+        .map(l => l.trim())
+        .filter(l => l !== '')
         .map(l => {
-            const chunks = l.trim().split(/\s+/)
+            const chunks = l.split(/\s+/)
             return {
                 flag: chunks[0],
                 path: chunks[1]
@@ -27,9 +28,9 @@ export async function gitStatus(): Promise<GitStatus[]> {
         })
 }
 
-async function getHeadSize(path: string): Promise<number | undefined> {
+async function getHeadSize(filePath: string): Promise<number | undefined> {
     let raw = ''
-    const exitCode = await exec('git', ['cat-file', '-s', `HEAD:${path}`], {
+    const exitCode = await exec('git', ['cat-file', '-s', `HEAD:${filePath}`], {
         listeners: {
             stdline: (data: string) => {
                 raw += data
@@ -103,7 +104,7 @@ const lsFile = async (
     commandLine: string,
     args?: string[]
 ): Promise<string[]> => {
-    let raw: string[] = []
+    const raw: string[] = []
     await exec(commandLine, args, {
         listeners: {
             stdline: (data: string) => {
@@ -111,7 +112,7 @@ const lsFile = async (
             }
         }
     })
-    return raw.filter(l => l != '')
+    return raw.filter(l => l !== '')
 }
 
 export async function getUnstagedFiles(): Promise<string[]> {
@@ -123,7 +124,7 @@ export async function getModifiedUnstagedFiles(): Promise<string[]> {
 }
 
 export async function submodulePath(): Promise<string[]> {
-    let raw: string[] = []
+    const raw: string[] = []
     await exec('git', ['ls-files', '-s'], {
         listeners: {
             stdline: (data: string) => {

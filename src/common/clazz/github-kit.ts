@@ -1,19 +1,18 @@
-import {context, getOctokit} from '@actions/github'
-import {GitHub} from '@actions/github/lib/utils'
 import * as core from '@actions/core'
-import {IIssue} from '../interface/issue'
+import {context, getOctokit} from '@actions/github'
+import {Comment} from './comment'
+import {Config} from '../../util/config'
+import {GitHub} from '@actions/github/lib/utils'
 import {IComment} from '../interface/comment'
+import {IIssue} from '../interface/issue'
+import {IRelease} from '../interface/release'
+import {Issue} from './issue'
+import {ProcessFunction} from '../types/process-function'
 import {Reaction} from '../interface/reaction'
 import {ReactionContent} from '../enum/reaction-content'
-import {Comment} from './comment'
-import {Issue} from './issue'
-import {Config} from '../../util/config'
-import {ProcessFunction} from "../types/process-function";
-import {IRelease} from "../interface/release";
-import {Release} from "./release";
+import {Release} from './release'
 
 export class GithubKit<T> {
-
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
     readonly repo: string
@@ -44,7 +43,7 @@ export class GithubKit<T> {
             owner: this.owner,
             repo: this.repo,
             comment_id: comment.id,
-            content: content
+            content
         })
         core.debug(`reactions:\n\n${JSON.stringify(reactions)}\n\n`)
         return reactions.data
@@ -89,6 +88,7 @@ export class GithubKit<T> {
     async getAllReleases(): Promise<Release[]> {
         let page = 1
         let releases: IRelease[] = []
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const result = await this.getRelease(page)
             if (result.length === 0) {
@@ -101,6 +101,7 @@ export class GithubKit<T> {
     }
 
     async renderMarkdown(markdown: string): Promise<string> {
+        // noinspection ES6RedundantAwait,TypeScriptValidateJSTypes
         const rendered = await this.client.rest.markdown.render({
             text: markdown,
             mode: 'markdown'
@@ -112,6 +113,7 @@ export class GithubKit<T> {
     async getAllIssues(): Promise<Issue[]> {
         let page = 1
         let issues: Issue[] = []
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const result = await this.getIssues(page)
             if (result.length === 0) {

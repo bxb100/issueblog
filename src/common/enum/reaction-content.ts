@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-shadow
 export enum ReactionContent {
     PLUS_ONE = '+1',
     MINUS_ONE = '-1',
@@ -5,5 +6,5 @@ export enum ReactionContent {
     CONFUSED = 'confused',
     HEART = 'heart',
     ROCKET = 'rocket',
-    EYES = 'eyes',
+    EYES = 'eyes'
 }
