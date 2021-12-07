@@ -13,7 +13,7 @@ Special label:
 * **Friends**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
 * **Top**: The `Top` category.
 
-Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
+Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5][^6]
 
 ## Examples
 
@@ -123,10 +123,10 @@ description
 
 
 <a name="THANKS"></a>
-[^1]: https://github.com/githubocto/flat
-[^2]: https://github.com/actions/typescript-action
-[^3]: https://github.com/actions/toolkit
-[^4]: https://github.com/actions/stale
-[^5]: https://github.com/DIYgod/RSSHub
-[^6]: https://typlog.com/featured/podcasts
-[^7]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+[^1]: https://github.com/githubocto/flat some source code
+[^2]: https://github.com/actions/typescript-action action template
+[^3]: https://github.com/actions/toolkit util
+[^4]: https://github.com/actions/stale project structure
+[^5]: https://github.com/DIYgod/RSSHub rss template
+[^6]: https://typlog.com/featured/podcasts rss.xsl
+[^7]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication action env auth
