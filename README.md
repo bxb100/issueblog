@@ -122,6 +122,7 @@ description
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 
+<a name="THANKS"></a>
 [^1]: https://github.com/githubocto/flat
 [^2]: https://github.com/actions/typescript-action
 [^3]: https://github.com/actions/toolkit
