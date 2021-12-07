@@ -16,7 +16,7 @@ inputs:
     required: false
   blog_image_url:
     description: The image url of the blog
-    default: "https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png"
+    default: "https://cdn.jsdelivr.net/gh/${{ github.repository }}/blog.png"
     required: false
   issue_number:
     description: The event issue number

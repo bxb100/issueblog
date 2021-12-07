@@ -70,7 +70,7 @@ The header of `README.md`, default:
 ### `blog_image_url` (optional)
 The image url of the blog, default is
 
-`https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png`
+`https://cdn.jsdelivr.net/gh/${{ github.repository }}/blog.png`
 
 that means the image is in the root of the repository.
 
