@@ -1,3 +1,4 @@
+<!--suppress HtmlDeprecatedAttribute-->
 <p align="center">
   <img src="https://img.shields.io/github/release/bxb100/issueblog.svg?style=flat-square" alt='release'>
   <img src="https://img.shields.io/github/release-date/bxb100/issueblog.svg?style=flat-square" alt='release-date'>
@@ -8,9 +9,9 @@
 Issue Blog is a GitHub Action that creates a blog from issues. It will search all your issues to build a blog, the issue label name will be category name.
 
 Special label:
- * **Todo**: The `TODO` category.
- * **Friends**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
- * **Top**: The `Top` category.
+* **Todo**: The `TODO` category.
+* **Friends**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
+* **Top**: The `Top` category.
 
 Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
 
@@ -30,7 +31,7 @@ on:
     types: [opened, edited]
   issue_comment:
     types: [created, edited]
-concurrency: 
+concurrency:
   # just run one action at a time
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -40,9 +41,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2 #  Check out the repository, so it can read the files it and do other operations
       - name: Generate README
-        uses: bxb100/issueblog@v1.0.2
+        uses: bxb100/issueblog@v1.0.5 # Prefer to use the latest version
         with:
-          # define the README.md file first line
+          # Define the README.md header content
           md_header: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://bxb100.github.io/blog/feed.xml)"
 ```
 ### Advanced Usage
@@ -57,6 +58,9 @@ You can enable __GitHub Page__ (`branch main in /root`) to show human-readable [
 ### `github_token` (optional)
 The GitHub token used to create an authenticated client, the default `github.token` auth scope is current repository.[^7]
 
+### `blog_author` (optional)
+The author name of the blog, the default is `${{ github.repository_owner }}`.
+
 ### `md_header` (optional)
 The header of `README.md`, default:
 ```markdown
@@ -66,7 +70,7 @@ The header of `README.md`, default:
 ### `blog_image_url` (optional)
 The image url of the blog, default is
 
- `https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png`
+`https://raw.githubusercontent.com/${{ github.repository }}/master/blog.png`
 
 that means the image is in the root of the repository.
 
