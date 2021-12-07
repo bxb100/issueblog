@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2 #  Check out the repository, so it can read the files it and do other operations
       - name: Generate README
-        uses: bxb100/issueblog@v1.0.5 # Prefer to use the latest version
+        uses: bxb100/issueblog@v1 # Prefer to use the latest version
         with:
           # Define the README.md header content
           md_header: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://bxb100.github.io/blog/feed.xml)"
