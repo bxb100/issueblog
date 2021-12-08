@@ -706,6 +706,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.rss = void 0;
+const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const art_template_1 = __importDefault(__nccwpck_require__(5660));
@@ -755,6 +756,7 @@ function rss(issues) {
                 itunes_item_image: podcastInfo.image
             });
         }
+        core.debug(JSON.stringify(feeds, null, 2));
         // generate rss xml file
         const templatePath = path.resolve(__dirname, '../view/rss.art');
         const rssXml = (0, art_template_1.default)(templatePath, feeds);

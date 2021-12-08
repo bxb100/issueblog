@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as path from 'path'
 import {GithubKit} from '../common/clazz/github-kit'
@@ -57,6 +58,7 @@ export async function rss(
         })
     }
 
+    core.debug(JSON.stringify(feeds, null, 2))
     // generate rss xml file
     const templatePath = path.resolve(__dirname, '../view/rss.art')
     const rssXml = art(templatePath, feeds)
