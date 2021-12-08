@@ -28,14 +28,14 @@ export class GithubKit<T> {
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
-        const reactions = await this.getCommentReactions(
+        const reactions = await this.getIssueCommentReactions(
             comment,
             ReactionContent.HEART
         )
         return !!reactions.find(r => r.user?.login === this.owner)
     }
 
-    async getCommentReactions(
+    async getIssueCommentReactions(
         comment: IComment,
         content?: ReactionContent
     ): Promise<Reaction[]> {

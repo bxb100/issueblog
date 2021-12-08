@@ -1,7 +1,7 @@
 export interface IPullRequest {
-    number: number;
+    number: number
     head: {
-        ref: string;
-    };
-    draft: boolean;
+        ref: string
+    }
+    draft: boolean
 }

@@ -68,6 +68,9 @@ export async function add_md_friends(
         )
     }
     const stringArray = await Promise.all(all).then(arr => arr.flat())
+    if (stringArray.length <= 0) {
+        return core.info("No friend's now.")
+    }
     this.result += friendTableTitle(this.config)
     this.result += FRIENDS_TABLE_HEAD
     this.result += stringArray.join('')

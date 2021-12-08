@@ -10,7 +10,7 @@
     "package": "ncc build --source-map --license LICENSE lib/main.js",
     "package-post": "ncc build lib/post.js -o dist/post",
     "dist": "npm run build && npm run package && npm run package-post",
-    "format": "prettier --write **/*.ts",
+    "format": "prettier --write src/*.ts src/**/*.ts src/**/**/*.ts",
     "test": "jest",
     "prepare": "husky install"
   },

@@ -96,11 +96,11 @@ class GithubKit {
     }
     isHeartBySelf(comment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const reactions = yield this.getCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
+            const reactions = yield this.getIssueCommentReactions(comment, reaction_content_1.ReactionContent.HEART);
             return !!reactions.find(r => { var _a; return ((_a = r.user) === null || _a === void 0 ? void 0 : _a.login) === this.owner; });
         });
     }
-    getCommentReactions(comment, content) {
+    getIssueCommentReactions(comment, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const reactions = yield this.client.rest.reactions.listForIssueComment({
                 owner: this.owner,
@@ -567,6 +567,9 @@ function add_md_friends(issues) {
                 .then(approved => approved.map(_makeFriendTableString)));
         }
         const stringArray = yield Promise.all(all).then(arr => arr.flat());
+        if (stringArray.length <= 0) {
+            return core.info("No friend's now.");
+        }
         this.result += (0, exports.friendTableTitle)(this.config);
         this.result += exports.FRIENDS_TABLE_HEAD;
         this.result += stringArray.join('');

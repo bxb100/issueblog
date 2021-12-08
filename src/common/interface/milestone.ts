@@ -1,3 +1,3 @@
 export interface IMilestone {
-    title: string;
+    title: string
 }

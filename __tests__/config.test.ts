@@ -10,7 +10,7 @@ const base_config = {
         '## GitLog\n' +
         'My personal blog using issues and GitHub Actions\n' +
         '[RSS Feed](https://raw.githubusercontent.com/bxb100/gitlog/master/feed.xml)',
-    blog_author: "blog_author",
+    blog_author: 'blog_author',
     github_token: '1234567',
     issue_number: '1',
     recent_limit: 'recent_limit',

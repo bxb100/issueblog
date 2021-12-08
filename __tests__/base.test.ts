@@ -4,8 +4,8 @@ import {randomInt} from 'crypto'
 
 Object.defineProperty(context, 'repo', {
     get: jest.fn(() => ({
-        owner: 'owner',
-        repo: 'repo'
+        owner: 'bxb100',
+        repo: 'issueblog-test'
     }))
 })
 
@@ -25,7 +25,7 @@ export const utils = new GithubKit<string>(
     ''
 )
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
-export const isHeartBySelfMock = jest.spyOn(utils, 'isHeartBySelf')
+export const getIssueCommentReactionsMock = jest.spyOn(utils, 'getIssueCommentReactions')
 export const getIssueCommentsMock = jest.spyOn(utils, 'getIssueComments')
 
 export const delay = <T>(result: T): Promise<T> =>

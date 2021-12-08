@@ -1,1 +1,1 @@
-export type IsoDateString = string;
+export type IsoDateString = string
