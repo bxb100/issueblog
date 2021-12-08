@@ -1,5 +1,8 @@
 import * as core from '@actions/core'
 import * as z from 'zod'
+import path from 'path'
+
+export const rootPath = path.resolve(__dirname, '../../')
 
 // schema
 const keys = [

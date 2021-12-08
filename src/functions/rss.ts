@@ -5,7 +5,8 @@ import {GithubKit} from '../common/clazz/github-kit'
 import {IRssFeed} from '../common/interface/rss-feed'
 import {Issue} from '../common/clazz/issue'
 import {Release} from '../common/clazz/release'
-import art from 'art-template'
+import {rootPath} from '../util/config'
+import {template} from '../util/template'
 
 export async function rss(
     this: GithubKit<any>,
@@ -60,11 +61,10 @@ export async function rss(
 
     core.debug(JSON.stringify(feeds, null, 2))
     // generate rss xml file
-    const templatePath = path.resolve(__dirname, '../view/rss.art')
-    const rssXml = art(templatePath, feeds)
+    const rssXml = template(feeds)
     fs.writeFileSync('./feed.xml', rssXml)
 
-    const xslPath = path.resolve(__dirname, '../view/rss.xsl')
+    const xslPath = path.resolve(rootPath, './view/rss.xsl')
     const xsl = fs.readFileSync(xslPath, 'utf8')
     fs.writeFileSync('./rss.xsl', xsl)
 }
