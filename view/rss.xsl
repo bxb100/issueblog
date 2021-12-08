@@ -172,6 +172,10 @@
                 }
 
                 .foot {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
                     border-top: 1px solid rgba(0, 0, 0, .04);
                     padding: 10px 20px;
                 }
