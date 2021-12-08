@@ -15,7 +15,11 @@ import {add_md_top} from './functions/top-process'
 import {backup} from './functions/backup'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
+import path from 'path'
 import {rss} from './functions/rss'
+
+// because of the run in dist dir
+export const rootPath = path.resolve(__dirname, '../')
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')

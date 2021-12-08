@@ -5,7 +5,7 @@ import {GithubKit} from '../common/clazz/github-kit'
 import {IRssFeed} from '../common/interface/rss-feed'
 import {Issue} from '../common/clazz/issue'
 import {Release} from '../common/clazz/release'
-import {rootPath} from '../util/config'
+import {rootPath} from '../main'
 import {template} from '../util/template'
 
 export async function rss(

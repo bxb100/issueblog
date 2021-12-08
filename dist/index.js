@@ -706,7 +706,7 @@ exports.rss = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
-const config_1 = __nccwpck_require__(2156);
+const main_1 = __nccwpck_require__(3109);
 const template_1 = __nccwpck_require__(8162);
 function rss(issues) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -758,7 +758,7 @@ function rss(issues) {
         // generate rss xml file
         const rssXml = (0, template_1.template)(feeds);
         fs.writeFileSync('./feed.xml', rssXml);
-        const xslPath = path.resolve(config_1.rootPath, './view/rss.xsl');
+        const xslPath = path.resolve(main_1.rootPath, './view/rss.xsl');
         const xsl = fs.readFileSync(xslPath, 'utf8');
         fs.writeFileSync('./rss.xsl', xsl);
     });
@@ -890,7 +890,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.rootPath = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
@@ -903,7 +907,10 @@ const top_process_1 = __nccwpck_require__(2686);
 const backup_1 = __nccwpck_require__(6169);
 const exec_1 = __nccwpck_require__(1514);
 const config_1 = __nccwpck_require__(2156);
+const path_1 = __importDefault(__nccwpck_require__(1017));
 const rss_1 = __nccwpck_require__(4258);
+// because of the run in dist dir
+exports.rootPath = path_1.default.resolve(__dirname, '../');
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('[INFO] quick start: https://github.com/bxb100/gitlog');
@@ -993,15 +1000,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getConfig = exports.rootPath = void 0;
+exports.getConfig = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const z = __importStar(__nccwpck_require__(3301));
-const path_1 = __importDefault(__nccwpck_require__(1017));
-exports.rootPath = path_1.default.resolve(__dirname, '../../');
 // schema
 const keys = [
     'github_token',
@@ -1252,9 +1254,9 @@ exports.template = void 0;
 const fs = __importStar(__nccwpck_require__(7147));
 const handlebars_1 = __importDefault(__nccwpck_require__(7492));
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const config_1 = __nccwpck_require__(2156);
+const main_1 = __nccwpck_require__(3109);
 function template(data) {
-    const templatePath = path_1.default.resolve(config_1.rootPath, './view/rss.handlebars');
+    const templatePath = path_1.default.resolve(main_1.rootPath, './view/rss.handlebars');
     handlebars_1.default.registerHelper('typeof', function (context, type) {
         return typeof context === type;
     });
