@@ -9,7 +9,7 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new GithubKit<string>(
+export const utils = new GithubKit(
     {
         blog_image_url: '',
         blog_author: '',
@@ -21,8 +21,7 @@ export const utils = new GithubKit<string>(
         md_header: '',
         anchor_number: '',
         recent_limit: ''
-    },
-    ''
+    }
 )
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const getIssueCommentReactionsMock = jest.spyOn(utils, 'getIssueCommentReactions')

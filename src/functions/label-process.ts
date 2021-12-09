@@ -1,28 +1,22 @@
-import {FRIEND_ISSUE_LABEL} from './friend-process'
+import * as core from '@actions/core'
+import {Constant} from '../common/clazz/constant'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
-import {TODO_ISSUE_LABEL} from './todo-process'
-import {TOP_ISSUE_LABEL} from './top-process'
 import {wrapDetails} from '../util/util'
 
 export async function add_md_label(
-    this: GithubKit<string>,
+    kit: GithubKit,
     issues: Issue[]
 ): Promise<void> {
     const bucket: {[k: string]: Issue[]} = {}
     for (const issue of issues) {
         const labels = issue.labels
-            .map(l => {
-                if (typeof l === 'object') {
-                    return l.name || this.config.unlabeled_title
-                }
-                return l
-            })
+            .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
             .filter(
                 l =>
-                    l !== FRIEND_ISSUE_LABEL &&
-                    l !== TOP_ISSUE_LABEL &&
-                    l !== TODO_ISSUE_LABEL
+                    l !== Constant.FRIEND &&
+                    l !== Constant.TOP &&
+                    l !== Constant.TODO
             )
 
         // ignore issue without label or
@@ -34,16 +28,19 @@ export async function add_md_label(
             bucket[label].push(issue)
         }
     }
-    const anchorNumber: number = parseInt(this.config.anchor_number)
+    const anchorNumber: number = parseInt(kit.config.anchor_number)
 
+    let labelSection = ''
     for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
-        this.result += `\n## ${key}\n`
+        labelSection += `\n## ${key}\n`
         const issueList = bucket[key]
 
-        this.result += wrapDetails(
+        labelSection += wrapDetails(
             issueList.slice(0, anchorNumber),
             issueList.slice(anchorNumber),
             i => i.mdIssueInfo()
         )
     }
+    core.debug(`labelSection: ${labelSection}`)
+    kit.sectionMap.set(Constant.EACH_LABEL, labelSection)
 }

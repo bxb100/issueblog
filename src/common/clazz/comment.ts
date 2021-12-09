@@ -20,7 +20,7 @@ export class Comment implements IComment {
         return comments.map((c: IComment): Comment => new Comment(c))
     }
 
-    async isHeartBySelf(util: GithubKit<any>): Promise<boolean> {
+    async isHeartBySelf(util: GithubKit): Promise<boolean> {
         if (this._existHeartReaction()) {
             return util.isHeartBySelf(this)
         }
