@@ -10,23 +10,38 @@ export async function add_md_label(
 ): Promise<void> {
     const bucket: {[k: string]: Issue[]} = {}
     for (const issue of issues) {
+        // ignore issue with empty label or
+        // label equal ignore case _LINKS_, _TOP_ or _TODO_
+        const tempBucket: {[k: string]: Issue[]} = {}
+        let flag = false
         for (const label of issue.labels) {
             const labelValue = Issue.getLabelValue(label)
             if (
-                labelValue &&
-                labelValue.toLowerCase() !== Constant.LINKS.toLowerCase() &&
-                labelValue.toLowerCase() !== Constant.TOP.toLowerCase() &&
-                labelValue.toLowerCase() !== Constant.TODO.toLowerCase()
+                labelValue === undefined ||
+                labelValue.toLowerCase() === Constant.LINKS.toLowerCase() ||
+                labelValue.toLowerCase() === Constant.TOP.toLowerCase() ||
+                labelValue.toLowerCase() === Constant.TODO.toLowerCase()
             ) {
-                if (!bucket[labelValue]) {
-                    bucket[labelValue] = []
-                }
-                bucket[labelValue].push(issue)
-            } else {
-                // ignore issue with empty label or
-                // label equal ignore case _LINKS_, _TOP_ or _TODO_
+                flag = true
                 break
             }
+            if (!tempBucket[labelValue]) {
+                tempBucket[labelValue] = []
+            }
+            tempBucket[labelValue].push(issue)
+        }
+        if (flag) {
+            continue
+        }
+        // terrible code
+        // but it's simple to read
+        for (const labelValue in tempBucket) {
+            if (!bucket[labelValue]) {
+                bucket[labelValue] = []
+            }
+            bucket[labelValue] = bucket[labelValue].concat(
+                tempBucket[labelValue]
+            )
         }
     }
     const anchorNumber: number = parseInt(kit.config.anchor_number)

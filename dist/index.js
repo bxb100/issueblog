@@ -571,22 +571,34 @@ function add_md_label(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const bucket = {};
         for (const issue of issues) {
+            // ignore issue with empty label or
+            // label equal ignore case _LINKS_, _TOP_ or _TODO_
+            const tempBucket = {};
+            let flag = false;
             for (const label of issue.labels) {
                 const labelValue = issue_1.Issue.getLabelValue(label);
-                if (labelValue &&
-                    labelValue.toLowerCase() !== constant_1.Constant.LINKS.toLowerCase() &&
-                    labelValue.toLowerCase() !== constant_1.Constant.TOP.toLowerCase() &&
-                    labelValue.toLowerCase() !== constant_1.Constant.TODO.toLowerCase()) {
-                    if (!bucket[labelValue]) {
-                        bucket[labelValue] = [];
-                    }
-                    bucket[labelValue].push(issue);
-                }
-                else {
-                    // ignore issue with empty label or
-                    // label equal ignore case _LINKS_, _TOP_ or _TODO_
+                if (labelValue === undefined ||
+                    labelValue.toLowerCase() === constant_1.Constant.LINKS.toLowerCase() ||
+                    labelValue.toLowerCase() === constant_1.Constant.TOP.toLowerCase() ||
+                    labelValue.toLowerCase() === constant_1.Constant.TODO.toLowerCase()) {
+                    flag = true;
                     break;
                 }
+                if (!tempBucket[labelValue]) {
+                    tempBucket[labelValue] = [];
+                }
+                tempBucket[labelValue].push(issue);
+            }
+            if (flag) {
+                continue;
+            }
+            // terrible code
+            // but it's simple to read
+            for (const labelValue in tempBucket) {
+                if (!bucket[labelValue]) {
+                    bucket[labelValue] = [];
+                }
+                bucket[labelValue] = bucket[labelValue].concat(tempBucket[labelValue]);
             }
         }
         const anchorNumber = parseInt(kit.config.anchor_number);
