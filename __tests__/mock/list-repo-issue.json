@@ -1392,8 +1392,8 @@
       {
         "id": 3610958729,
         "node_id": "LA_kwDOGevNuc7XOtuJ",
-        "url": "https://api.github.com/repos/bxb100/issueblog-test/labels/Friends",
-        "name": "Friends",
+        "url": "https://api.github.com/repos/bxb100/issueblog-test/labels/Links",
+        "name": "Links",
         "color": "9618E0",
         "default": false,
         "description": ""

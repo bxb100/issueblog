@@ -54,7 +54,7 @@ export class Issue implements IIssue {
         return label
     }
 
-    getLabels(kit: GithubKit): string[] {
+    getLabelName(kit: GithubKit): string[] {
         return this.labels
             .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
             .filter(Boolean)

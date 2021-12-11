@@ -10,22 +10,23 @@ export async function add_md_label(
 ): Promise<void> {
     const bucket: {[k: string]: Issue[]} = {}
     for (const issue of issues) {
-        const labels = issue.labels
-            .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
-            .filter(
-                l =>
-                    l !== Constant.FRIEND &&
-                    l !== Constant.TOP &&
-                    l !== Constant.TODO
-            )
-
-        // ignore issue without label or
-        // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
-        for (const label of labels) {
-            if (!bucket[label]) {
-                bucket[label] = []
+        for (const label of issue.labels) {
+            const labelValue = Issue.getLabelValue(label)
+            if (
+                labelValue &&
+                labelValue.toLowerCase() !== Constant.LINKS.toLowerCase() &&
+                labelValue.toLowerCase() !== Constant.TOP.toLowerCase() &&
+                labelValue.toLowerCase() !== Constant.TODO.toLowerCase()
+            ) {
+                if (!bucket[labelValue]) {
+                    bucket[labelValue] = []
+                }
+                bucket[labelValue].push(issue)
+            } else {
+                // ignore issue with empty label or
+                // label equal ignore case _LINKS_, _TOP_ or _TODO_
+                break
             }
-            bucket[label].push(issue)
         }
     }
     const anchorNumber: number = parseInt(kit.config.anchor_number)

@@ -29,7 +29,7 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
             pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
             link: issue.html_url,
             author: kit.owner,
-            category: issue.getLabels(kit)
+            category: issue.getLabelName(kit)
         })
     }
 

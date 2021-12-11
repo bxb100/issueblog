@@ -58,7 +58,7 @@ class Constant {
     }
     convertBlogContent(map) {
         let content = this.header;
-        content += map.get(Constant.FRIEND) || '';
+        content += map.get(Constant.LINKS) || '';
         content += map.get(Constant.TOP) || '';
         content += map.get(Constant.RECENT) || '';
         content += map.get(Constant.EACH_LABEL) || '';
@@ -67,7 +67,7 @@ class Constant {
     }
 }
 exports.Constant = Constant;
-Constant.FRIEND = 'Friends';
+Constant.LINKS = 'Links';
 Constant.TOP = 'Top';
 Constant.RECENT = 'Recent';
 Constant.TODO = 'Todo';
@@ -121,7 +121,7 @@ const constant_1 = __nccwpck_require__(6464);
 const issue_1 = __nccwpck_require__(7751);
 const reaction_content_1 = __nccwpck_require__(4943);
 const release_1 = __nccwpck_require__(1401);
-const friend_process_1 = __nccwpck_require__(8556);
+const links_process_1 = __nccwpck_require__(7143);
 const label_process_1 = __nccwpck_require__(4476);
 const recent_process_1 = __nccwpck_require__(5688);
 const todo_process_1 = __nccwpck_require__(269);
@@ -242,7 +242,7 @@ class GithubKit {
             // using subscriber-publisher rewrite this is better?
             const issues = yield this.getAllIssues();
             const mainProcess = Promise.all([
-                (0, friend_process_1.add_md_friends)(this, issues),
+                (0, links_process_1.add_md_friends)(this, issues),
                 (0, top_process_1.add_md_top)(this, issues),
                 (0, recent_process_1.add_md_recent)(this, issues),
                 (0, todo_process_1.add_md_todo)(this, issues),
@@ -301,7 +301,7 @@ class Issue {
         }
         return label;
     }
-    getLabels(kit) {
+    getLabelName(kit) {
         return this.labels
             .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
             .filter(Boolean);
@@ -528,7 +528,84 @@ function saveIssue(kit, issue, info) {
 
 /***/ }),
 
-/***/ 8556:
+/***/ 4476:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_label = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
+const issue_1 = __nccwpck_require__(7751);
+const util_1 = __nccwpck_require__(7657);
+function add_md_label(kit, issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bucket = {};
+        for (const issue of issues) {
+            for (const label of issue.labels) {
+                const labelValue = issue_1.Issue.getLabelValue(label);
+                if (labelValue &&
+                    labelValue.toLowerCase() !== constant_1.Constant.LINKS.toLowerCase() &&
+                    labelValue.toLowerCase() !== constant_1.Constant.TOP.toLowerCase() &&
+                    labelValue.toLowerCase() !== constant_1.Constant.TODO.toLowerCase()) {
+                    if (!bucket[labelValue]) {
+                        bucket[labelValue] = [];
+                    }
+                    bucket[labelValue].push(issue);
+                }
+                else {
+                    // ignore issue with empty label or
+                    // label equal ignore case _LINKS_, _TOP_ or _TODO_
+                    break;
+                }
+            }
+        }
+        const anchorNumber = parseInt(kit.config.anchor_number);
+        let labelSection = '';
+        for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
+            labelSection += `\n## ${key}\n`;
+            const issueList = bucket[key];
+            labelSection += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
+        }
+        core.debug(`labelSection: ${labelSection}`);
+        kit.sectionMap.set(constant_1.Constant.EACH_LABEL, labelSection);
+    });
+}
+exports.add_md_label = add_md_label;
+
+
+/***/ }),
+
+/***/ 7143:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -590,7 +667,7 @@ function _makeFriendTableString(comment) {
 }
 function add_md_friends(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.FRIEND));
+        const friendIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.LINKS));
         const all = [];
         for (const issue of friendIssues) {
             all.push(kit
@@ -614,83 +691,10 @@ function add_md_friends(kit, issues) {
         friendSection += exports.FRIENDS_TABLE_HEAD;
         friendSection += stringArray.join('');
         core.debug(`add_md_friends:\n\n${friendSection}\n\n`);
-        kit.sectionMap.set(constant_1.Constant.FRIEND, friendSection);
+        kit.sectionMap.set(constant_1.Constant.LINKS, friendSection);
     });
 }
 exports.add_md_friends = add_md_friends;
-
-
-/***/ }),
-
-/***/ 4476:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_label = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-const constant_1 = __nccwpck_require__(6464);
-const issue_1 = __nccwpck_require__(7751);
-const util_1 = __nccwpck_require__(7657);
-function add_md_label(kit, issues) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const bucket = {};
-        for (const issue of issues) {
-            const labels = issue.labels
-                .map(l => issue_1.Issue.getLabelValue(l) || kit.config.unlabeled_title)
-                .filter(l => l !== constant_1.Constant.FRIEND &&
-                l !== constant_1.Constant.TOP &&
-                l !== constant_1.Constant.TODO);
-            // ignore issue without label or
-            // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
-            for (const label of labels) {
-                if (!bucket[label]) {
-                    bucket[label] = [];
-                }
-                bucket[label].push(issue);
-            }
-        }
-        const anchorNumber = parseInt(kit.config.anchor_number);
-        let labelSection = '';
-        for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
-            labelSection += `\n## ${key}\n`;
-            const issueList = bucket[key];
-            labelSection += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
-        }
-        core.debug(`labelSection: ${labelSection}`);
-        kit.sectionMap.set(constant_1.Constant.EACH_LABEL, labelSection);
-    });
-}
-exports.add_md_label = add_md_label;
 
 
 /***/ }),
@@ -810,7 +814,7 @@ function rss(kit, issues) {
                 pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
                 link: issue.html_url,
                 author: kit.owner,
-                category: issue.getLabels(kit)
+                category: issue.getLabelName(kit)
             });
         }
         // insert release

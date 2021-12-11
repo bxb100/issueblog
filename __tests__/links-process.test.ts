@@ -1,4 +1,4 @@
-import {add_md_friends, FRIENDS_TABLE_HEAD, friendTableTitle} from '../src/functions/friend-process'
+import {add_md_friends, FRIENDS_TABLE_HEAD, friendTableTitle} from '../src/functions/links-process'
 import {Comment} from '../src/common/clazz/comment'
 import {Issue} from '../src/common/clazz/issue'
 // @ts-ignore
@@ -31,7 +31,7 @@ test('test generate string', async () => {
     })
 
     await add_md_friends(utils, await utils.getIssues(1))
-    expect(utils.sectionMap.get(Constant.FRIEND)).toEqual(
+    expect(utils.sectionMap.get(Constant.LINKS)).toEqual(
         `${friendTableTitle(utils.config)}${FRIENDS_TABLE_HEAD}` +
         '| 兔子鮮笙 | https://tuzi.moe | 20 岁的天才少年 |\n' +
         '| 兔子鮮笙 | https://tuzi.moe | desc\\:测试 |\n'

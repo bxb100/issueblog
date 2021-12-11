@@ -1,5 +1,5 @@
 export class Constant {
-    static readonly FRIEND = 'Friends'
+    static readonly LINKS = 'Links'
     static readonly TOP = 'Top'
     static readonly RECENT = 'Recent'
     static readonly TODO = 'Todo'
@@ -13,7 +13,7 @@ export class Constant {
 
     convertBlogContent(map: Map<string, string>): string {
         let content: string = this.header
-        content += map.get(Constant.FRIEND) || ''
+        content += map.get(Constant.LINKS) || ''
         content += map.get(Constant.TOP) || ''
         content += map.get(Constant.RECENT) || ''
         content += map.get(Constant.EACH_LABEL) || ''

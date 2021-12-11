@@ -10,7 +10,7 @@ Issue Blog is a GitHub Action that creates a blog from issues. It will search al
 
 Special label:
 * **Todo**: The `TODO` category.
-* **Friends**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#friends](#friends)
+* **Links**: The `Links` category. If you give a heart reaction to the comment, it will be added to the link category, rule see [#links](#links)
 * **Top**: The `Top` category.
 
 Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
@@ -97,8 +97,8 @@ Not using now.
 
 
 ## Rules:
-<a name="friends"></a>
-### `friends` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
+<a name="links"></a>
+### `links` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
 ```markdown
 name:GitBlog
 link:https://github.com/yihong0618/gitblog
