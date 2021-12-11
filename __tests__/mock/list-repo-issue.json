@@ -1397,6 +1397,9 @@
         "color": "9618E0",
         "default": false,
         "description": ""
+      },
+      {
+        "name": "Friends"
       }
     ],
     "state": "open",
