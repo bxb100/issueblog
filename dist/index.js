@@ -45,6 +45,37 @@ exports.Comment = Comment;
 
 /***/ }),
 
+/***/ 6464:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Constant = void 0;
+class Constant {
+    constructor(header) {
+        this.header = header;
+    }
+    convertBlogContent(map) {
+        let content = this.header;
+        content += map.get(Constant.LINKS) || '';
+        content += map.get(Constant.TOP) || '';
+        content += map.get(Constant.RECENT) || '';
+        content += map.get(Constant.EACH_LABEL) || '';
+        content += map.get(Constant.TODO) || '';
+        return content;
+    }
+}
+exports.Constant = Constant;
+Constant.LINKS = 'Links';
+Constant.TOP = 'Top';
+Constant.RECENT = 'Recent';
+Constant.TODO = 'Todo';
+Constant.EACH_LABEL = 'Label';
+
+
+/***/ }),
+
 /***/ 1403:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -78,21 +109,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GithubKit = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const comment_1 = __nccwpck_require__(8802);
+const constant_1 = __nccwpck_require__(6464);
 const issue_1 = __nccwpck_require__(7751);
 const reaction_content_1 = __nccwpck_require__(4943);
 const release_1 = __nccwpck_require__(1401);
+const links_process_1 = __nccwpck_require__(7143);
+const label_process_1 = __nccwpck_require__(4476);
+const recent_process_1 = __nccwpck_require__(5688);
+const todo_process_1 = __nccwpck_require__(269);
+const top_process_1 = __nccwpck_require__(2686);
+const backup_1 = __nccwpck_require__(6169);
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const rss_1 = __nccwpck_require__(4258);
 class GithubKit {
-    constructor(config, initResult) {
+    constructor(config) {
+        this.sectionMap = new Map();
         this.config = config;
         this.client = (0, github_1.getOctokit)(config.github_token);
         this.owner = github_1.context.repo.owner;
         this.repo = github_1.context.repo.repo;
-        this.result = initResult;
     }
     isHeartBySelf(comment) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -194,19 +237,27 @@ class GithubKit {
             return issues;
         });
     }
-    processIssues(...functions) {
+    process() {
         return __awaiter(this, void 0, void 0, function* () {
+            // using subscriber-publisher rewrite this is better?
             const issues = yield this.getAllIssues();
-            for (const f of functions) {
-                try {
-                    // sub method path under the src
-                    yield f.call(this, issues);
-                }
-                catch (error) {
-                    core.warning(`${f.name} run error: ${error}`);
-                }
-            }
-            return this.result;
+            const mainProcess = Promise.all([
+                (0, links_process_1.add_md_friends)(this, issues),
+                (0, top_process_1.add_md_top)(this, issues),
+                (0, recent_process_1.add_md_recent)(this, issues),
+                (0, todo_process_1.add_md_todo)(this, issues),
+                (0, label_process_1.add_md_label)(this, issues)
+            ]).then(() => {
+                const constant = new constant_1.Constant(this.config.md_header);
+                fs_1.default.writeFileSync('README.md', constant.convertBlogContent(this.sectionMap));
+            }, err => {
+                throw err;
+            });
+            return Promise.all([
+                mainProcess,
+                (0, rss_1.rss)(this, issues),
+                (0, backup_1.backup)(this, issues)
+            ]);
         });
     }
 }
@@ -244,32 +295,20 @@ class Issue {
     static cast(data) {
         return data.map(d => new Issue(d));
     }
-    getLabels(kit) {
+    static getLabelValue(label) {
+        if (typeof label === 'object') {
+            return label.name;
+        }
+        return label;
+    }
+    getLabelName(kit) {
         return this.labels
-            .map(l => {
-            let name;
-            if (typeof l === 'string') {
-                name = l;
-            }
-            else if (typeof l === 'object') {
-                name = l.name;
-            }
-            return name || kit.config.unlabeled_title;
-        })
+            .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
             .filter(Boolean);
     }
     containLabel(label) {
-        label = label.toLowerCase();
-        return this.labels.some(l => {
-            var _a;
-            if (typeof l === 'string') {
-                return l.toLowerCase() === label;
-            }
-            else if (typeof l === 'object') {
-                return ((_a = l.name) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === label;
-            }
-            return false;
-        });
+        label = label.toLowerCase().trim();
+        return this.labels.some(l => { var _a; return ((_a = Issue.getLabelValue(l)) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === label; });
     }
     bodyToLines() {
         var _a;
@@ -422,7 +461,7 @@ const util_1 = __nccwpck_require__(7657);
 const BACKUP_PATH = './backup/';
 const METADATA_NAME = '.metadata';
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
-function backup(issues) {
+function backup(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
         // make sure backup directory exists
         fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH);
@@ -445,7 +484,7 @@ function backup(issues) {
             }
         }
         // backup issue
-        yield Promise.all(needBackupIssues.flatMap((issue) => __awaiter(this, void 0, void 0, function* () { return saveIssue(this, issue, parse[issue.number]); })));
+        yield Promise.all(needBackupIssues.flatMap((issue) => __awaiter(this, void 0, void 0, function* () { return saveIssue(kit, issue, parse[issue.number]); })));
         // update metadata
         parse = needBackupIssues.reduce((acc, issue) => {
             acc[issue.number] = {
@@ -489,7 +528,7 @@ function saveIssue(kit, issue, info) {
 
 /***/ }),
 
-/***/ 8556:
+/***/ 4476:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -523,8 +562,89 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_friends = exports.friendTableTitle = exports.FRIENDS_TABLE_HEAD = exports.FRIEND_ISSUE_LABEL = void 0;
+exports.add_md_label = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
+const issue_1 = __nccwpck_require__(7751);
+const util_1 = __nccwpck_require__(7657);
+function add_md_label(kit, issues) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bucket = {};
+        // ignore issue with empty label or
+        // label equal ignore case _LINKS_, _TOP_ or _TODO_
+        const filterIssues = issues.filter(issue => !issue.labels
+            .map(l => issue_1.Issue.getLabelValue(l))
+            .map(l => l && l.toLowerCase())
+            .some(l => {
+            return (l === '' ||
+                l === constant_1.Constant.LINKS.toLowerCase() ||
+                l === constant_1.Constant.TOP.toLowerCase() ||
+                l === constant_1.Constant.TODO.toLowerCase());
+        }));
+        for (const issue of filterIssues) {
+            for (const label of issue.labels) {
+                const labelValue = issue_1.Issue.getLabelValue(label);
+                if (labelValue) {
+                    if (!bucket[labelValue]) {
+                        bucket[labelValue] = [];
+                    }
+                    bucket[labelValue].push(issue);
+                }
+            }
+        }
+        const anchorNumber = parseInt(kit.config.anchor_number);
+        let labelSection = '';
+        for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
+            labelSection += `\n## ${key}\n`;
+            const issueList = bucket[key];
+            labelSection += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
+        }
+        core.debug(`labelSection: ${labelSection}`);
+        kit.sectionMap.set(constant_1.Constant.EACH_LABEL, labelSection);
+    });
+}
+exports.add_md_label = add_md_label;
+
+
+/***/ }),
+
+/***/ 7143:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.add_md_friends = exports.friendTableTitle = exports.FRIENDS_TABLE_HEAD = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
 // -----------------------------------------------------------------------------
 /**
  * name:xxxxxx
@@ -532,7 +652,6 @@ const core = __importStar(__nccwpck_require__(2186));
  * desc:xxxxxx
  */
 // -----------------------------------------------------------------------------
-exports.FRIEND_ISSUE_LABEL = 'Friends';
 exports.FRIENDS_TABLE_HEAD = '| Name | Link | Desc |\n| ---- | ---- | ---- |\n';
 const friendTableTitle = (config) => `\n## ${config.links_title}\n`;
 exports.friendTableTitle = friendTableTitle;
@@ -549,16 +668,17 @@ function _makeFriendTableString(comment) {
     }
     return '';
 }
-function add_md_friends(issues) {
+function add_md_friends(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.containLabel(exports.FRIEND_ISSUE_LABEL));
+        const friendIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.LINKS));
         const all = [];
         for (const issue of friendIssues) {
-            all.push(this.getIssueComments(issue)
+            all.push(kit
+                .getIssueComments(issue)
                 .then((comments) => __awaiter(this, void 0, void 0, function* () {
                 const approved = [];
                 for (const comment of comments) {
-                    if (yield comment.isHeartBySelf(this)) {
+                    if (yield comment.isHeartBySelf(kit)) {
                         approved.push(comment);
                     }
                 }
@@ -570,10 +690,11 @@ function add_md_friends(issues) {
         if (stringArray.length <= 0) {
             return core.info("No friend's now.");
         }
-        this.result += (0, exports.friendTableTitle)(this.config);
-        this.result += exports.FRIENDS_TABLE_HEAD;
-        this.result += stringArray.join('');
-        core.debug(`add_md_friends:\n\n${this.result}\n\n`);
+        let friendSection = (0, exports.friendTableTitle)(kit.config);
+        friendSection += exports.FRIENDS_TABLE_HEAD;
+        friendSection += stringArray.join('');
+        core.debug(`add_md_friends:\n\n${friendSection}\n\n`);
+        kit.sectionMap.set(constant_1.Constant.LINKS, friendSection);
     });
 }
 exports.add_md_friends = add_md_friends;
@@ -581,67 +702,30 @@ exports.add_md_friends = add_md_friends;
 
 /***/ }),
 
-/***/ 4476:
+/***/ 5688:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_label = void 0;
-const friend_process_1 = __nccwpck_require__(8556);
-const todo_process_1 = __nccwpck_require__(269);
-const top_process_1 = __nccwpck_require__(2686);
-const util_1 = __nccwpck_require__(7657);
-function add_md_label(issues) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const bucket = {};
-        for (const issue of issues) {
-            const labels = issue.labels
-                .map(l => {
-                if (typeof l === 'object') {
-                    return l.name || this.config.unlabeled_title;
-                }
-                return l;
-            })
-                .filter(l => l !== friend_process_1.FRIEND_ISSUE_LABEL &&
-                l !== top_process_1.TOP_ISSUE_LABEL &&
-                l !== todo_process_1.TODO_ISSUE_LABEL);
-            // ignore issue without label or
-            // label in FRIEND_ISSUE_LABEL or TOP_ISSUE_LABEL or TODO_ISSUE_LABEL
-            for (const label of labels) {
-                if (!bucket[label]) {
-                    bucket[label] = [];
-                }
-                bucket[label].push(issue);
-            }
-        }
-        const anchorNumber = parseInt(this.config.anchor_number);
-        for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
-            this.result += `\n## ${key}\n`;
-            const issueList = bucket[key];
-            this.result += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
-        }
-    });
-}
-exports.add_md_label = add_md_label;
-
-
-/***/ }),
-
-/***/ 5688:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -653,14 +737,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.add_md_recent = exports.RECENT_ISSUE_TITLE = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
 const RECENT_ISSUE_TITLE = (config) => `\n## ${config.recent_title}\n`;
 exports.RECENT_ISSUE_TITLE = RECENT_ISSUE_TITLE;
-function add_md_recent(issues) {
+function add_md_recent(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const limit = parseInt(this.config.recent_limit);
+        const limit = parseInt(kit.config.recent_limit);
         const recentIssues = issues.slice(0, limit);
-        this.result += (0, exports.RECENT_ISSUE_TITLE)(this.config);
-        this.result += recentIssues.map(i => i.mdIssueInfo()).join('');
+        let recentSection = (0, exports.RECENT_ISSUE_TITLE)(kit.config);
+        recentSection += recentIssues.map(i => i.mdIssueInfo()).join('');
+        core.debug(`recentSection: ${recentSection}`);
+        kit.sectionMap.set(constant_1.Constant.RECENT, recentSection);
     });
 }
 exports.add_md_recent = add_md_recent;
@@ -708,42 +796,43 @@ const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const main_1 = __nccwpck_require__(3109);
 const template_1 = __nccwpck_require__(8162);
-function rss(issues) {
+function rss(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const feeds = {
-            atomLink: `https://github.com/${this.owner}/${this.repo}/feed.xml`,
-            description: `RSS feed of ${this.config.blog_author}'s ${this.repo}`,
-            link: `https://github.com/${this.owner}/${this.repo}`,
-            title: `${this.config.blog_author}'s Blog`,
+            atomLink: `https://github.com/${kit.owner}/${kit.repo}/feed.xml`,
+            description: `RSS feed of ${kit.config.blog_author}'s ${kit.repo}`,
+            link: `https://github.com/${kit.owner}/${kit.repo}`,
+            title: `${kit.config.blog_author}'s Blog`,
             lastBuildDate: new Date().toUTCString(),
-            itunes_image: this.config.blog_image_url
+            itunes_image: kit.config.blog_image_url,
+            image: kit.config.blog_image_url
         };
         feeds.items = [];
         // insert issues
         for (const issue of issues) {
-            const content = (issue.body && (yield this.renderMarkdown(issue.body))) || '';
+            const content = (issue.body && (yield kit.renderMarkdown(issue.body))) || '';
             feeds.items.push({
                 title: issue.title,
                 description: content,
                 pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
                 link: issue.html_url,
-                author: this.owner,
-                category: issue.getLabels(this)
+                author: kit.owner,
+                category: issue.getLabelName(kit)
             });
         }
         // insert release
-        const releases = yield this.getAllReleases();
+        const releases = yield kit.getAllReleases();
         for (const release of releases) {
-            const podcastInfo = yield release.convertToPodcastInfo(this);
+            const podcastInfo = yield release.convertToPodcastInfo(kit);
             if (podcastInfo == null) {
                 continue;
             }
-            feeds.itunes_author = this.owner;
+            feeds.itunes_author = kit.owner;
             feeds.items.push({
                 title: podcastInfo.title,
                 description: podcastInfo.content,
                 link: release.html_url,
-                author: this.owner,
+                author: kit.owner,
                 pubDate: new Date(release.published_at || new Date()).toUTCString(),
                 enclosure: release.assets[0] && {
                     url: release.assets[0].browser_download_url,
@@ -773,6 +862,25 @@ exports.rss = rss;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -783,22 +891,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_todo = exports.TODO_ISSUE_TITLE = exports.TODO_ISSUE_LABEL = void 0;
+exports.add_md_todo = exports.TODO_ISSUE_TITLE = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
 const util_1 = __nccwpck_require__(7657);
-exports.TODO_ISSUE_LABEL = 'Todo';
 exports.TODO_ISSUE_TITLE = '## TODO\n';
-function add_md_todo(issues) {
+function add_md_todo(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const todoIssues = issues.filter(issue => issue.containLabel(exports.TODO_ISSUE_LABEL));
+        const todoIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.TODO));
         if (todoIssues.length === 0) {
             return;
         }
-        this.result += exports.TODO_ISSUE_TITLE;
+        let todoSection = exports.TODO_ISSUE_TITLE;
         for (const todoIssue of todoIssues) {
             const { title, undone, done } = parse(todoIssue);
-            this.result += `TODO list from ${title}\n`;
-            this.result += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
+            todoSection += `TODO list from ${title}\n`;
+            todoSection += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
         }
+        core.debug(`TODO section: ${todoSection}`);
+        kit.sectionMap.set(constant_1.Constant.TODO, todoSection);
     });
 }
 exports.add_md_todo = add_md_todo;
@@ -824,10 +935,29 @@ function parse(issue) {
 /***/ }),
 
 /***/ 2686:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -838,18 +968,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.add_md_top = exports.TOP_ISSUE_TITLE = exports.TOP_ISSUE_LABEL = void 0;
-exports.TOP_ISSUE_LABEL = 'Top';
+exports.add_md_top = exports.TOP_ISSUE_TITLE = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const constant_1 = __nccwpck_require__(6464);
 const TOP_ISSUE_TITLE = (config) => `\n## ${config.top_title}\n`;
 exports.TOP_ISSUE_TITLE = TOP_ISSUE_TITLE;
-function add_md_top(issues) {
+function add_md_top(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const topIssues = issues.filter(issue => issue.containLabel(exports.TOP_ISSUE_LABEL));
+        const topIssues = issues.filter(i => i.containLabel(constant_1.Constant.TOP));
         if (topIssues.length <= 0) {
             return;
         }
-        this.result += (0, exports.TOP_ISSUE_TITLE)(this.config);
-        this.result += topIssues.map(i => i.mdIssueInfo()).join('');
+        let topSection = (0, exports.TOP_ISSUE_TITLE)(kit.config);
+        topSection += topIssues.map(i => i.mdIssueInfo()).join('');
+        core.debug(`topSection: ${topSection}`);
+        kit.sectionMap.set(constant_1.Constant.TOP, topSection);
     });
 }
 exports.add_md_top = add_md_top;
@@ -896,19 +1029,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.rootPath = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const fs = __importStar(__nccwpck_require__(7147));
 const git_1 = __nccwpck_require__(7023);
 const github_kit_1 = __nccwpck_require__(1403);
-const friend_process_1 = __nccwpck_require__(8556);
-const label_process_1 = __nccwpck_require__(4476);
-const recent_process_1 = __nccwpck_require__(5688);
-const todo_process_1 = __nccwpck_require__(269);
-const top_process_1 = __nccwpck_require__(2686);
-const backup_1 = __nccwpck_require__(6169);
 const exec_1 = __nccwpck_require__(1514);
 const config_1 = __nccwpck_require__(2156);
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const rss_1 = __nccwpck_require__(4258);
 // because of the run in dist dir
 exports.rootPath = path_1.default.resolve(__dirname, '../');
 function run() {
@@ -929,9 +1054,10 @@ function run() {
         core.endGroup();
         // 2. 处理 issues
         core.startGroup('Process issues');
-        const issuesUtil = new github_kit_1.GithubKit(config, config.md_header);
-        const text = yield issuesUtil.processIssues(friend_process_1.add_md_friends, top_process_1.add_md_top, recent_process_1.add_md_recent, label_process_1.add_md_label, todo_process_1.add_md_todo, backup_1.backup, rss_1.rss);
-        fs.writeFileSync('README.md', text);
+        const issuesUtil = new github_kit_1.GithubKit(config);
+        yield issuesUtil
+            .process()
+            .catch(err => core.setFailed(`process failed: ${err}`));
         core.endGroup();
         // 3. 暂存需要提交的文件
         core.startGroup('Monitor file changes');

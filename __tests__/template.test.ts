@@ -7,6 +7,7 @@ const testData = '{\n' +
     '  "title": "bxb100\'s Blog",\n' +
     '  "lastBuildDate": "Wed, 08 Dec 2021 13:46:26 GMT",\n' +
     '  "itunes_image": "https://cdn.jsdelivr.net/gh/bxb100/issueblog-test/blog.png",\n' +
+    '  "image": "https://cdn.jsdelivr.net/gh/bxb100/issueblog-test/blog.png",\n' +
     '  "items": [\n' +
     '    {\n' +
     '      "title": "测试文章 2",\n' +
@@ -231,6 +232,7 @@ test('testTemplate', async () => {
   // simple test
 
   const result = template(JSON.parse(testData))
+  console.log(result)
   expect(result).toContain('<![CDATA[测试文章 2]]>')
   expect(result).toContain('<category>测试</category>')
   expect(result).toContain('<guid isPermaLink="false">https://github.com/bxb100/issueblog-test/issues/20</guid>')

@@ -14,8 +14,7 @@
         {{#if link}}
             <link>{{link}}</link>
         {{else}}
-            <link>
-            https://github.com/bxb100/issueblog</link>
+            <link>https://github.com/bxb100/issueblog</link>
         {{/if}}
         <atom:link href="{{atomLink}}" rel="self" type="application/rss+xml" />
         {{#if description}}
@@ -36,7 +35,13 @@
                 <itunes:image href="{{itunes_image}}" />
             {{/if}}
             {{#if itunes_category}}
-                <itunes:category text="{{itunes_category}}" />{{/if}}
+                <itunes:category text="{{itunes_category}}" />
+            {{/if}}
+            {{#if itunes_email}}
+                <itunes:owner>
+                    <itunes:email>{{itunes_email}}</itunes:email>
+                </itunes:owner>
+            {{/if}}
         {{/if}}
         {{#if language}}
             <language>{{language}}</language>
@@ -58,7 +63,6 @@
         {{#if ttl}}
             <ttl>{{ttl}}</ttl>
         {{/if}}
-
         {{#each items}}
             <item>
                 <title><![CDATA[{{{title}}}]]></title>
@@ -68,7 +72,8 @@
                     <description><![CDATA[{{{title}}}]]></description>
                 {{/if}}
                 {{#if pubDate}}
-                    <pubDate>{{pubDate}}</pubDate>{{/if}}
+                    <pubDate>{{pubDate}}</pubDate>
+                {{/if}}
                 {{#if guid}}
                     <guid isPermaLink="false">{{guid}}</guid>
                 {{else}}
@@ -88,13 +93,15 @@
                 {{/if}}
                 {{#if ../itunes_author}}
                     {{#if itunes_item_image}}
-                        <itunes:image href="{{itunes_item_image}}" />{{/if}}
+                        <itunes:image href="{{itunes_item_image}}" />
+                    {{/if}}
                     {{#if itunes_duration}}
                         <itunes:duration>{{itunes_duration}}</itunes:duration>
                     {{/if}}
                 {{/if}}
                 {{#if author}}
-                    <author><![CDATA[{{author}}]]></author>{{/if}}
+                    <author><![CDATA[{{author}}]]></author>
+                {{/if}}
                 {{#if (typeof category 'string')}}
                     <category>{{category}}</category>
                 {{else}}

@@ -99,8 +99,8 @@ Not using now.
 
 
 ## Rules:
-<a name="friends"></a>
-### `friends` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
+<a name="links"></a>
+### `links` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
 ```markdown
 name:GitBlog
 link:https://github.com/yihong0618/gitblog

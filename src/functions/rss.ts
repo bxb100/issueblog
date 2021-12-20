@@ -8,46 +8,44 @@ import {Release} from '../common/clazz/release'
 import {rootPath} from '../main'
 import {template} from '../util/template'
 
-export async function rss(
-    this: GithubKit<any>,
-    issues: Issue[]
-): Promise<void> {
+export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
     const feeds: IRssFeed = {
-        atomLink: `https://github.com/${this.owner}/${this.repo}/feed.xml`,
-        description: `RSS feed of ${this.config.blog_author}'s ${this.repo}`,
-        link: `https://github.com/${this.owner}/${this.repo}`,
-        title: `${this.config.blog_author}'s Blog`,
+        atomLink: `https://github.com/${kit.owner}/${kit.repo}/feed.xml`,
+        description: `RSS feed of ${kit.config.blog_author}'s ${kit.repo}`,
+        link: `https://github.com/${kit.owner}/${kit.repo}`,
+        title: `${kit.config.blog_author}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
-        itunes_image: this.config.blog_image_url
+        itunes_image: kit.config.blog_image_url,
+        image: kit.config.blog_image_url
     }
     feeds.items = []
     // insert issues
     for (const issue of issues) {
         const content =
-            (issue.body && (await this.renderMarkdown(issue.body))) || ''
+            (issue.body && (await kit.renderMarkdown(issue.body))) || ''
         feeds.items.push({
             title: issue.title,
             description: content,
             pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
             link: issue.html_url,
-            author: this.owner,
-            category: issue.getLabels(this)
+            author: kit.owner,
+            category: issue.getLabelName(kit)
         })
     }
 
     // insert release
-    const releases: Release[] = await this.getAllReleases()
+    const releases: Release[] = await kit.getAllReleases()
     for (const release of releases) {
-        const podcastInfo = await release.convertToPodcastInfo(this)
+        const podcastInfo = await release.convertToPodcastInfo(kit)
         if (podcastInfo == null) {
             continue
         }
-        feeds.itunes_author = this.owner
+        feeds.itunes_author = kit.owner
         feeds.items.push({
             title: podcastInfo.title,
             description: podcastInfo.content,
             link: release.html_url,
-            author: this.owner,
+            author: kit.owner,
             pubDate: new Date(release.published_at || new Date()).toUTCString(),
             enclosure: release.assets[0] && {
                 url: release.assets[0].browser_download_url,
