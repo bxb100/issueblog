@@ -10,10 +10,7 @@ const BACKUP_PATH = './backup/'
 const METADATA_NAME = '.metadata'
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME
 
-export async function backup(
-    this: GithubKit<any>,
-    issues: Issue[]
-): Promise<void> {
+export async function backup(kit: GithubKit, issues: Issue[]): Promise<void> {
     // make sure backup directory exists
     fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH)
     // make sure metadata file exists
@@ -38,7 +35,7 @@ export async function backup(
     // backup issue
     await Promise.all(
         needBackupIssues.flatMap(async issue =>
-            saveIssue(this, issue, parse[issue.number])
+            saveIssue(kit, issue, parse[issue.number])
         )
     )
     // update metadata
@@ -56,7 +53,7 @@ export async function backup(
 }
 
 async function saveIssue(
-    kit: GithubKit<any>,
+    kit: GithubKit,
     issue: Issue,
     info: MetadataInfo
 ): Promise<void> {

@@ -22,4 +22,5 @@ export interface IRssFeed {
     itunes_author?: string
     itunes_category?: string
     itunes_image?: string
+    itunes_email?: string
 }
