@@ -12,7 +12,9 @@ inputs:
     required: false
   md_header:
     description: The header of content
-    default: "## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)"
+    default: |
+      ## GitLog 
+      My personal blog using issues and GitHub Actions [RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)
     required: false
   blog_image_url:
     description: The image url of the blog

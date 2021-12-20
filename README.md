@@ -66,8 +66,10 @@ The author name of the blog, the default is `${{ github.repository_owner }}`.
 ### `md_header` (optional)
 The header of `README.md`, default:
 ```markdown
-## GitLog\nMy personal blog using issues and GitHub Actions\n[RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)
+## GitLog 
+My personal blog using issues and GitHub Actions [RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)
 ```
+([YAML multiple lines](https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-in-yaml-over-multiple-lines))
 
 ### `blog_image_url` (optional)
 The image url of the blog, default is
@@ -125,9 +127,9 @@ description
 
 
 <a name="THANKS"></a>
-[^1]: https://github.com/githubocto/flat some source code
-[^2]: https://github.com/actions/typescript-action action template
-[^3]: https://github.com/actions/toolkit util
-[^4]: https://github.com/actions/stale project structure
-[^5]: https://typlog.com/featured/podcasts rss.xsl
-[^6]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication action env auth
+[^1]: https://github.com/githubocto/flat some source code  
+[^2]: https://github.com/actions/typescript-action action template  
+[^3]: https://github.com/actions/toolkit util  
+[^4]: https://github.com/actions/stale project structure  
+[^5]: https://typlog.com/featured/podcasts rss.xsl  
+[^6]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication action env auth  
