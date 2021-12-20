@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as fs from 'fs'
 import {
     diff,
     getModifiedUnstagedFiles,
@@ -6,12 +7,15 @@ import {
     submodulePath
 } from './util/git'
 import {GithubKit} from './common/clazz/github-kit'
+import {add_md_friends} from './functions/friend-process'
+import {add_md_label} from './functions/label-process'
+import {add_md_recent} from './functions/recent-process'
+import {add_md_todo} from './functions/todo-process'
+import {add_md_top} from './functions/top-process'
+import {backup} from './functions/backup'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
-import path from 'path'
-
-// because of the run in dist dir
-export const rootPath = path.resolve(__dirname, '../')
+import {rss} from './functions/rss'
 
 async function run(): Promise<void> {
     core.info('[INFO] quick start: https://github.com/bxb100/gitlog')
@@ -32,10 +36,20 @@ async function run(): Promise<void> {
 
     // 2. 处理 issues
     core.startGroup('Process issues')
-    const issuesUtil = new GithubKit(config)
-    await issuesUtil
-        .process()
-        .catch(err => core.setFailed(`process failed: ${err}`))
+    const issuesUtil: GithubKit<string> = new GithubKit(
+        config,
+        config.md_header
+    )
+    const text: string = await issuesUtil.processIssues(
+        add_md_friends,
+        add_md_top,
+        add_md_recent,
+        add_md_label,
+        add_md_todo,
+        backup,
+        rss
+    )
+    fs.writeFileSync('README.md', text)
     core.endGroup()
 
     // 3. 暂存需要提交的文件

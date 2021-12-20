@@ -1,30 +1,29 @@
-import * as core from '@actions/core'
-import {Constant} from '../common/clazz/constant'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
 
+export const TODO_ISSUE_LABEL = 'Todo'
 export const TODO_ISSUE_TITLE = '## TODO\n'
 
 export async function add_md_todo(
-    kit: GithubKit,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
-    const todoIssues = issues.filter(issue => issue.containLabel(Constant.TODO))
+    const todoIssues = issues.filter(issue =>
+        issue.containLabel(TODO_ISSUE_LABEL)
+    )
 
     if (todoIssues.length === 0) {
         return
     }
 
-    let todoSection: string = TODO_ISSUE_TITLE
+    this.result += TODO_ISSUE_TITLE
 
     for (const todoIssue of todoIssues) {
         const {title, undone, done} = parse(todoIssue)
-        todoSection += `TODO list from ${title}\n`
-        todoSection += wrapDetails(undone, done, s => `${s}\n`)
+        this.result += `TODO list from ${title}\n`
+        this.result += wrapDetails(undone, done, s => `${s}\n`)
     }
-    core.debug(`TODO section: ${todoSection}`)
-    kit.sectionMap.set(Constant.TODO, todoSection)
 }
 
 function parse(issue: Issue): {
