@@ -12,7 +12,7 @@ It will search all your issues to build a blog. The issue's label will be the ca
 
 Special Label (ignore case):
 * **Todo**: The `TODO` category.
-* **Links**: The `Links` category. If you give a heart reaction :heart: to the comment, it will be added to the link category, rule see [#friends](#links)
+* **Links**: The `Links` category. If you give a heart reaction :heart: to the comment, it will be added to the link category, rule see [#links](#links)
 * **Top**: The `Top` category.
 
 Inspired by [GitBlog](https://github.com/yihong0618/gitblog) and other projects.[^1][^2][^3][^4][^5]
