@@ -26,7 +26,7 @@ export class Release implements IRelease {
         return releases.map(release => new Release(release))
     }
 
-    async convertToPodcastInfo(kit: GithubKit): Promise<Podcast | null> {
+    async convertToPodcastInfo(kit: GithubKit<any>): Promise<Podcast | null> {
         // noinspection RegExpRedundantEscape
         const markdownImageRegx = /!\[.*?\]\((.*?)\)/
         const defaultImage =

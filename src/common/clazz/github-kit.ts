@@ -2,36 +2,29 @@ import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import {Comment} from './comment'
 import {Config} from '../../util/config'
-import {Constant} from './constant'
 import {GitHub} from '@actions/github/lib/utils'
 import {IComment} from '../interface/comment'
 import {IIssue} from '../interface/issue'
 import {IRelease} from '../interface/release'
 import {Issue} from './issue'
+import {ProcessFunction} from '../types/process-function'
 import {Reaction} from '../interface/reaction'
 import {ReactionContent} from '../enum/reaction-content'
 import {Release} from './release'
-import {add_md_friends} from '../../functions/links-process'
-import {add_md_label} from '../../functions/label-process'
-import {add_md_recent} from '../../functions/recent-process'
-import {add_md_todo} from '../../functions/todo-process'
-import {add_md_top} from '../../functions/top-process'
-import {backup} from '../../functions/backup'
-import fs from 'fs'
-import {rss} from '../../functions/rss'
 
-export class GithubKit {
+export class GithubKit<T> {
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
     readonly repo: string
     readonly config: Config
-    readonly sectionMap = new Map<string, string>()
+    result: T
 
-    constructor(config: Config) {
+    constructor(config: Config, initResult: T) {
         this.config = config
         this.client = getOctokit(config.github_token)
         this.owner = context.repo.owner
         this.repo = context.repo.repo
+        this.result = initResult
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
@@ -132,32 +125,16 @@ export class GithubKit {
         return issues
     }
 
-    async process(): Promise<void[]> {
-        // using subscriber-publisher rewrite this is better?
-        const issues = await this.getAllIssues()
-
-        const mainProcess: Promise<void> = Promise.all([
-            add_md_friends(this, issues),
-            add_md_top(this, issues),
-            add_md_recent(this, issues),
-            add_md_todo(this, issues),
-            add_md_label(this, issues)
-        ]).then(
-            () => {
-                const constant = new Constant(this.config.md_header)
-                fs.writeFileSync(
-                    'README.md',
-                    constant.convertBlogContent(this.sectionMap)
-                )
-            },
-            err => {
-                throw err
+    async processIssues(...functions: ProcessFunction<T>[]): Promise<T> {
+        const issues: Issue[] = await this.getAllIssues()
+        for (const f of functions) {
+            try {
+                // sub method path under the src
+                await f.call(this, issues)
+            } catch (error) {
+                core.warning(`${f.name} run error: ${error}`)
             }
-        )
-        return Promise.all([
-            mainProcess,
-            rss(this, issues),
-            backup(this, issues)
-        ])
+        }
+        return this.result
     }
 }

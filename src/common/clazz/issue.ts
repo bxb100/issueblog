@@ -47,24 +47,30 @@ export class Issue implements IIssue {
         return data.map(d => new Issue(d))
     }
 
-    static getLabelValue(label: string | ILabel): string | undefined {
-        if (typeof label === 'object') {
-            return label.name
-        }
-        return label
-    }
-
-    getLabelName(kit: GithubKit): string[] {
+    getLabels(kit: GithubKit<any>): string[] {
         return this.labels
-            .map(l => Issue.getLabelValue(l) || kit.config.unlabeled_title)
+            .map(l => {
+                let name: string | undefined
+                if (typeof l === 'string') {
+                    name = l
+                } else if (typeof l === 'object') {
+                    name = l.name
+                }
+                return name || kit.config.unlabeled_title
+            })
             .filter(Boolean)
     }
 
     containLabel(label: string): boolean {
-        label = label.toLowerCase().trim()
-        return this.labels.some(
-            l => Issue.getLabelValue(l)?.toLowerCase() === label
-        )
+        label = label.toLowerCase()
+        return this.labels.some(l => {
+            if (typeof l === 'string') {
+                return l.toLowerCase() === label
+            } else if (typeof l === 'object') {
+                return l.name?.toLowerCase() === label
+            }
+            return false
+        })
     }
 
     bodyToLines(): string[] {

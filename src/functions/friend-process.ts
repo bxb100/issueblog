@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import {Comment} from '../common/clazz/comment'
 import {Config} from '../util/config'
-import {Constant} from '../common/clazz/constant'
 import {GithubKit} from '../common/clazz/github-kit'
 import {IComment} from '../common/interface/comment'
 import {Issue} from '../common/clazz/issue'
@@ -13,6 +12,8 @@ import {Issue} from '../common/clazz/issue'
  * desc:xxxxxx
  */
 // -----------------------------------------------------------------------------
+
+export const FRIEND_ISSUE_LABEL = 'Friends'
 export const FRIENDS_TABLE_HEAD =
     '| Name | Link | Desc |\n| ---- | ---- | ---- |\n'
 
@@ -35,7 +36,6 @@ function _makeFriendTableString(comment: IComment): string {
         .map(line => friendRegex(line))
         .filter(s => s !== null && s.length > 2)
         .forEach(s => (dict[s[1]] = s[2].trim()))
-
     if (dict) {
         core.debug(`_makeFriendTableString:\n\n${JSON.stringify(dict)}\n\n`)
         return friendTableTemplate(dict['name'], dict['link'], dict['desc'])
@@ -44,22 +44,21 @@ function _makeFriendTableString(comment: IComment): string {
 }
 
 export async function add_md_friends(
-    kit: GithubKit,
+    this: GithubKit<string>,
     issues: Issue[]
 ): Promise<void> {
     const friendIssues = issues.filter(issue =>
-        issue.containLabel(Constant.LINKS)
+        issue.containLabel(FRIEND_ISSUE_LABEL)
     )
 
     const all: Promise<string[]>[] = []
     for (const issue of friendIssues) {
         all.push(
-            kit
-                .getIssueComments(issue)
+            this.getIssueComments(issue)
                 .then(async (comments: Comment[]) => {
                     const approved: IComment[] = []
                     for (const comment of comments) {
-                        if (await comment.isHeartBySelf(kit)) {
+                        if (await comment.isHeartBySelf(this)) {
                             approved.push(comment)
                         }
                     }
@@ -72,11 +71,8 @@ export async function add_md_friends(
     if (stringArray.length <= 0) {
         return core.info("No friend's now.")
     }
-
-    let friendSection: string = friendTableTitle(kit.config)
-    friendSection += FRIENDS_TABLE_HEAD
-    friendSection += stringArray.join('')
-    core.debug(`add_md_friends:\n\n${friendSection}\n\n`)
-
-    kit.sectionMap.set(Constant.LINKS, friendSection)
+    this.result += friendTableTitle(this.config)
+    this.result += FRIENDS_TABLE_HEAD
+    this.result += stringArray.join('')
+    core.debug(`add_md_friends:\n\n${this.result}\n\n`)
 }
