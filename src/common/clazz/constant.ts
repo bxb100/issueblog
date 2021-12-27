@@ -1,9 +1,10 @@
 export class Constant {
-    static readonly LINKS = 'Links'
-    static readonly TOP = 'Top'
-    static readonly RECENT = 'Recent'
-    static readonly TODO = 'Todo'
-    static readonly EACH_LABEL = 'Label'
+    static readonly FIXED_LINKS = 'Links'
+    static readonly FIXED_TOP = 'Top'
+    static readonly FIXED_TODO = 'Todo'
+    static readonly FIXED_RECENT = 'Recent'
+
+    static readonly AGG_EACH_LABEL = 'Label'
 
     readonly header: string
 
@@ -13,11 +14,11 @@ export class Constant {
 
     convertBlogContent(map: Map<string, string>): string {
         let content: string = this.header
-        content += map.get(Constant.LINKS) || ''
-        content += map.get(Constant.TOP) || ''
-        content += map.get(Constant.RECENT) || ''
-        content += map.get(Constant.EACH_LABEL) || ''
-        content += map.get(Constant.TODO) || ''
+        content += map.get(Constant.FIXED_LINKS) || ''
+        content += map.get(Constant.FIXED_TOP) || ''
+        content += map.get(Constant.FIXED_RECENT) || ''
+        content += map.get(Constant.AGG_EACH_LABEL) || ''
+        content += map.get(Constant.FIXED_TODO) || ''
         return content
     }
 }

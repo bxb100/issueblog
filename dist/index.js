@@ -58,20 +58,20 @@ class Constant {
     }
     convertBlogContent(map) {
         let content = this.header;
-        content += map.get(Constant.LINKS) || '';
-        content += map.get(Constant.TOP) || '';
-        content += map.get(Constant.RECENT) || '';
-        content += map.get(Constant.EACH_LABEL) || '';
-        content += map.get(Constant.TODO) || '';
+        content += map.get(Constant.FIXED_LINKS) || '';
+        content += map.get(Constant.FIXED_TOP) || '';
+        content += map.get(Constant.FIXED_RECENT) || '';
+        content += map.get(Constant.AGG_EACH_LABEL) || '';
+        content += map.get(Constant.FIXED_TODO) || '';
         return content;
     }
 }
 exports.Constant = Constant;
-Constant.LINKS = 'Links';
-Constant.TOP = 'Top';
-Constant.RECENT = 'Recent';
-Constant.TODO = 'Todo';
-Constant.EACH_LABEL = 'Label';
+Constant.FIXED_LINKS = 'Links';
+Constant.FIXED_TOP = 'Top';
+Constant.FIXED_TODO = 'Todo';
+Constant.FIXED_RECENT = 'Recent';
+Constant.AGG_EACH_LABEL = 'Label';
 
 
 /***/ }),
@@ -241,12 +241,26 @@ class GithubKit {
         return __awaiter(this, void 0, void 0, function* () {
             // using subscriber-publisher rewrite this is better?
             const issues = yield this.getAllIssues();
+            // some process don't need link, todo
+            const filterIssues = [];
+            for (const issue of issues) {
+                // if the issue contain link, todo label, omit
+                if (issue.labels
+                    .map(l => issue_1.Issue.getLabelValue(l))
+                    .some(l => {
+                    (l === null || l === void 0 ? void 0 : l.toLowerCase()) === constant_1.Constant.FIXED_LINKS.toLowerCase() ||
+                        (l === null || l === void 0 ? void 0 : l.toLowerCase()) === constant_1.Constant.FIXED_TODO.toLowerCase();
+                })) {
+                    continue;
+                }
+                filterIssues.push(issue);
+            }
             const mainProcess = Promise.all([
                 (0, links_process_1.add_md_friends)(this, issues),
                 (0, top_process_1.add_md_top)(this, issues),
                 (0, recent_process_1.add_md_recent)(this, issues),
                 (0, todo_process_1.add_md_todo)(this, issues),
-                (0, label_process_1.add_md_label)(this, issues)
+                (0, label_process_1.add_md_label)(this, filterIssues)
             ]).then(() => {
                 const constant = new constant_1.Constant(this.config.md_header);
                 fs_1.default.writeFileSync('README.md', constant.convertBlogContent(this.sectionMap));
@@ -255,8 +269,8 @@ class GithubKit {
             });
             return Promise.all([
                 mainProcess,
-                (0, rss_1.rss)(this, issues),
-                (0, backup_1.backup)(this, issues)
+                (0, rss_1.rss)(this, filterIssues),
+                (0, backup_1.backup)(this, filterIssues)
             ]);
         });
     }
@@ -570,21 +584,14 @@ const util_1 = __nccwpck_require__(7657);
 function add_md_label(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
         const bucket = {};
-        // ignore issue with empty label or
-        // label equal ignore case _LINKS_, _TOP_ or _TODO_
-        const filterIssues = issues.filter(issue => !issue.labels
-            .map(l => issue_1.Issue.getLabelValue(l))
-            .map(l => l && l.toLowerCase())
-            .some(l => {
-            return (l === '' ||
-                l === constant_1.Constant.LINKS.toLowerCase() ||
-                l === constant_1.Constant.TOP.toLowerCase() ||
-                l === constant_1.Constant.TODO.toLowerCase());
-        }));
-        for (const issue of filterIssues) {
+        for (const issue of issues) {
             for (const label of issue.labels) {
                 const labelValue = issue_1.Issue.getLabelValue(label);
-                if (labelValue) {
+                // don't need top, todo, link category
+                if (labelValue &&
+                    labelValue.toLowerCase() !== constant_1.Constant.FIXED_LINKS.toLowerCase() &&
+                    labelValue.toLowerCase() !== constant_1.Constant.FIXED_TODO.toLowerCase() &&
+                    labelValue.toLowerCase() !== constant_1.Constant.FIXED_TOP.toLowerCase()) {
                     if (!bucket[labelValue]) {
                         bucket[labelValue] = [];
                     }
@@ -600,7 +607,7 @@ function add_md_label(kit, issues) {
             labelSection += (0, util_1.wrapDetails)(issueList.slice(0, anchorNumber), issueList.slice(anchorNumber), i => i.mdIssueInfo());
         }
         core.debug(`labelSection: ${labelSection}`);
-        kit.sectionMap.set(constant_1.Constant.EACH_LABEL, labelSection);
+        kit.sectionMap.set(constant_1.Constant.AGG_EACH_LABEL, labelSection);
     });
 }
 exports.add_md_label = add_md_label;
@@ -670,7 +677,7 @@ function _makeFriendTableString(comment) {
 }
 function add_md_friends(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const friendIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.LINKS));
+        const friendIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.FIXED_LINKS));
         const all = [];
         for (const issue of friendIssues) {
             all.push(kit
@@ -694,7 +701,7 @@ function add_md_friends(kit, issues) {
         friendSection += exports.FRIENDS_TABLE_HEAD;
         friendSection += stringArray.join('');
         core.debug(`add_md_friends:\n\n${friendSection}\n\n`);
-        kit.sectionMap.set(constant_1.Constant.LINKS, friendSection);
+        kit.sectionMap.set(constant_1.Constant.FIXED_LINKS, friendSection);
     });
 }
 exports.add_md_friends = add_md_friends;
@@ -748,7 +755,7 @@ function add_md_recent(kit, issues) {
         let recentSection = (0, exports.RECENT_ISSUE_TITLE)(kit.config);
         recentSection += recentIssues.map(i => i.mdIssueInfo()).join('');
         core.debug(`recentSection: ${recentSection}`);
-        kit.sectionMap.set(constant_1.Constant.RECENT, recentSection);
+        kit.sectionMap.set(constant_1.Constant.FIXED_RECENT, recentSection);
     });
 }
 exports.add_md_recent = add_md_recent;
@@ -898,7 +905,7 @@ const util_1 = __nccwpck_require__(7657);
 exports.TODO_ISSUE_TITLE = '## TODO\n';
 function add_md_todo(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const todoIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.TODO));
+        const todoIssues = issues.filter(issue => issue.containLabel(constant_1.Constant.FIXED_TODO));
         if (todoIssues.length === 0) {
             return;
         }
@@ -909,7 +916,7 @@ function add_md_todo(kit, issues) {
             todoSection += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
         }
         core.debug(`TODO section: ${todoSection}`);
-        kit.sectionMap.set(constant_1.Constant.TODO, todoSection);
+        kit.sectionMap.set(constant_1.Constant.FIXED_TODO, todoSection);
     });
 }
 exports.add_md_todo = add_md_todo;
@@ -975,14 +982,14 @@ const TOP_ISSUE_TITLE = (config) => `\n## ${config.top_title}\n`;
 exports.TOP_ISSUE_TITLE = TOP_ISSUE_TITLE;
 function add_md_top(kit, issues) {
     return __awaiter(this, void 0, void 0, function* () {
-        const topIssues = issues.filter(i => i.containLabel(constant_1.Constant.TOP));
+        const topIssues = issues.filter(i => i.containLabel(constant_1.Constant.FIXED_TOP));
         if (topIssues.length <= 0) {
             return;
         }
         let topSection = (0, exports.TOP_ISSUE_TITLE)(kit.config);
         topSection += topIssues.map(i => i.mdIssueInfo()).join('');
         core.debug(`topSection: ${topSection}`);
-        kit.sectionMap.set(constant_1.Constant.TOP, topSection);
+        kit.sectionMap.set(constant_1.Constant.FIXED_TOP, topSection);
     });
 }
 exports.add_md_top = add_md_top;

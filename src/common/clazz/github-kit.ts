@@ -135,13 +135,29 @@ export class GithubKit {
     async process(): Promise<void[]> {
         // using subscriber-publisher rewrite this is better?
         const issues = await this.getAllIssues()
+        // some process don't need link, todo
+        const filterIssues: Issue[] = []
+        for (const issue of issues) {
+            // if the issue contain link, todo label, omit
+            if (
+                issue.labels
+                    .map(l => Issue.getLabelValue(l))
+                    .some(l => {
+                        l?.toLowerCase() === Constant.FIXED_LINKS.toLowerCase() ||
+                            l?.toLowerCase() === Constant.FIXED_TODO.toLowerCase()
+                    })
+            ) {
+                continue
+            }
+            filterIssues.push(issue)
+        }
 
         const mainProcess: Promise<void> = Promise.all([
             add_md_friends(this, issues),
             add_md_top(this, issues),
             add_md_recent(this, issues),
             add_md_todo(this, issues),
-            add_md_label(this, issues)
+            add_md_label(this, filterIssues)
         ]).then(
             () => {
                 const constant = new Constant(this.config.md_header)
@@ -156,8 +172,8 @@ export class GithubKit {
         )
         return Promise.all([
             mainProcess,
-            rss(this, issues),
-            backup(this, issues)
+            rss(this, filterIssues),
+            backup(this, filterIssues)
         ])
     }
 }

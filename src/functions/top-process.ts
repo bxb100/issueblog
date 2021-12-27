@@ -11,7 +11,7 @@ export async function add_md_top(
     kit: GithubKit,
     issues: Issue[]
 ): Promise<void> {
-    const topIssues = issues.filter(i => i.containLabel(Constant.TOP))
+    const topIssues = issues.filter(i => i.containLabel(Constant.FIXED_TOP))
 
     if (topIssues.length <= 0) {
         return
@@ -21,5 +21,5 @@ export async function add_md_top(
     topSection += topIssues.map(i => i.mdIssueInfo()).join('')
     core.debug(`topSection: ${topSection}`)
 
-    kit.sectionMap.set(Constant.TOP, topSection)
+    kit.sectionMap.set(Constant.FIXED_TOP, topSection)
 }

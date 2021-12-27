@@ -10,7 +10,7 @@ export async function add_md_todo(
     kit: GithubKit,
     issues: Issue[]
 ): Promise<void> {
-    const todoIssues = issues.filter(issue => issue.containLabel(Constant.TODO))
+    const todoIssues = issues.filter(issue => issue.containLabel(Constant.FIXED_TODO))
 
     if (todoIssues.length === 0) {
         return
@@ -24,7 +24,7 @@ export async function add_md_todo(
         todoSection += wrapDetails(undone, done, s => `${s}\n`)
     }
     core.debug(`TODO section: ${todoSection}`)
-    kit.sectionMap.set(Constant.TODO, todoSection)
+    kit.sectionMap.set(Constant.FIXED_TODO, todoSection)
 }
 
 function parse(issue: Issue): {

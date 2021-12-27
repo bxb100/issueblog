@@ -19,5 +19,5 @@ export async function add_md_recent(
     recentSection += recentIssues.map(i => i.mdIssueInfo()).join('')
     core.debug(`recentSection: ${recentSection}`)
 
-    kit.sectionMap.set(Constant.RECENT, recentSection)
+    kit.sectionMap.set(Constant.FIXED_RECENT, recentSection)
 }

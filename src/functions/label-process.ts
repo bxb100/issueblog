@@ -9,26 +9,16 @@ export async function add_md_label(
     issues: Issue[]
 ): Promise<void> {
     const bucket: {[k: string]: Issue[]} = {}
-    // ignore issue with empty label or
-    // label equal ignore case _LINKS_, _TOP_ or _TODO_
-    const filterIssues = issues.filter(
-        issue =>
-            !issue.labels
-                .map(l => Issue.getLabelValue(l))
-                .map(l => l && l.toLowerCase())
-                .some(l => {
-                    return (
-                        l === '' ||
-                        l === Constant.LINKS.toLowerCase() ||
-                        l === Constant.TOP.toLowerCase() ||
-                        l === Constant.TODO.toLowerCase()
-                    )
-                })
-    )
-    for (const issue of filterIssues) {
+    for (const issue of issues) {
         for (const label of issue.labels) {
             const labelValue = Issue.getLabelValue(label)
-            if (labelValue) {
+            // don't need top, todo, link category
+            if (
+                labelValue &&
+                labelValue.toLowerCase() !== Constant.FIXED_LINKS.toLowerCase() &&
+                labelValue.toLowerCase() !== Constant.FIXED_TODO.toLowerCase() &&
+                labelValue.toLowerCase() !== Constant.FIXED_TOP.toLowerCase()
+            ) {
                 if (!bucket[labelValue]) {
                     bucket[labelValue] = []
                 }
@@ -50,5 +40,5 @@ export async function add_md_label(
         )
     }
     core.debug(`labelSection: ${labelSection}`)
-    kit.sectionMap.set(Constant.EACH_LABEL, labelSection)
+    kit.sectionMap.set(Constant.AGG_EACH_LABEL, labelSection)
 }

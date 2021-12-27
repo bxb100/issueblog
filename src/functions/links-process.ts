@@ -48,7 +48,7 @@ export async function add_md_friends(
     issues: Issue[]
 ): Promise<void> {
     const friendIssues = issues.filter(issue =>
-        issue.containLabel(Constant.LINKS)
+        issue.containLabel(Constant.FIXED_LINKS)
     )
 
     const all: Promise<string[]>[] = []
@@ -78,5 +78,5 @@ export async function add_md_friends(
     friendSection += stringArray.join('')
     core.debug(`add_md_friends:\n\n${friendSection}\n\n`)
 
-    kit.sectionMap.set(Constant.LINKS, friendSection)
+    kit.sectionMap.set(Constant.FIXED_LINKS, friendSection)
 }
