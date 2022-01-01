@@ -43,7 +43,6 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
         feeds.itunes_author = kit.owner
         const audio = {
             description: podcastInfo.content,
-            link: release.html_url,
             author: kit.owner,
             pubDate: new Date(release.published_at || new Date()).toUTCString(),
             category: 'Podcast',
@@ -57,6 +56,7 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
                     {
                         ...audio,
                         title: `${podcastInfo.title}-${i}`,
+                        link: `${release.html_url}?p=${i}`,
                         enclosure: asset && {
                             url: asset.browser_download_url,
                             length: `${asset.size}`,
@@ -67,6 +67,12 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
             )
         }
     }
+
+    feeds.items.sort(
+        (a, b) =>
+            new Date(b.pubDate || 0).getTime() -
+            new Date(a.pubDate || 0).getTime()
+    )
 
     core.debug(JSON.stringify(feeds, null, 2))
     // generate rss xml file
