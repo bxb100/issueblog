@@ -284,7 +284,7 @@
                             </div>
                         </xsl:if>
                         <xsl:for-each select="/rss/channel/item">
-                            <xsl:sort select="enclosure/@url" order="descending"/>
+                            <xsl:sort select="enclosure/@url" order="ascending"/>
                             <div class="item inner">
                                 <div class="item_meta">
                                     <span>

@@ -42,7 +42,6 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
         }
         feeds.itunes_author = kit.owner
         const audio = {
-            title: podcastInfo.title,
             description: podcastInfo.content,
             link: release.html_url,
             author: kit.owner,
@@ -50,12 +49,14 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
             category: 'Podcast',
             itunes_item_image: podcastInfo.image
         }
-        for (const asset of release.assets) {
+        for (let i = 0; i < release.assets.length; i++) {
+            const asset = release.assets[i]
             feeds.items.push(
                 Object.assign(
                     {},
                     {
                         ...audio,
+                        title: `${podcastInfo.title}-${i}`,
                         enclosure: asset && {
                             url: asset.browser_download_url,
                             length: `${asset.size}`,

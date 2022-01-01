@@ -843,7 +843,6 @@ function rss(kit, issues) {
             }
             feeds.itunes_author = kit.owner;
             const audio = {
-                title: podcastInfo.title,
                 description: podcastInfo.content,
                 link: release.html_url,
                 author: kit.owner,
@@ -851,8 +850,9 @@ function rss(kit, issues) {
                 category: 'Podcast',
                 itunes_item_image: podcastInfo.image
             };
-            for (const asset of release.assets) {
-                feeds.items.push(Object.assign({}, Object.assign(Object.assign({}, audio), { enclosure: asset && {
+            for (let i = 0; i < release.assets.length; i++) {
+                const asset = release.assets[i];
+                feeds.items.push(Object.assign({}, Object.assign(Object.assign({}, audio), { title: `${podcastInfo.title}-${i}`, enclosure: asset && {
                         url: asset.browser_download_url,
                         length: `${asset.size}`,
                         type: asset.content_type
