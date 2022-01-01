@@ -479,7 +479,7 @@ exports.backup = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const util_1 = __nccwpck_require__(7657);
-const BACKUP_PATH = './backup/';
+const BACKUP_PATH = './.backup/';
 const METADATA_NAME = '.metadata';
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
 function backup(kit, issues) {

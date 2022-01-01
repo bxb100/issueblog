@@ -6,7 +6,7 @@ import {Comment} from '../common/clazz/comment'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 
-const BACKUP_PATH = './backup/'
+const BACKUP_PATH = './.backup/'
 const METADATA_NAME = '.metadata'
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME
 
