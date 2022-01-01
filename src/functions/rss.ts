@@ -44,10 +44,10 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
         const audio = {
             description: podcastInfo.content,
             author: kit.owner,
-            pubDate: new Date(release.published_at || new Date()).toUTCString(),
             category: 'Podcast',
             itunes_item_image: podcastInfo.image
         }
+        const pubTime = new Date(release.published_at || new Date()).getTime()
         for (let i = 0; i < release.assets.length; i++) {
             const asset = release.assets[i]
             feeds.items.push(
@@ -56,6 +56,7 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
                     {
                         ...audio,
                         title: `${podcastInfo.title}-${i}`,
+                        pubDate: new Date(pubTime - i * 1000).toUTCString(),
                         link: `${release.html_url}?p=${i}`,
                         enclosure: asset && {
                             url: asset.browser_download_url,
