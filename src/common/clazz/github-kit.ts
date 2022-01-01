@@ -107,7 +107,10 @@ export class GithubKit {
         return Release.cast(releases)
     }
 
-    async renderMarkdown(markdown: string): Promise<string> {
+    async renderMarkdown(markdown: string | undefined): Promise<string> {
+        if (markdown === undefined) {
+            return 'Empty'
+        }
         // noinspection ES6RedundantAwait,TypeScriptValidateJSTypes
         const rendered = await this.client.rest.markdown.render({
             text: markdown,

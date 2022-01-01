@@ -212,6 +212,9 @@ class GithubKit {
     }
     renderMarkdown(markdown) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (markdown === undefined) {
+                return 'Empty';
+            }
             // noinspection ES6RedundantAwait,TypeScriptValidateJSTypes
             const rendered = yield this.client.rest.markdown.render({
                 text: markdown,
@@ -386,6 +389,7 @@ class Release {
         return releases.map(release => new Release(release));
     }
     convertToPodcastInfo(kit) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             // noinspection RegExpRedundantEscape
             const markdownImageRegx = /!\[.*?\]\((.*?)\)/;
@@ -393,8 +397,11 @@ class Release {
             if (this.body) {
                 const split = this.body.split(/\r\n---+\r\n/);
                 core.debug(`convertToPodcastInfo: ${split}`);
+                if (split.length < 1) {
+                    return null;
+                }
                 const title = split[0];
-                const regexes = split[1].match(markdownImageRegx);
+                const regexes = (_a = split[1]) === null || _a === void 0 ? void 0 : _a.match(markdownImageRegx);
                 const image = regexes && regexes[1];
                 const content = yield kit.renderMarkdown(split[2]);
                 return {
@@ -835,20 +842,22 @@ function rss(kit, issues) {
                 continue;
             }
             feeds.itunes_author = kit.owner;
-            feeds.items.push({
+            const audio = {
                 title: podcastInfo.title,
                 description: podcastInfo.content,
                 link: release.html_url,
                 author: kit.owner,
                 pubDate: new Date(release.published_at || new Date()).toUTCString(),
-                enclosure: release.assets[0] && {
-                    url: release.assets[0].browser_download_url,
-                    length: `${release.assets[0].size}`,
-                    type: release.assets[0].content_type
-                },
                 category: 'Podcast',
                 itunes_item_image: podcastInfo.image
-            });
+            };
+            for (const asset of release.assets) {
+                feeds.items.push(Object.assign({}, Object.assign(Object.assign({}, audio), { enclosure: asset && {
+                        url: asset.browser_download_url,
+                        length: `${asset.size}`,
+                        type: asset.content_type
+                    } })));
+            }
         }
         core.debug(JSON.stringify(feeds, null, 2));
         // generate rss xml file

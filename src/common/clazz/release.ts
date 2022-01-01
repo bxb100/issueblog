@@ -34,8 +34,11 @@ export class Release implements IRelease {
         if (this.body) {
             const split = this.body.split(/\r\n---+\r\n/)
             core.debug(`convertToPodcastInfo: ${split}`)
+            if (split.length < 1) {
+                return null
+            }
             const title = split[0]
-            const regexes = split[1].match(markdownImageRegx)
+            const regexes = split[1]?.match(markdownImageRegx)
             const image = regexes && regexes[1]
             const content = await kit.renderMarkdown(split[2])
             return {

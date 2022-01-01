@@ -41,20 +41,30 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
             continue
         }
         feeds.itunes_author = kit.owner
-        feeds.items.push({
+        const audio = {
             title: podcastInfo.title,
             description: podcastInfo.content,
             link: release.html_url,
             author: kit.owner,
             pubDate: new Date(release.published_at || new Date()).toUTCString(),
-            enclosure: release.assets[0] && {
-                url: release.assets[0].browser_download_url,
-                length: `${release.assets[0].size}`,
-                type: release.assets[0].content_type
-            },
             category: 'Podcast',
             itunes_item_image: podcastInfo.image
-        })
+        }
+        for (const asset of release.assets) {
+            feeds.items.push(
+                Object.assign(
+                    {},
+                    {
+                        ...audio,
+                        enclosure: asset && {
+                            url: asset.browser_download_url,
+                            length: `${asset.size}`,
+                            type: asset.content_type
+                        }
+                    }
+                )
+            )
+        }
     }
 
     core.debug(JSON.stringify(feeds, null, 2))
