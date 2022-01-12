@@ -74,6 +74,7 @@ async function saveIssue(
 
         for (const comment of comments) {
             content += `\n\n---\n\n`
+            content += `<a href="#issuecomment-${comment.id}"></a>`
             content += comment.body
         }
     }

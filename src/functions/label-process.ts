@@ -15,8 +15,10 @@ export async function add_md_label(
             // don't need top, todo, link category
             if (
                 labelValue &&
-                labelValue.toLowerCase() !== Constant.FIXED_LINKS.toLowerCase() &&
-                labelValue.toLowerCase() !== Constant.FIXED_TODO.toLowerCase() &&
+                labelValue.toLowerCase() !==
+                    Constant.FIXED_LINKS.toLowerCase() &&
+                labelValue.toLowerCase() !==
+                    Constant.FIXED_TODO.toLowerCase() &&
                 labelValue.toLowerCase() !== Constant.FIXED_TOP.toLowerCase()
             ) {
                 if (!bucket[labelValue]) {

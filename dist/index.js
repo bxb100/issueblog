@@ -539,6 +539,7 @@ function saveIssue(kit, issue, info) {
                 .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
             for (const comment of comments) {
                 content += `\n\n---\n\n`;
+                content += `<a href="#issuecomment-${comment.id}"></a>`;
                 content += comment.body;
             }
         }
@@ -596,8 +597,10 @@ function add_md_label(kit, issues) {
                 const labelValue = issue_1.Issue.getLabelValue(label);
                 // don't need top, todo, link category
                 if (labelValue &&
-                    labelValue.toLowerCase() !== constant_1.Constant.FIXED_LINKS.toLowerCase() &&
-                    labelValue.toLowerCase() !== constant_1.Constant.FIXED_TODO.toLowerCase() &&
+                    labelValue.toLowerCase() !==
+                        constant_1.Constant.FIXED_LINKS.toLowerCase() &&
+                    labelValue.toLowerCase() !==
+                        constant_1.Constant.FIXED_TODO.toLowerCase() &&
                     labelValue.toLowerCase() !== constant_1.Constant.FIXED_TOP.toLowerCase()) {
                     if (!bucket[labelValue]) {
                         bucket[labelValue] = [];
