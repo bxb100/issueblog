@@ -101,7 +101,7 @@ Not using now.
 
 
 ## Rules:
-<a name="links"></a>
+<a id="links"></a>
 ### `links` ( [demo](https://github.com/bxb100/issueblog-test/issues/1) )
 ```markdown
 name:GitBlog
@@ -109,7 +109,7 @@ link:https://github.com/yihong0618/gitblog
 desc:Example description
 ```
 
-<a name="release"></a>
+<a id="release"></a>
 ### `release` ( [demo](https://github.com/bxb100/issueblog-test/releases/tag/ep34) )
 * Upload the mp3 file to the release.
 * Write content like this:
@@ -126,7 +126,7 @@ description
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 
-<a name="THANKS"></a>
+<a id="THANKS"></a>
 [^1]: https://github.com/githubocto/flat some source code  
 [^2]: https://github.com/actions/typescript-action action template  
 [^3]: https://github.com/actions/toolkit util  
