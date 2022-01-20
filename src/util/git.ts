@@ -43,7 +43,7 @@ async function getHeadSize(filePath: string): Promise<number | undefined> {
     }
 }
 
-async function diffSize(file: GitStatus): Promise<number> {
+async function diffSize(file: GitStatus): Promise<number | null> {
     switch (file.flag) {
         case 'M': {
             const stat = statSync(file.path)
@@ -80,8 +80,8 @@ async function diffSize(file: GitStatus): Promise<number> {
             return delta
         }
         case 'R': {
-            core.debug(` ==> ${file.path} renamed`)
-            return -1
+            core.debug(` ==> ${file.path} rename to ${file.path2}`)
+            return null
         }
         default: {
             throw new Error(
@@ -91,7 +91,7 @@ async function diffSize(file: GitStatus): Promise<number> {
     }
 }
 
-export async function diff(filename: string): Promise<number> {
+export async function diff(filename: string): Promise<number | null> {
     const statuses = await gitStatus()
     core.debug(
         `Parsed statuses: ${statuses.map(s => JSON.stringify(s)).join(', ')}`

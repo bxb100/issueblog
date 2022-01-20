@@ -1097,6 +1097,9 @@ function run() {
             }
             else {
                 const bytes = yield (0, git_1.diff)(filename);
+                if (bytes != null) {
+                    editedFiles.push({ msg: `${filename} mark rename` });
+                }
                 editedFiles.push({ name: filename, deltaBytes: bytes });
             }
         }
@@ -1303,8 +1306,8 @@ function diffSize(file) {
                 return delta;
             }
             case 'R': {
-                core.debug(` ==> ${file.path} renamed`);
-                return -1;
+                core.debug(` ==> ${file.path} rename to ${file.path2}`);
+                return null;
             }
             default: {
                 throw new Error(`Encountered an unexpected file status in git: ${file.flag} ${file.path}`);

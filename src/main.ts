@@ -60,6 +60,9 @@ async function run(): Promise<void> {
             editedFiles.push({name: filename, submodule: true})
         } else {
             const bytes = await diff(filename)
+            if (bytes != null) {
+                editedFiles.push({msg: `${filename} mark rename`})
+            }
             editedFiles.push({name: filename, deltaBytes: bytes})
         }
     }
