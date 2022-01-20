@@ -1089,17 +1089,9 @@ function run() {
         const editedFiles = [];
         const submodules = yield (0, git_1.submodulePath)();
         core.info(`submodules: ${submodules}`);
-        // small case for delete file will cause error: `Encountered an unexpected file status in git: R`
-        const newUnstagedFileNum = newUnstagedFiles.length;
-        for (let i = 0; i < editedFilenames.length; i++) {
-            const filename = editedFilenames[i];
+        for (const filename of editedFilenames) {
             core.debug(`git adding ${filename}…`);
-            if (i >= newUnstagedFileNum) {
-                yield (0, exec_1.exec)('git', ['add', '-u', filename]);
-            }
-            else {
-                yield (0, exec_1.exec)('git', ['add', filename]);
-            }
+            yield (0, exec_1.exec)('git', ['add', filename]);
             if (submodules.includes(filename)) {
                 editedFiles.push({ name: filename, submodule: true });
             }
@@ -1309,6 +1301,10 @@ function diffSize(file) {
                 const delta = oldSize === undefined ? 0 : oldSize;
                 core.debug(` ==> ${file.path} deleted: delta ${delta}b`);
                 return delta;
+            }
+            case 'R': {
+                core.debug(` ==> ${file.path} renamed`);
+                return -1;
             }
             default: {
                 throw new Error(`Encountered an unexpected file status in git: ${file.flag} ${file.path}`);

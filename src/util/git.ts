@@ -79,6 +79,10 @@ async function diffSize(file: GitStatus): Promise<number> {
             core.debug(` ==> ${file.path} deleted: delta ${delta}b`)
             return delta
         }
+        case 'R': {
+            core.debug(` ==> ${file.path} renamed`)
+            return -1
+        }
         default: {
             throw new Error(
                 `Encountered an unexpected file status in git: ${file.flag} ${file.path}`
