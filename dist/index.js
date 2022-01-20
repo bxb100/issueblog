@@ -247,13 +247,13 @@ class GithubKit {
             // some process don't need link, todo
             const filterIssues = [];
             for (const issue of issues) {
-                // if the issue contain link, todo label, omit
+                // omit some labels
                 if (issue.labels
                     .map(l => issue_1.Issue.getLabelValue(l))
-                    .some(l => {
-                    (l === null || l === void 0 ? void 0 : l.toLowerCase()) === constant_1.Constant.FIXED_LINKS.toLowerCase() ||
-                        (l === null || l === void 0 ? void 0 : l.toLowerCase()) === constant_1.Constant.FIXED_TODO.toLowerCase();
-                })) {
+                    .some(l => (l === null || l === void 0 ? void 0 : l.toLowerCase()) ===
+                    constant_1.Constant.FIXED_LINKS.toLowerCase() ||
+                    (l === null || l === void 0 ? void 0 : l.toLowerCase()) ===
+                        constant_1.Constant.FIXED_TODO.toLowerCase())) {
                     continue;
                 }
                 filterIssues.push(issue);
@@ -595,12 +595,8 @@ function add_md_label(kit, issues) {
         for (const issue of issues) {
             for (const label of issue.labels) {
                 const labelValue = issue_1.Issue.getLabelValue(label);
-                // don't need top, todo, link category
+                // skip save `top` label to bucket
                 if (labelValue &&
-                    labelValue.toLowerCase() !==
-                        constant_1.Constant.FIXED_LINKS.toLowerCase() &&
-                    labelValue.toLowerCase() !==
-                        constant_1.Constant.FIXED_TODO.toLowerCase() &&
                     labelValue.toLowerCase() !== constant_1.Constant.FIXED_TOP.toLowerCase()) {
                     if (!bucket[labelValue]) {
                         bucket[labelValue] = [];
@@ -1093,9 +1089,17 @@ function run() {
         const editedFiles = [];
         const submodules = yield (0, git_1.submodulePath)();
         core.info(`submodules: ${submodules}`);
-        for (const filename of editedFilenames) {
+        // small case for delete file will cause error: `Encountered an unexpected file status in git: R`
+        const newUnstagedFileNum = newUnstagedFiles.length;
+        for (let i = 0; i < editedFilenames.length; i++) {
+            const filename = editedFilenames[i];
             core.debug(`git adding ${filename}…`);
-            yield (0, exec_1.exec)('git', ['add', filename]);
+            if (i >= newUnstagedFileNum) {
+                yield (0, exec_1.exec)('git', ['add', '-u', filename]);
+            }
+            else {
+                yield (0, exec_1.exec)('git', ['add', filename]);
+            }
             if (submodules.includes(filename)) {
                 editedFiles.push({ name: filename, submodule: true });
             }

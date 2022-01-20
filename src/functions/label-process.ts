@@ -12,13 +12,9 @@ export async function add_md_label(
     for (const issue of issues) {
         for (const label of issue.labels) {
             const labelValue = Issue.getLabelValue(label)
-            // don't need top, todo, link category
+            // skip save `top` label to bucket
             if (
                 labelValue &&
-                labelValue.toLowerCase() !==
-                    Constant.FIXED_LINKS.toLowerCase() &&
-                labelValue.toLowerCase() !==
-                    Constant.FIXED_TODO.toLowerCase() &&
                 labelValue.toLowerCase() !== Constant.FIXED_TOP.toLowerCase()
             ) {
                 if (!bucket[labelValue]) {

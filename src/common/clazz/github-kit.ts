@@ -141,14 +141,17 @@ export class GithubKit {
         // some process don't need link, todo
         const filterIssues: Issue[] = []
         for (const issue of issues) {
-            // if the issue contain link, todo label, omit
+            // omit some labels
             if (
                 issue.labels
                     .map(l => Issue.getLabelValue(l))
-                    .some(l => {
-                        l?.toLowerCase() === Constant.FIXED_LINKS.toLowerCase() ||
-                            l?.toLowerCase() === Constant.FIXED_TODO.toLowerCase()
-                    })
+                    .some(
+                        l =>
+                            l?.toLowerCase() ===
+                                Constant.FIXED_LINKS.toLowerCase() ||
+                            l?.toLowerCase() ===
+                                Constant.FIXED_TODO.toLowerCase()
+                    )
             ) {
                 continue
             }
