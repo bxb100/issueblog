@@ -1097,8 +1097,9 @@ function run() {
             }
             else {
                 const bytes = yield (0, git_1.diff)(filename);
-                if (bytes != null) {
+                if (bytes == null) {
                     editedFiles.push({ msg: `${filename} mark rename` });
+                    continue;
                 }
                 editedFiles.push({ name: filename, deltaBytes: bytes });
             }
