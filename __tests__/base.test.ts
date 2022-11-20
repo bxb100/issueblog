@@ -1,6 +1,7 @@
 import {context} from '@actions/github'
 import {GithubKit} from '../src/common/clazz/github-kit'
 import {randomInt} from 'crypto'
+// @ts-ignore
 import fs from 'fs'
 import {Issue} from '../src/common/clazz/issue'
 import {IComment} from '../src/common/interface/comment'

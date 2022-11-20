@@ -8,7 +8,16 @@ export async function add_md_label(context: BlogContext): Promise<void> {
     const issues = context.essayIssues
 
     const bucket: {[k: string]: Issue[]} = {}
+
+    if (context.config.unlabeled_title) {
+        bucket[context.config.unlabeled_title] = []
+    }
+
     for (const issue of issues) {
+        if (issue.labels.length === 0 && context.config.unlabeled_title) {
+            bucket[context.config.unlabeled_title].push(issue)
+            continue
+        }
         for (const label of issue.labels) {
             const labelValue = Issue.getLabelValue(label)
             // skip save `top` label to bucket

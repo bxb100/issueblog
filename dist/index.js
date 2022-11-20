@@ -633,7 +633,14 @@ function add_md_label(context) {
     return __awaiter(this, void 0, void 0, function* () {
         const issues = context.essayIssues;
         const bucket = {};
+        if (context.config.unlabeled_title) {
+            bucket[context.config.unlabeled_title] = [];
+        }
         for (const issue of issues) {
+            if (issue.labels.length === 0 && context.config.unlabeled_title) {
+                bucket[context.config.unlabeled_title].push(issue);
+                continue;
+            }
             for (const label of issue.labels) {
                 const labelValue = issue_1.Issue.getLabelValue(label);
                 // skip save `top` label to bucket
