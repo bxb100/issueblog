@@ -1,13 +1,12 @@
 import * as core from '@actions/core'
 import {Constant} from '../common/clazz/constant'
-import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
+import {BlogContext} from '../common/clazz/blogContext'
 
-export async function add_md_label(
-    kit: GithubKit,
-    issues: Issue[]
-): Promise<void> {
+export async function add_md_label(context: BlogContext): Promise<void> {
+    const issues = context.essayIssues
+
     const bucket: {[k: string]: Issue[]} = {}
     for (const issue of issues) {
         for (const label of issue.labels) {
@@ -24,7 +23,7 @@ export async function add_md_label(
             }
         }
     }
-    const anchorNumber: number = parseInt(kit.config.anchor_number)
+    const anchorNumber: number = parseInt(context.config.anchor_number)
 
     let labelSection = ''
     for (const key of Object.keys(bucket).sort((a, b) => a.localeCompare(b))) {
@@ -38,5 +37,5 @@ export async function add_md_label(
         )
     }
     core.debug(`labelSection: ${labelSection}`)
-    kit.sectionMap.set(Constant.AGG_EACH_LABEL, labelSection)
+    context.sectionMap.set(Constant.AGG_EACH_LABEL, labelSection)
 }

@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import {Comment} from './comment'
 import {Config} from '../../util/config'
-import {Constant} from './constant'
 import {GitHub} from '@actions/github/lib/utils'
 import {IComment} from '../interface/comment'
 import {IIssue} from '../interface/issue'
@@ -17,21 +16,24 @@ import {add_md_recent} from '../../functions/recent-process'
 import {add_md_todo} from '../../functions/todo-process'
 import {add_md_top} from '../../functions/top-process'
 import {backup} from '../../functions/backup'
-import fs from 'fs'
 import {rss} from '../../functions/rss'
+import {BlogContext} from './blogContext'
 
 export class GithubKit {
     readonly client: InstanceType<typeof GitHub>
     readonly owner: string
     readonly repo: string
     readonly config: Config
-    readonly sectionMap = new Map<string, string>()
 
     constructor(config: Config) {
         this.config = config
         this.client = getOctokit(config.github_token)
         this.owner = context.repo.owner
         this.repo = context.repo.repo
+    }
+
+    getConfig(): Config {
+        return this.config
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
@@ -138,48 +140,25 @@ export class GithubKit {
     async process(): Promise<void[]> {
         // using subscriber-publisher rewrite this is better?
         const issues = await this.getAllIssues()
-        // some process don't need link, todo
-        const filterIssues: Issue[] = []
-        for (const issue of issues) {
-            // omit some labels
-            if (
-                issue.labels
-                    .map(l => Issue.getLabelValue(l))
-                    .some(
-                        l =>
-                            l?.toLowerCase() ===
-                                Constant.FIXED_LINKS.toLowerCase() ||
-                            l?.toLowerCase() ===
-                                Constant.FIXED_TODO.toLowerCase()
-                    )
-            ) {
-                continue
-            }
-            filterIssues.push(issue)
-        }
+
+        const blogContext = new BlogContext(this, issues, this.config)
 
         const mainProcess: Promise<void> = Promise.all([
-            add_md_friends(this, issues),
-            add_md_top(this, issues),
-            add_md_recent(this, issues),
-            add_md_todo(this, issues),
-            add_md_label(this, filterIssues)
+            add_md_friends(blogContext),
+            add_md_top(blogContext),
+            add_md_recent(blogContext),
+            add_md_todo(blogContext),
+            add_md_label(blogContext)
         ]).then(
-            () => {
-                const constant = new Constant(this.config.md_header)
-                fs.writeFileSync(
-                    'README.md',
-                    constant.convertBlogContent(this.sectionMap)
-                )
-            },
+            () => blogContext.writeReadMe(),
             err => {
                 throw err
             }
         )
         return Promise.all([
             mainProcess,
-            rss(this, filterIssues),
-            backup(this, filterIssues)
+            rss(this, blogContext.essayIssues),
+            backup(this, blogContext.essayIssues)
         ])
     }
 }

@@ -2,9 +2,8 @@ import * as core from '@actions/core'
 import {Comment} from '../common/clazz/comment'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
-import {GithubKit} from '../common/clazz/github-kit'
 import {IComment} from '../common/interface/comment'
-import {Issue} from '../common/clazz/issue'
+import {BlogContext} from '../common/clazz/blogContext'
 
 // -----------------------------------------------------------------------------
 /**
@@ -43,23 +42,18 @@ function _makeFriendTableString(comment: IComment): string {
     return ''
 }
 
-export async function add_md_friends(
-    kit: GithubKit,
-    issues: Issue[]
-): Promise<void> {
-    const friendIssues = issues.filter(issue =>
-        issue.containLabel(Constant.FIXED_LINKS)
-    )
+export async function add_md_friends(context: BlogContext): Promise<void> {
+    const friendIssues = context.getIssues(Constant.FIXED_LINKS)
 
     const all: Promise<string[]>[] = []
     for (const issue of friendIssues) {
         all.push(
-            kit
+            context.kit
                 .getIssueComments(issue)
                 .then(async (comments: Comment[]) => {
                     const approved: IComment[] = []
                     for (const comment of comments) {
-                        if (await comment.isHeartBySelf(kit)) {
+                        if (await comment.isHeartBySelf(context.kit)) {
                             approved.push(comment)
                         }
                     }
@@ -73,10 +67,10 @@ export async function add_md_friends(
         return core.info("No friend's now.")
     }
 
-    let friendSection: string = friendTableTitle(kit.config)
+    let friendSection: string = friendTableTitle(context.config)
     friendSection += FRIENDS_TABLE_HEAD
     friendSection += stringArray.join('')
     core.debug(`add_md_friends:\n\n${friendSection}\n\n`)
 
-    kit.sectionMap.set(Constant.FIXED_LINKS, friendSection)
+    context.sectionMap.set(Constant.FIXED_LINKS, friendSection)
 }

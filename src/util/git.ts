@@ -1,3 +1,5 @@
+// noinspection SpellCheckingInspection
+
 import * as core from '@actions/core'
 import {GitStatus} from '../common/types/git-status'
 import {exec} from '@actions/exec'

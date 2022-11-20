@@ -1,23 +1,19 @@
 import * as core from '@actions/core'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
-import {GithubKit} from '../common/clazz/github-kit'
-import {Issue} from '../common/clazz/issue'
+import {BlogContext} from '../common/clazz/blogContext'
 
 export const RECENT_ISSUE_TITLE = (config: Config): string =>
     `\n## ${config.recent_title}\n`
 
-export async function add_md_recent(
-    kit: GithubKit,
-    issues: Issue[]
-): Promise<void> {
-    const limit = parseInt(kit.config.recent_limit)
+export async function add_md_recent(context: BlogContext): Promise<void> {
+    const limit = parseInt(context.config.recent_limit)
 
-    const recentIssues = issues.slice(0, limit)
+    const recentIssues = context.issues.slice(0, limit)
 
-    let recentSection: string = RECENT_ISSUE_TITLE(kit.config)
+    let recentSection: string = RECENT_ISSUE_TITLE(context.config)
     recentSection += recentIssues.map(i => i.mdIssueInfo()).join('')
     core.debug(`recentSection: ${recentSection}`)
 
-    kit.sectionMap.set(Constant.FIXED_RECENT, recentSection)
+    context.sectionMap.set(Constant.FIXED_RECENT, recentSection)
 }

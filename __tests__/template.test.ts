@@ -1,6 +1,7 @@
 import {template} from '../src/util/template'
 
-const testData = '{\n' +
+const testData =
+    '{\n' +
     '  "atomLink": "https://github.com/bxb100/issueblog-test/feed.xml",\n' +
     '  "description": "RSS feed of bxb100\'s issueblog-test",\n' +
     '  "link": "https://github.com/bxb100/issueblog-test",\n' +
@@ -229,18 +230,26 @@ const testData = '{\n' +
     '}\n'
 
 test('testTemplate', async () => {
-  // simple test
+    // simple test
 
-  const result = template(JSON.parse(testData))
-  console.log(result)
-  expect(result).toContain('<![CDATA[测试文章 2]]>')
-  expect(result).toContain('<category>测试</category>')
-  expect(result).toContain('<guid isPermaLink="false">https://github.com/bxb100/issueblog-test/issues/20</guid>')
-  expect(result).toContain('url="https://github.com/bxb100/issueblog-test/releases/download/ep34/8361664978_836589.mp3"')
-  expect(result).toContain('tunes:image href="https://user-images.githubusercontent.com/20685961/144750682-8b5d34c6-f7e1-411d-9d8e-fd30d949cb1b.png"')
-  expect(result).toContain('<![CDATA[<p>如果喜欢我们的节目，欢迎通过爱发电打赏支持：')
-  expect(result).toContain('<pubDate>Sun, 05 Dec 2021 14:41:32 GMT</pubDate>')
-  expect(result).toContain('<category>Podcast</category>')
-  expect(result).toContain('<category>two</category>')
-  expect(result).toContain('<![CDATA[测试隐藏 label 1]]>')
-});
+    const result = template(JSON.parse(testData))
+    console.log(result)
+    expect(result).toContain('<![CDATA[测试文章 2]]>')
+    expect(result).toContain('<category>测试</category>')
+    expect(result).toContain(
+        '<guid isPermaLink="false">https://github.com/bxb100/issueblog-test/issues/20</guid>'
+    )
+    expect(result).toContain(
+        'url="https://github.com/bxb100/issueblog-test/releases/download/ep34/8361664978_836589.mp3"'
+    )
+    expect(result).toContain(
+        'tunes:image href="https://user-images.githubusercontent.com/20685961/144750682-8b5d34c6-f7e1-411d-9d8e-fd30d949cb1b.png"'
+    )
+    expect(result).toContain(
+        '<![CDATA[<p>如果喜欢我们的节目，欢迎通过爱发电打赏支持：'
+    )
+    expect(result).toContain('<pubDate>Sun, 05 Dec 2021 14:41:32 GMT</pubDate>')
+    expect(result).toContain('<category>Podcast</category>')
+    expect(result).toContain('<category>two</category>')
+    expect(result).toContain('<![CDATA[测试隐藏 label 1]]>')
+})

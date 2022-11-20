@@ -1,16 +1,13 @@
 import * as core from '@actions/core'
 import {Constant} from '../common/clazz/constant'
-import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
+import {BlogContext} from '../common/clazz/blogContext'
 
 export const TODO_ISSUE_TITLE = '## TODO\n'
 
-export async function add_md_todo(
-    kit: GithubKit,
-    issues: Issue[]
-): Promise<void> {
-    const todoIssues = issues.filter(issue => issue.containLabel(Constant.FIXED_TODO))
+export async function add_md_todo(context: BlogContext): Promise<void> {
+    const todoIssues = context.getIssues(Constant.FIXED_TODO)
 
     if (todoIssues.length === 0) {
         return
@@ -24,7 +21,7 @@ export async function add_md_todo(
         todoSection += wrapDetails(undone, done, s => `${s}\n`)
     }
     core.debug(`TODO section: ${todoSection}`)
-    kit.sectionMap.set(Constant.FIXED_TODO, todoSection)
+    context.sectionMap.set(Constant.FIXED_TODO, todoSection)
 }
 
 function parse(issue: Issue): {

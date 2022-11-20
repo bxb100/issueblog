@@ -60,7 +60,7 @@ export class Issue implements IIssue {
             .filter(Boolean)
     }
 
-    containLabel(label: string): boolean {
+    hasLabel(label: string): boolean {
         label = label.toLowerCase().trim()
         return this.labels.some(
             l => Issue.getLabelValue(l)?.toLowerCase() === label
