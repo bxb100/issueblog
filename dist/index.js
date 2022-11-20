@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 8098:
+/***/ 2189:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -170,7 +170,7 @@ const todo_process_1 = __nccwpck_require__(269);
 const top_process_1 = __nccwpck_require__(2686);
 const backup_1 = __nccwpck_require__(6169);
 const rss_1 = __nccwpck_require__(4258);
-const blogContext_1 = __nccwpck_require__(8098);
+const blog_context_1 = __nccwpck_require__(2189);
 class GithubKit {
     constructor(config) {
         this.config = config;
@@ -288,7 +288,7 @@ class GithubKit {
         return __awaiter(this, void 0, void 0, function* () {
             // using subscriber-publisher rewrite this is better?
             const issues = yield this.getAllIssues();
-            const blogContext = new blogContext_1.BlogContext(this, issues, this.config);
+            const blogContext = new blog_context_1.BlogContext(this, issues, this.config);
             const mainProcess = Promise.all([
                 (0, links_process_1.add_md_friends)(blogContext),
                 (0, top_process_1.add_md_top)(blogContext),

@@ -17,7 +17,7 @@ import {add_md_todo} from '../../functions/todo-process'
 import {add_md_top} from '../../functions/top-process'
 import {backup} from '../../functions/backup'
 import {rss} from '../../functions/rss'
-import {BlogContext} from './blogContext'
+import {BlogContext} from './blog-context'
 
 export class GithubKit {
     readonly client: InstanceType<typeof GitHub>

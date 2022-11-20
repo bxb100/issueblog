@@ -7,7 +7,7 @@ import {IComment} from '../src/common/interface/comment'
 import {ReactionContent} from '../src/common/enum/reaction-content'
 import {Reaction} from '../src/common/interface/reaction'
 import {Comment} from '../src/common/clazz/comment'
-import {BlogContext} from '../src/common/clazz/blogContext'
+import {BlogContext} from '../src/common/clazz/blog-context'
 
 Object.defineProperty(context, 'repo', {
     get: jest.fn(() => ({
@@ -46,6 +46,7 @@ const issueResult = fs.readFileSync(
     'utf8'
 )
 getIssuesMock.mockReturnValue(delay(Issue.cast(JSON.parse(issueResult))))
+// noinspection JSUnusedLocalSymbols
 getIssueCommentReactionsMock.mockImplementation(
     (comment: IComment, content?: ReactionContent): Promise<Reaction[]> => {
         if (comment.id === 986013801) {

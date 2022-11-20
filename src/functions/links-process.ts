@@ -3,7 +3,7 @@ import {Comment} from '../common/clazz/comment'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
 import {IComment} from '../common/interface/comment'
-import {BlogContext} from '../common/clazz/blogContext'
+import {BlogContext} from '../common/clazz/blog-context'
 
 // -----------------------------------------------------------------------------
 /**

@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import {Constant} from '../common/clazz/constant'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
-import {BlogContext} from '../common/clazz/blogContext'
+import {BlogContext} from '../common/clazz/blog-context'
 
 export async function add_md_label(context: BlogContext): Promise<void> {
     const issues = context.essayIssues

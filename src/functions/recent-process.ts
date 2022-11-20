@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
-import {BlogContext} from '../common/clazz/blogContext'
+import {BlogContext} from '../common/clazz/blog-context'
 
 export const RECENT_ISSUE_TITLE = (config: Config): string =>
     `\n## ${config.recent_title}\n`
