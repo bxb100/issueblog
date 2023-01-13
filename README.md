@@ -159,7 +159,7 @@ description
 
 ## Tips:
 
-RSS only support [Hexo](https://hexo.io/docs/permalinks.html) `:year/:month/:title` permalink
+RSS only support [Hexo](https://hexo.io/docs/permalinks.html) `:year/:month/:title/` permalink
 
 ## Licence
 
