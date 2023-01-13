@@ -749,7 +749,7 @@ function post(context) {
         const kit = context.kit;
         const issues = context.essayIssues;
         // make sure backup directory exists
-        fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH);
+        fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, { recursive: true });
         // make sure metadata file exists
         fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '{}');
         // read metadata
