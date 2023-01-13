@@ -9,6 +9,7 @@
                 <title>
                     <xsl:value-of select="/rss/channel/title"/> Feed
                 </title>
+				<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
                 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
                 <meta name="fork-from" content="https://typlog.com/rss.xsl" />
