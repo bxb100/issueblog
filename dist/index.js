@@ -928,7 +928,7 @@ function linkTemplate(issue) {
     const formatter = (i) => i.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
     // hexo 模版是 /:year/:month/:day/:title/
     const date = new Date(issue.created_at || new Date());
-    return `/${date.getFullYear()}/${formatter(date.getMonth() + 1)}/${formatter(date.getUTCDate())}/${(0, util_1.backupFileName)(issue).replace('.md', '')}`;
+    return `/${date.getFullYear()}/${formatter(date.getMonth() + 1)}/${(0, util_1.backupFileName)(issue).replace('.md', '')}`;
 }
 function rss(context) {
     return __awaiter(this, void 0, void 0, function* () {

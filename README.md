@@ -157,6 +157,10 @@ podcast title
 description
 ```
 
+## Tips:
+
+RSS only support [Hexo](https://hexo.io/docs/permalinks.html) `:year/:month/:title` permalink
+
 ## Licence
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)

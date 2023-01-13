@@ -16,10 +16,7 @@ function linkTemplate(issue: Issue): string {
     const date = new Date(issue.created_at || new Date())
     return `/${date.getFullYear()}/${formatter(
         date.getMonth() + 1
-    )}/${formatter(date.getUTCDate())}/${backupFileName(issue).replace(
-        '.md',
-        ''
-    )}`
+    )}/${backupFileName(issue).replace('.md', '')}`
 }
 
 export async function rss(context: Context): Promise<void> {
