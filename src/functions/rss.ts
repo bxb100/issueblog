@@ -6,15 +6,26 @@ import {Release} from '../common/clazz/release'
 import {rootPath} from '../main'
 import {template} from '../util/template'
 import {Context} from '../common/clazz/context'
+import {backupFileName} from '../util/util'
+import {Issue} from '../common/clazz/issue'
+
+function linkTemplate(issue: Issue): string {
+    // hexo 模版是 /:year/:month/:day/:title/
+    const date = new Date(issue.created_at || new Date())
+    return `/${date.getFullYear()}/${
+        date.getMonth() + 1
+    }/${date.getDate()}/${backupFileName(issue)}`
+}
 
 export async function rss(context: Context): Promise<void> {
     const config = context.config
     const kit = context.kit
     const issues = context.essayIssues
+
     const feeds: IRssFeed = {
-        atomLink: `https://github.com/${kit.owner}/${kit.repo}/feed.xml`,
+        atomLink: `${config.blog_url}/feed.xml`,
         description: `RSS feed of ${config.blog_author}'s ${kit.repo}`,
-        link: `https://github.com/${kit.owner}/${kit.repo}`,
+        link: `${config.blog_url}`,
         title: `${config.blog_author}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
         itunes_image: config.blog_image_url,
@@ -29,7 +40,7 @@ export async function rss(context: Context): Promise<void> {
             title: issue.title,
             description: content,
             pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
-            link: issue.html_url,
+            link: linkTemplate(issue),
             author: kit.owner,
             category: issue.getLabelName(config.unlabeled_title)
         })
@@ -80,9 +91,9 @@ export async function rss(context: Context): Promise<void> {
     core.debug(JSON.stringify(feeds, null, 2))
     // generate rss xml file
     const rssXml = template(feeds)
-    fs.writeFileSync('./feed.xml', rssXml)
+    fs.writeFileSync('./source/feed.xml', rssXml)
 
     const xslPath = path.resolve(rootPath, './view/rss.xsl')
     const xsl = fs.readFileSync(xslPath, 'utf8')
-    fs.writeFileSync('./rss.xsl', xsl)
+    fs.writeFileSync('./source/rss.xsl', xsl)
 }

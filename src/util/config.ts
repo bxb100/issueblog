@@ -27,7 +27,8 @@ const commonConfigSchema = z.object({
     recent_title: z.string(),
     top_title: z.string(),
     unlabeled_title: z.string(),
-    blog_image_url: z.string().default('blog.png')
+    blog_image_url: z.string().default('blog.png'),
+    blog_url: z.string()
 })
 
 export type Config = z.infer<typeof commonConfigSchema>

@@ -13,12 +13,16 @@ inputs:
   md_header:
     description: The header of content
     default: |
-      ## GitLog 
+      ## GitLog
       My personal blog using issues and GitHub Actions [RSS Feed](https://raw.githubusercontent.com/${{ github.repository }}/master/feed.xml)
     required: false
   blog_image_url:
     description: The image url of the blog
     default: "https://cdn.jsdelivr.net/gh/${{ github.repository }}/blog.png"
+    required: false
+  blog_url:
+    description: The blog deploy url
+    default: "https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}"
     required: false
   issue_number:
     description: The event issue number

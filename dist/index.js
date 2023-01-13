@@ -922,15 +922,21 @@ const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const main_1 = __nccwpck_require__(3109);
 const template_1 = __nccwpck_require__(8162);
+const util_1 = __nccwpck_require__(7657);
+function linkTemplate(issue) {
+    // hexo 模版是 /:year/:month/:day/:title/
+    const date = new Date(issue.created_at || new Date());
+    return `/${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}/${(0, util_1.backupFileName)(issue)}`;
+}
 function rss(context) {
     return __awaiter(this, void 0, void 0, function* () {
         const config = context.config;
         const kit = context.kit;
         const issues = context.essayIssues;
         const feeds = {
-            atomLink: `https://github.com/${kit.owner}/${kit.repo}/feed.xml`,
+            atomLink: `${config.blog_url}/feed.xml`,
             description: `RSS feed of ${config.blog_author}'s ${kit.repo}`,
-            link: `https://github.com/${kit.owner}/${kit.repo}`,
+            link: `${config.blog_url}`,
             title: `${config.blog_author}'s Blog`,
             lastBuildDate: new Date().toUTCString(),
             itunes_image: config.blog_image_url,
@@ -944,7 +950,7 @@ function rss(context) {
                 title: issue.title,
                 description: content,
                 pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
-                link: issue.html_url,
+                link: linkTemplate(issue),
                 author: kit.owner,
                 category: issue.getLabelName(config.unlabeled_title)
             });
@@ -978,10 +984,10 @@ function rss(context) {
         core.debug(JSON.stringify(feeds, null, 2));
         // generate rss xml file
         const rssXml = (0, template_1.template)(feeds);
-        fs.writeFileSync('./feed.xml', rssXml);
+        fs.writeFileSync('./source/feed.xml', rssXml);
         const xslPath = path.resolve(main_1.rootPath, './view/rss.xsl');
         const xsl = fs.readFileSync(xslPath, 'utf8');
-        fs.writeFileSync('./rss.xsl', xsl);
+        fs.writeFileSync('./source/rss.xsl', xsl);
     });
 }
 exports.rss = rss;
@@ -1307,7 +1313,8 @@ const commonConfigSchema = z.object({
     recent_title: z.string(),
     top_title: z.string(),
     unlabeled_title: z.string(),
-    blog_image_url: z.string().default('blog.png')
+    blog_image_url: z.string().default('blog.png'),
+    blog_url: z.string()
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象
