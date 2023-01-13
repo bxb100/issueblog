@@ -13,7 +13,8 @@ const keys = [
     'recent_title',
     'top_title',
     'unlabeled_title',
-    'blog_image_url'
+    'blog_image_url',
+    'blog_url'
 ]
 
 const commonConfigSchema = z.object({
