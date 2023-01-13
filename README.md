@@ -94,6 +94,14 @@ The image url of the blog, default is
 
 that means the image is at the root of the repository.
 
+### `blog_url` (optional)
+
+The deployment url of the blog, default is
+
+`https://${{ github.repository_owner }}.github.io/${{ github.repository_name }}`
+
+current support Hexo
+
 ### `issue_number` (optional)
 
 The event issue number, default is `{{ github.event.number }}`, that not using currently.
