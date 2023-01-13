@@ -2,11 +2,11 @@ import * as core from '@actions/core'
 import {Constant} from '../common/clazz/constant'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
-import {BlogContext} from '../common/clazz/blog-context'
+import {Context} from '../common/clazz/context'
 
 export const TODO_ISSUE_TITLE = '## TODO\n'
 
-export async function add_md_todo(context: BlogContext): Promise<void> {
+export async function add_md_todo(context: Context): Promise<void> {
     const todoIssues = context.getIssues(Constant.FIXED_TODO)
 
     if (todoIssues.length === 0) {

@@ -1,22 +1,24 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as path from 'path'
-import {GithubKit} from '../common/clazz/github-kit'
 import {IRssFeed} from '../common/interface/rss-feed'
-import {Issue} from '../common/clazz/issue'
 import {Release} from '../common/clazz/release'
 import {rootPath} from '../main'
 import {template} from '../util/template'
+import {Context} from '../common/clazz/context'
 
-export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
+export async function rss(context: Context): Promise<void> {
+    const config = context.config
+    const kit = context.kit
+    const issues = context.essayIssues
     const feeds: IRssFeed = {
         atomLink: `https://github.com/${kit.owner}/${kit.repo}/feed.xml`,
-        description: `RSS feed of ${kit.config.blog_author}'s ${kit.repo}`,
+        description: `RSS feed of ${config.blog_author}'s ${kit.repo}`,
         link: `https://github.com/${kit.owner}/${kit.repo}`,
-        title: `${kit.config.blog_author}'s Blog`,
+        title: `${config.blog_author}'s Blog`,
         lastBuildDate: new Date().toUTCString(),
-        itunes_image: kit.config.blog_image_url,
-        image: kit.config.blog_image_url
+        itunes_image: config.blog_image_url,
+        image: config.blog_image_url
     }
     feeds.items = []
     // insert issues
@@ -29,7 +31,7 @@ export async function rss(kit: GithubKit, issues: Issue[]): Promise<void> {
             pubDate: new Date(issue.updated_at || new Date()).toUTCString(),
             link: issue.html_url,
             author: kit.owner,
-            category: issue.getLabelName(kit)
+            category: issue.getLabelName(config.unlabeled_title)
         })
     }
 

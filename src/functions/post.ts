@@ -5,12 +5,16 @@ import {backupFileName, compareUpdateTime, isOwnBy} from '../util/util'
 import {Comment} from '../common/clazz/comment'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
+import {Context} from '../common/clazz/context'
 
-const BACKUP_PATH = './.backup/'
+const BACKUP_PATH = './source/_posts/'
 const METADATA_NAME = '.metadata'
 const METADATA_PATH = BACKUP_PATH + METADATA_NAME
 
-export async function backup(kit: GithubKit, issues: Issue[]): Promise<void> {
+export async function post(context: Context): Promise<void> {
+    const kit = context.kit
+    const issues = context.essayIssues
+
     // make sure backup directory exists
     fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH)
     // make sure metadata file exists
@@ -64,7 +68,22 @@ async function saveIssue(
         fs.unlinkSync(BACKUP_PATH + info.name)
     }
     const backupPath = BACKUP_PATH + fileName
-    let content = `[${issue.title}](${issue.html_url})\n\n`
+    const tags: string = issue.labels
+        .map(label => Issue.getLabelValue(label))
+        .filter(Boolean)
+        .map(label => `\t-${label}\n`)
+        .join('')
+
+    // hexo simple post template
+
+    let content = `
+    ---
+    title: ${issue.title}
+    date: ${issue.created_at}
+    tags:
+    ${tags}
+    ---
+    `
     content += issue.body || 'No description provided.'
     if (issue.comments > 0) {
         // just focus on the first hundred comments

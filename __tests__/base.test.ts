@@ -8,7 +8,7 @@ import {IComment} from '../src/common/interface/comment'
 import {ReactionContent} from '../src/common/enum/reaction-content'
 import {Reaction} from '../src/common/interface/reaction'
 import {Comment} from '../src/common/clazz/comment'
-import {BlogContext} from '../src/common/clazz/blog-context'
+import {Context} from '../src/common/clazz/context'
 
 Object.defineProperty(context, 'repo', {
     get: jest.fn(() => ({
@@ -17,7 +17,7 @@ Object.defineProperty(context, 'repo', {
     }))
 })
 
-export const utils = new GithubKit({
+export const config = {
     blog_image_url: '',
     blog_author: '',
     links_title: '',
@@ -28,7 +28,9 @@ export const utils = new GithubKit({
     md_header: '',
     anchor_number: '',
     recent_limit: ''
-})
+}
+
+export const utils = new GithubKit(config.github_token)
 
 export const getIssuesMock = jest.spyOn(utils, 'getIssues')
 export const getIssueCommentReactionsMock = jest.spyOn(
@@ -83,10 +85,10 @@ getIssueCommentsMock.mockImplementation(async issue => {
     }
     return []
 })
-export const blogContext = new BlogContext(
-    utils,
+export const blogContext = new Context(
     Issue.cast(JSON.parse(issueResult)),
-    utils.getConfig()
+    utils,
+    config
 )
 test("empty", () => {
 });

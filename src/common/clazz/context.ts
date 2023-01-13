@@ -1,21 +1,21 @@
 import {GithubKit} from './github-kit'
 import {Constant} from './constant'
-import fs from 'fs'
 import {Issue} from './issue'
 import {Config} from '../../util/config'
+import {ConfigSet} from 'ts-jest'
 
-export class BlogContext {
+export class Context {
     readonly kit: GithubKit
     readonly issues: Issue[] = []
-    readonly config: Config
     readonly sectionMap = new Map<string, string>()
     readonly essayIssues: Issue[] = []
+    readonly config: Config
 
-    constructor(kit: GithubKit, issues: Issue[], config: Config) {
+    constructor(issues: Issue[], kit: GithubKit, config: Config) {
         this.kit = kit
         this.issues = issues
+        this.essayIssues = Context.getEssayIssues(issues)
         this.config = config
-        this.essayIssues = BlogContext.getEssayIssues(issues)
     }
 
     getIssues(label: string): Issue[] {
@@ -32,14 +32,6 @@ export class BlogContext {
                     issue.hasLabel(Constant.FIXED_LINKS) ||
                     issue.hasLabel(Constant.FIXED_TODO)
                 )
-        )
-    }
-
-    writeReadMe(): void {
-        const constant = new Constant(this.kit.getConfig().md_header)
-        fs.writeFileSync(
-            'README.md',
-            constant.convertBlogContent(this.sectionMap)
         )
     }
 }

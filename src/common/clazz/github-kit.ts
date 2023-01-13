@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import {Comment} from './comment'
-import {Config} from '../../util/config'
 import {GitHub} from '@actions/github/lib/utils'
 import {IComment} from '../interface/comment'
 import {IIssue} from '../interface/issue'
@@ -10,30 +9,20 @@ import {Issue} from './issue'
 import {Reaction} from '../interface/reaction'
 import {ReactionContent} from '../enum/reaction-content'
 import {Release} from './release'
-import {add_md_friends} from '../../functions/links-process'
-import {add_md_label} from '../../functions/label-process'
-import {add_md_recent} from '../../functions/recent-process'
-import {add_md_todo} from '../../functions/todo-process'
-import {add_md_top} from '../../functions/top-process'
-import {backup} from '../../functions/backup'
-import {rss} from '../../functions/rss'
-import {BlogContext} from './blog-context'
 
 export class GithubKit {
     readonly client: InstanceType<typeof GitHub>
-    readonly owner: string
-    readonly repo: string
-    readonly config: Config
 
-    constructor(config: Config) {
-        this.config = config
-        this.client = getOctokit(config.github_token)
-        this.owner = context.repo.owner
-        this.repo = context.repo.repo
+    constructor(token: string) {
+        this.client = getOctokit(token)
     }
 
-    getConfig(): Config {
-        return this.config
+    get owner(): string {
+        return context.repo.owner
+    }
+
+    get repo(): string {
+        return context.repo.repo
     }
 
     async isHeartBySelf(comment: IComment): Promise<boolean> {
@@ -135,30 +124,5 @@ export class GithubKit {
             page++
         }
         return issues
-    }
-
-    async process(): Promise<void[]> {
-        // using subscriber-publisher rewrite this is better?
-        const issues = await this.getAllIssues()
-
-        const blogContext = new BlogContext(this, issues, this.config)
-
-        const mainProcess: Promise<void> = Promise.all([
-            add_md_friends(blogContext),
-            add_md_top(blogContext),
-            add_md_recent(blogContext),
-            add_md_todo(blogContext),
-            add_md_label(blogContext)
-        ]).then(
-            () => blogContext.writeReadMe(),
-            err => {
-                throw err
-            }
-        )
-        return Promise.all([
-            mainProcess,
-            rss(this, blogContext.essayIssues),
-            backup(this, blogContext.essayIssues)
-        ])
     }
 }

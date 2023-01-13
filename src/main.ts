@@ -9,6 +9,7 @@ import {GithubKit} from './common/clazz/github-kit'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
 import path from 'path'
+import {Processor} from './common/clazz/processor'
 
 // because of the run in dist dir
 export const rootPath = path.resolve(__dirname, '../')
@@ -32,10 +33,11 @@ async function run(): Promise<void> {
 
     // 2. 处理 issues
     core.startGroup('Process issues')
-    const issuesUtil = new GithubKit(config)
-    await issuesUtil
+    await new Processor(config)
         .process()
+        .then(async p => Promise.all([p.rss(), p.backup()]))
         .catch(err => core.setFailed(`process failed: ${err}`))
+
     core.endGroup()
 
     // 3. 暂存需要提交的文件

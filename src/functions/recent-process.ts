@@ -1,12 +1,12 @@
 import * as core from '@actions/core'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
-import {BlogContext} from '../common/clazz/blog-context'
+import {Context} from '../common/clazz/context'
 
 export const RECENT_ISSUE_TITLE = (config: Config): string =>
     `\n## ${config.recent_title}\n`
 
-export async function add_md_recent(context: BlogContext): Promise<void> {
+export async function add_md_recent(context: Context): Promise<void> {
     const limit = parseInt(context.config.recent_limit)
 
     const recentIssues = context.issues.slice(0, limit)
