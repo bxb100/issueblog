@@ -71,12 +71,12 @@ async function saveIssue(
     const tags: string = issue.labels
         .map(label => Issue.getLabelValue(label))
         .filter(Boolean)
-        .map(label => `\t-${label}\n`)
+        .map(label => `\t- ${label}\n`)
         .join('')
 
     // hexo simple post template
     let content = `---\ntitle: ${issue.title}\ndate: ${issue.created_at}\ntags:\n${tags}\n---\n`
-    content += issue.body || 'No description provided.'
+    content += issue.body || ''
     if (issue.comments > 0) {
         // just focus on the first hundred comments
         const comments: Comment[] = await kit
