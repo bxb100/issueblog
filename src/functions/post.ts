@@ -75,7 +75,8 @@ async function saveIssue(
         .join('')
 
     // hexo simple post template
-    let content = `---\ntitle: ${issue.title}\ndate: ${issue.created_at}\ntags:\n${tags}\n---\n`
+    const createAt = new Date(issue.created_at).getTime()
+    let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\n---\n`
     content += issue.body || ''
     if (issue.comments > 0) {
         // just focus on the first hundred comments

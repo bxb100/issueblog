@@ -800,7 +800,8 @@ function saveIssue(kit, issue, info) {
             .map(label => `\t- ${label}\n`)
             .join('');
         // hexo simple post template
-        let content = `---\ntitle: ${issue.title}\ndate: ${issue.created_at}\ntags:\n${tags}\n---\n`;
+        const createAt = new Date(issue.created_at).getTime();
+        let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\n---\n`;
         content += issue.body || '';
         if (issue.comments > 0) {
             // just focus on the first hundred comments
@@ -927,7 +928,7 @@ function linkTemplate(issue) {
     const formatter = (i) => i.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
     // hexo 模版是 /:year/:month/:day/:title/
     const date = new Date(issue.created_at || new Date());
-    return `/${date.getFullYear()}/${formatter(date.getMonth() + 1)}/${formatter(date.getDate())}/${(0, util_1.backupFileName)(issue).replace('.md', '')}`;
+    return `/${date.getFullYear()}/${formatter(date.getMonth() + 1)}/${formatter(date.getUTCDate())}/${(0, util_1.backupFileName)(issue).replace('.md', '')}`;
 }
 function rss(context) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1597,7 +1598,7 @@ function wrapDetails(shows, hides, wrapper) {
 }
 exports.wrapDetails = wrapDetails;
 function backupFileName(issue) {
-    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
+    return `${issue.number}.md`;
 }
 exports.backupFileName = backupFileName;
 function compareUpdateTime(a, b) {
