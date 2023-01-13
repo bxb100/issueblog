@@ -75,15 +75,7 @@ async function saveIssue(
         .join('')
 
     // hexo simple post template
-
-    let content = `
-    ---
-    title: ${issue.title}
-    date: ${issue.created_at}
-    tags:
-    ${tags}
-    ---
-    `
+    let content = `---\ntitle: ${issue.title}\ndate: ${issue.created_at}\ntags:\n${tags}\n---\n`
     content += issue.body || 'No description provided.'
     if (issue.comments > 0) {
         // just focus on the first hundred comments
