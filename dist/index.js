@@ -797,7 +797,7 @@ function saveIssue(kit, issue, info) {
         const tags = issue.labels
             .map(label => issue_1.Issue.getLabelValue(label))
             .filter(Boolean)
-            .map(label => `\t- ${label}\n`)
+            .map(label => `- ${label}\n`)
             .join('');
         // hexo simple post template
         const createAt = new Date(issue.created_at).getTime();

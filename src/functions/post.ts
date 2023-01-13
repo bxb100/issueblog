@@ -71,7 +71,7 @@ async function saveIssue(
     const tags: string = issue.labels
         .map(label => Issue.getLabelValue(label))
         .filter(Boolean)
-        .map(label => `\t- ${label}\n`)
+        .map(label => `- ${label}\n`)
         .join('')
 
     // hexo simple post template
