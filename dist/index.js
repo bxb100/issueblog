@@ -924,9 +924,10 @@ const main_1 = __nccwpck_require__(3109);
 const template_1 = __nccwpck_require__(8162);
 const util_1 = __nccwpck_require__(7657);
 function linkTemplate(issue) {
+    const formatter = (i) => i.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
     // hexo 模版是 /:year/:month/:day/:title/
     const date = new Date(issue.created_at || new Date());
-    return `/${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}/${(0, util_1.backupFileName)(issue)}`;
+    return `/${date.getFullYear()}/${formatter(date.getMonth() + 1)}/${formatter(date.getDay())}/${(0, util_1.backupFileName)(issue).replace('.md', '')}`;
 }
 function rss(context) {
     return __awaiter(this, void 0, void 0, function* () {

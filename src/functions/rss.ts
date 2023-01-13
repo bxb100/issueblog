@@ -10,11 +10,13 @@ import {backupFileName} from '../util/util'
 import {Issue} from '../common/clazz/issue'
 
 function linkTemplate(issue: Issue): string {
+    const formatter = (i: number): string =>
+        i.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false})
     // hexo 模版是 /:year/:month/:day/:title/
     const date = new Date(issue.created_at || new Date())
-    return `/${date.getFullYear()}/${
+    return `/${date.getFullYear()}/${formatter(
         date.getMonth() + 1
-    }/${date.getDate()}/${backupFileName(issue)}`
+    )}/${formatter(date.getDay())}/${backupFileName(issue).replace('.md', '')}`
 }
 
 export async function rss(context: Context): Promise<void> {
