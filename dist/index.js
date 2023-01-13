@@ -1314,7 +1314,7 @@ const commonConfigSchema = z.object({
     top_title: z.string(),
     unlabeled_title: z.string(),
     blog_image_url: z.string().default('blog.png'),
-    blog_url: z.string()
+    blog_url: z.string().optional()
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象
