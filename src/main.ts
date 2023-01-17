@@ -5,7 +5,6 @@ import {
     getUnstagedFiles,
     submodulePath
 } from './util/git'
-import {GithubKit} from './common/clazz/github-kit'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
 import path from 'path'

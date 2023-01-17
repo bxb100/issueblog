@@ -361,7 +361,8 @@ const label_process_1 = __nccwpck_require__(4476);
 const rss_1 = __nccwpck_require__(4258);
 const files_1 = __nccwpck_require__(7863);
 const github_kit_1 = __nccwpck_require__(1403);
-const core_1 = __nccwpck_require__(2186);
+const main_1 = __nccwpck_require__(3109);
+const path_1 = __importDefault(__nccwpck_require__(1017));
 class Processor {
     constructor(config) {
         this.context = null;
@@ -399,7 +400,10 @@ class Processor {
         });
     }
     deleteAllFiles() {
-        fs_1.default.rm(this.config.save_md_path, { recursive: true, force: true }, err => (0, core_1.setFailed)(err || `wrong in delete ${this.config.save_md_path}`));
+        fs_1.default.rmSync(path_1.default.join(main_1.rootPath, this.config.save_md_path), {
+            recursive: true,
+            force: true
+        });
         return this;
     }
     init() {
