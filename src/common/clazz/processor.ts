@@ -10,6 +10,7 @@ import {rss} from '../../functions/rss'
 import {files} from '../../functions/files'
 import {GithubKit} from './github-kit'
 import {Config} from '../../util/config'
+import {setFailed} from '@actions/core'
 
 export class Processor {
     readonly config: Config
@@ -55,7 +56,9 @@ export class Processor {
     }
 
     deleteAllFiles(): Processor {
-        fs.rmdirSync(this.config.save_md_path)
+        fs.rm(this.config.save_md_path, {recursive: true, force: true}, err =>
+            setFailed(err || `wrong in delete ${this.config.save_md_path}`)
+        )
         return this
     }
 
