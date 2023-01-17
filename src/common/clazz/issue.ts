@@ -1,4 +1,3 @@
-import {GithubKit} from './github-kit'
 import {IAssignee} from '../interface/assignee'
 import {IIssue} from '../interface/issue'
 import {ILabel} from '../interface/label'
