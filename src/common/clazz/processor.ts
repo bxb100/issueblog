@@ -30,8 +30,8 @@ export class Processor {
     }
 
     async process(): Promise<Processor> {
-        this.deleteAllFiles()
         const context = await this.init()
+
         return Promise.all([
             add_md_friends(context),
             add_md_top(context),
@@ -53,14 +53,6 @@ export class Processor {
 
     async files(): Promise<Processor> {
         await files(await this.init())
-        return this
-    }
-
-    deleteAllFiles(): Processor {
-        fs.rmSync(path.join(rootPath, this.config.save_md_path), {
-            recursive: true,
-            force: true
-        })
         return this
     }
 

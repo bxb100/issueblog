@@ -361,8 +361,6 @@ const label_process_1 = __nccwpck_require__(4476);
 const rss_1 = __nccwpck_require__(4258);
 const files_1 = __nccwpck_require__(7863);
 const github_kit_1 = __nccwpck_require__(1403);
-const main_1 = __nccwpck_require__(3109);
-const path_1 = __importDefault(__nccwpck_require__(1017));
 class Processor {
     constructor(config) {
         this.context = null;
@@ -375,7 +373,6 @@ class Processor {
     }
     process() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.deleteAllFiles();
             const context = yield this.init();
             return Promise.all([
                 (0, links_process_1.add_md_friends)(context),
@@ -399,13 +396,6 @@ class Processor {
             yield (0, files_1.files)(yield this.init());
             return this;
         });
-    }
-    deleteAllFiles() {
-        fs_1.default.rmSync(path_1.default.join(main_1.rootPath, this.config.save_md_path), {
-            recursive: true,
-            force: true
-        });
-        return this;
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
