@@ -27,7 +27,10 @@ export const config = {
     github_token: '123',
     md_header: '',
     anchor_number: '',
-    recent_limit: ''
+		blog_url: '',
+    recent_limit: '',
+    save_feed_path: '',
+    save_md_path: ''
 }
 
 export const utils = new GithubKit(config.github_token)

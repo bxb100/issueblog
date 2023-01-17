@@ -579,7 +579,7 @@ function files(context) {
     return __awaiter(this, void 0, void 0, function* () {
         const kit = context.kit;
         const issues = context.essayIssues;
-        const BACKUP_PATH = context.config.save_md_path;
+        const BACKUP_PATH = path_1.default.join(context.config.save_md_path, '/');
         const METADATA_PATH = path_1.default.join(BACKUP_PATH, METADATA_NAME);
         // make sure backup directory exists
         fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, { recursive: true });
