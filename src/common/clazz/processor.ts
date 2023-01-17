@@ -30,8 +30,8 @@ export class Processor {
     }
 
     async process(): Promise<Processor> {
+        this.deleteAllFiles()
         const context = await this.init()
-
         return Promise.all([
             add_md_friends(context),
             add_md_top(context),

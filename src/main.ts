@@ -34,7 +34,6 @@ async function run(): Promise<void> {
     core.startGroup('Process issues')
     await new Processor(config)
         .process()
-        .then(p => p.deleteAllFiles())
         .then(async p => Promise.all([p.rss(), p.files()]))
         .catch(err => core.setFailed(`process failed: ${err}`))
 

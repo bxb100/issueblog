@@ -375,6 +375,7 @@ class Processor {
     }
     process() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.deleteAllFiles();
             const context = yield this.init();
             return Promise.all([
                 (0, links_process_1.add_md_friends)(context),
@@ -1221,7 +1222,6 @@ function run() {
         core.startGroup('Process issues');
         yield new processor_1.Processor(config)
             .process()
-            .then(p => p.deleteAllFiles())
             .then((p) => __awaiter(this, void 0, void 0, function* () { return Promise.all([p.rss(), p.files()]); }))
             .catch(err => core.setFailed(`process failed: ${err}`));
         core.endGroup();
