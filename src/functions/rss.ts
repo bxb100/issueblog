@@ -93,9 +93,9 @@ export async function rss(context: Context): Promise<void> {
     core.debug(JSON.stringify(feeds, null, 2))
     // generate rss xml file
     const rssXml = template(feeds)
-    fs.writeFileSync('./source/feed.xml', rssXml)
 
+    fs.writeFileSync(path.join(config.save_feed_path, 'feed.xml'), rssXml)
     const xslPath = path.resolve(rootPath, './view/rss.xsl')
     const xsl = fs.readFileSync(xslPath, 'utf8')
-    fs.writeFileSync('./source/rss.xsl', xsl)
+    fs.writeFileSync(path.join(config.save_feed_path, 'rss.xsl'), xsl)
 }

@@ -6,15 +6,15 @@ import {Comment} from '../common/clazz/comment'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
 import {Context} from '../common/clazz/context'
+import path from 'path'
 
-const BACKUP_PATH = './source/_posts/'
 const METADATA_NAME = '.metadata'
-const METADATA_PATH = BACKUP_PATH + METADATA_NAME
 
-export async function post(context: Context): Promise<void> {
+export async function files(context: Context): Promise<void> {
     const kit = context.kit
     const issues = context.essayIssues
-
+    const BACKUP_PATH = context.config.save_md_path
+    const METADATA_PATH = path.join(BACKUP_PATH, METADATA_NAME)
     // make sure backup directory exists
     fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, {recursive: true})
     // make sure metadata file exists
@@ -39,7 +39,7 @@ export async function post(context: Context): Promise<void> {
     // backup issue
     await Promise.all(
         needBackupIssues.flatMap(async issue =>
-            saveIssue(kit, issue, parse[issue.number])
+            saveIssue(kit, issue, parse[issue.number], BACKUP_PATH)
         )
     )
     // update metadata
@@ -59,7 +59,8 @@ export async function post(context: Context): Promise<void> {
 async function saveIssue(
     kit: GithubKit,
     issue: Issue,
-    info: MetadataInfo
+    info: MetadataInfo,
+    BACKUP_PATH: string
 ): Promise<void> {
     const fileName = backupFileName(issue)
     if (info && fileName !== info.name) {
@@ -76,7 +77,7 @@ async function saveIssue(
 
     // hexo simple post template
     const createAt = new Date(issue.created_at).getTime()
-    let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\nurl:${issue.html_url}\n\n---\n`
+    let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`
     content += issue.body || ''
     if (issue.comments > 0) {
         // just focus on the first hundred comments

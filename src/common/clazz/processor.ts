@@ -7,7 +7,7 @@ import {add_md_recent} from '../../functions/recent-process'
 import {add_md_todo} from '../../functions/todo-process'
 import {add_md_label} from '../../functions/label-process'
 import {rss} from '../../functions/rss'
-import {post} from '../../functions/post'
+import {files} from '../../functions/files'
 import {GithubKit} from './github-kit'
 import {Config} from '../../util/config'
 
@@ -49,8 +49,13 @@ export class Processor {
         return this
     }
 
-    async backup(): Promise<Processor> {
-        await post(await this.init())
+    async files(): Promise<Processor> {
+        await files(await this.init())
+        return this
+    }
+
+    deleteAllFiles(): Processor {
+        fs.rmdirSync(this.config.save_md_path)
         return this
     }
 

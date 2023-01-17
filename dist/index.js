@@ -359,7 +359,7 @@ const recent_process_1 = __nccwpck_require__(5688);
 const todo_process_1 = __nccwpck_require__(269);
 const label_process_1 = __nccwpck_require__(4476);
 const rss_1 = __nccwpck_require__(4258);
-const post_1 = __nccwpck_require__(256);
+const files_1 = __nccwpck_require__(7863);
 const github_kit_1 = __nccwpck_require__(1403);
 class Processor {
     constructor(config) {
@@ -391,11 +391,15 @@ class Processor {
             return this;
         });
     }
-    backup() {
+    files() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, post_1.post)(yield this.init());
+            yield (0, files_1.files)(yield this.init());
             return this;
         });
+    }
+    deleteAllFiles() {
+        fs_1.default.rmdirSync(this.config.save_md_path);
+        return this;
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -513,6 +517,133 @@ var ReactionContent;
     ReactionContent["ROCKET"] = "rocket";
     ReactionContent["EYES"] = "eyes";
 })(ReactionContent = exports.ReactionContent || (exports.ReactionContent = {}));
+
+
+/***/ }),
+
+/***/ 7863:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.files = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const fs = __importStar(__nccwpck_require__(7147));
+const util_1 = __nccwpck_require__(7657);
+const issue_1 = __nccwpck_require__(7751);
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const METADATA_NAME = '.metadata';
+function files(context) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const kit = context.kit;
+        const issues = context.essayIssues;
+        const BACKUP_PATH = context.config.save_md_path;
+        const METADATA_PATH = path_1.default.join(BACKUP_PATH, METADATA_NAME);
+        // make sure backup directory exists
+        fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, { recursive: true });
+        // make sure metadata file exists
+        fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '{}');
+        // read metadata
+        const metadata = fs.readFileSync(METADATA_PATH, 'utf8') || '{}';
+        let parse = JSON.parse(metadata);
+        // filter need backup issues
+        const needBackupIssues = [];
+        for (const issue of issues) {
+            if (parse[issue.number]) {
+                // don't use event trigger issue_number, may be the action is concurrency
+                if ((0, util_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
+                    needBackupIssues.push(issue);
+                }
+            }
+            else {
+                needBackupIssues.push(issue);
+            }
+        }
+        // backup issue
+        yield Promise.all(needBackupIssues.flatMap((issue) => __awaiter(this, void 0, void 0, function* () { return saveIssue(kit, issue, parse[issue.number], BACKUP_PATH); })));
+        // update metadata
+        parse = needBackupIssues.reduce((acc, issue) => {
+            acc[issue.number] = {
+                name: (0, util_1.backupFileName)(issue),
+                createdAt: issue.created_at,
+                updatedAt: issue.updated_at
+            };
+            return acc;
+        }, parse);
+        core.debug(`backup metadata: ${JSON.stringify(parse)}`);
+        // write metadata
+        fs.writeFileSync(METADATA_PATH, JSON.stringify(parse));
+    });
+}
+exports.files = files;
+function saveIssue(kit, issue, info, BACKUP_PATH) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const fileName = (0, util_1.backupFileName)(issue);
+        if (info && fileName !== info.name) {
+            // change the issue title
+            // remove the old file
+            fs.unlinkSync(BACKUP_PATH + info.name);
+        }
+        const backupPath = BACKUP_PATH + fileName;
+        const tags = issue.labels
+            .map(label => issue_1.Issue.getLabelValue(label))
+            .filter(Boolean)
+            .map(label => `- ${label}\n`)
+            .join('');
+        // hexo simple post template
+        const createAt = new Date(issue.created_at).getTime();
+        let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`;
+        content += issue.body || '';
+        if (issue.comments > 0) {
+            // just focus on the first hundred comments
+            const comments = yield kit
+                .getIssueComments(issue)
+                .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
+            for (const comment of comments) {
+                content += `\n\n---\n\n`;
+                content += `<a id="issuecomment-${comment.id}"></a>\n`;
+                content += comment.body;
+            }
+        }
+        fs.writeFileSync(backupPath, content);
+    });
+}
 
 
 /***/ }),
@@ -698,129 +829,6 @@ exports.add_md_friends = add_md_friends;
 
 /***/ }),
 
-/***/ 256:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.post = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-const fs = __importStar(__nccwpck_require__(7147));
-const util_1 = __nccwpck_require__(7657);
-const issue_1 = __nccwpck_require__(7751);
-const BACKUP_PATH = './source/_posts/';
-const METADATA_NAME = '.metadata';
-const METADATA_PATH = BACKUP_PATH + METADATA_NAME;
-function post(context) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const kit = context.kit;
-        const issues = context.essayIssues;
-        // make sure backup directory exists
-        fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, { recursive: true });
-        // make sure metadata file exists
-        fs.existsSync(METADATA_PATH) || fs.writeFileSync(METADATA_PATH, '{}');
-        // read metadata
-        const metadata = fs.readFileSync(METADATA_PATH, 'utf8') || '{}';
-        let parse = JSON.parse(metadata);
-        // filter need backup issues
-        const needBackupIssues = [];
-        for (const issue of issues) {
-            if (parse[issue.number]) {
-                // don't use event trigger issue_number, may be the action is concurrency
-                if ((0, util_1.compareUpdateTime)(parse[issue.number], issue.updated_at) < 0) {
-                    needBackupIssues.push(issue);
-                }
-            }
-            else {
-                needBackupIssues.push(issue);
-            }
-        }
-        // backup issue
-        yield Promise.all(needBackupIssues.flatMap((issue) => __awaiter(this, void 0, void 0, function* () { return saveIssue(kit, issue, parse[issue.number]); })));
-        // update metadata
-        parse = needBackupIssues.reduce((acc, issue) => {
-            acc[issue.number] = {
-                name: (0, util_1.backupFileName)(issue),
-                createdAt: issue.created_at,
-                updatedAt: issue.updated_at
-            };
-            return acc;
-        }, parse);
-        core.debug(`backup metadata: ${JSON.stringify(parse)}`);
-        // write metadata
-        fs.writeFileSync(METADATA_PATH, JSON.stringify(parse));
-    });
-}
-exports.post = post;
-function saveIssue(kit, issue, info) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const fileName = (0, util_1.backupFileName)(issue);
-        if (info && fileName !== info.name) {
-            // change the issue title
-            // remove the old file
-            fs.unlinkSync(BACKUP_PATH + info.name);
-        }
-        const backupPath = BACKUP_PATH + fileName;
-        const tags = issue.labels
-            .map(label => issue_1.Issue.getLabelValue(label))
-            .filter(Boolean)
-            .map(label => `- ${label}\n`)
-            .join('');
-        // hexo simple post template
-        const createAt = new Date(issue.created_at).getTime();
-        let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\nurl:${issue.html_url}\n\n---\n`;
-        content += issue.body || '';
-        if (issue.comments > 0) {
-            // just focus on the first hundred comments
-            const comments = yield kit
-                .getIssueComments(issue)
-                .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
-            for (const comment of comments) {
-                content += `\n\n---\n\n`;
-                content += `<a id="issuecomment-${comment.id}"></a>\n`;
-                content += comment.body;
-            }
-        }
-        fs.writeFileSync(backupPath, content);
-    });
-}
-
-
-/***/ }),
-
 /***/ 5688:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -986,10 +994,10 @@ function rss(context) {
         core.debug(JSON.stringify(feeds, null, 2));
         // generate rss xml file
         const rssXml = (0, template_1.template)(feeds);
-        fs.writeFileSync('./source/feed.xml', rssXml);
+        fs.writeFileSync(path.join(config.save_feed_path, 'feed.xml'), rssXml);
         const xslPath = path.resolve(main_1.rootPath, './view/rss.xsl');
         const xsl = fs.readFileSync(xslPath, 'utf8');
-        fs.writeFileSync('./source/rss.xsl', xsl);
+        fs.writeFileSync(path.join(config.save_feed_path, 'rss.xsl'), xsl);
     });
 }
 exports.rss = rss;
@@ -1208,7 +1216,8 @@ function run() {
         core.startGroup('Process issues');
         yield new processor_1.Processor(config)
             .process()
-            .then((p) => __awaiter(this, void 0, void 0, function* () { return Promise.all([p.rss(), p.backup()]); }))
+            .then(p => p.deleteAllFiles())
+            .then((p) => __awaiter(this, void 0, void 0, function* () { return Promise.all([p.rss(), p.files()]); }))
             .catch(err => core.setFailed(`process failed: ${err}`));
         core.endGroup();
         // 3. 暂存需要提交的文件
@@ -1303,7 +1312,9 @@ const keys = [
     'top_title',
     'unlabeled_title',
     'blog_image_url',
-    'blog_url'
+    'blog_url',
+    'save_feed_path',
+    'save_md_path'
 ];
 const commonConfigSchema = z.object({
     github_token: z.string(),
@@ -1317,7 +1328,9 @@ const commonConfigSchema = z.object({
     top_title: z.string(),
     unlabeled_title: z.string(),
     blog_image_url: z.string().default('blog.png'),
-    blog_url: z.string().optional()
+    blog_url: z.string(),
+    save_feed_path: z.string(),
+    save_md_path: z.string()
 });
 /**
  * 将 action.yml 中的 input 入参转换为对象

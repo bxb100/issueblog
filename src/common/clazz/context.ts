@@ -2,7 +2,6 @@ import {GithubKit} from './github-kit'
 import {Constant} from './constant'
 import {Issue} from './issue'
 import {Config} from '../../util/config'
-import {ConfigSet} from 'ts-jest'
 
 export class Context {
     readonly kit: GithubKit
