@@ -624,7 +624,9 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
             .join('');
         // hexo simple post template
         const createAt = new Date(issue.created_at).getTime();
-        let content = `---\ntitle: ${issue.title}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`;
+        // hexo not support : in title
+        const mdTitle = issue.title.replace(/:/g, ' ');
+        let content = `---\ntitle: ${mdTitle}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`;
         content += issue.body || '';
         if (issue.comments > 0) {
             // just focus on the first hundred comments
