@@ -18,7 +18,10 @@ const base_config = {
     links_title: 'links_title',
     recent_title: 'recent_title',
     top_title: 'top_title',
-    unlabeled_title: 'unlabeled_title'
+    unlabeled_title: 'unlabeled_title',
+    blog_url: 'blog_url',
+    save_feed_path: 'save_feed_path',
+    save_md_path: 'save_md_path'
 }
 
 test('basic get config', () => {
