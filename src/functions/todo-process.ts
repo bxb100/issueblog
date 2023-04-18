@@ -16,9 +16,7 @@ export async function add_md_todo(context: BlogContext): Promise<void> {
 
     let todoSection: string = TODO_ISSUE_TITLE
 
-    const wrap: WrapperToString<string> = s => `${s.replace(
-			/\[\^\d+\]/g, ''
-		)}\n`
+    const wrap: WrapperToString<string> = s => `${s.replace(/\[\^\d+]/g, '')}\n`
     for (const todoIssue of todoIssues) {
         const {title, undone, done} = parse(todoIssue)
         todoSection += `TODO list from ${title}\n`

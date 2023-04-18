@@ -108,12 +108,12 @@ class Constant {
         return content;
     }
 }
-exports.Constant = Constant;
 Constant.FIXED_LINKS = 'Links';
 Constant.FIXED_TOP = 'Top';
 Constant.FIXED_TODO = 'Todo';
 Constant.FIXED_RECENT = 'Recent';
 Constant.AGG_EACH_LABEL = 'Label';
+exports.Constant = Constant;
 
 
 /***/ }),
@@ -983,7 +983,7 @@ function add_md_todo(context) {
             return;
         }
         let todoSection = exports.TODO_ISSUE_TITLE;
-        const wrap = s => `${s.replace(/\[\^\d+\]/g, '')}\n`;
+        const wrap = s => `${s.replace(/\[\^\d+]/g, '')}\n`;
         for (const todoIssue of todoIssues) {
             const { title, undone, done } = parse(todoIssue);
             todoSection += `TODO list from ${title}\n`;
