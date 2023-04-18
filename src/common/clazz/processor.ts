@@ -1,4 +1,4 @@
-import {Context} from './context'
+import {BlogContext} from './blog-context'
 import {Constant} from './constant'
 import fs from 'fs'
 import {add_md_friends} from '../../functions/links-process'
@@ -10,8 +10,6 @@ import {rss} from '../../functions/rss'
 import {files} from '../../functions/files'
 import {GithubKit} from './github-kit'
 import {Config} from '../../util/config'
-import {rootPath} from '../../main'
-import path from 'path'
 
 export class Processor {
     readonly config: Config
@@ -20,7 +18,7 @@ export class Processor {
         this.config = config
     }
 
-    writeReadMe(context: Context): Processor {
+    writeReadMe(context: BlogContext): Processor {
         const constant = new Constant(this.config.md_header)
         fs.writeFileSync(
             'README.md',
@@ -56,12 +54,12 @@ export class Processor {
         return this
     }
 
-    private context: Context | null = null
+    private context: BlogContext | null = null
 
-    private async init(): Promise<Context> {
+    private async init(): Promise<BlogContext> {
         if (this.context == null) {
             const kit = new GithubKit(this.config.github_token)
-            this.context = new Context(
+            this.context = new BlogContext(
                 await kit.getAllIssues(),
                 kit,
                 this.config

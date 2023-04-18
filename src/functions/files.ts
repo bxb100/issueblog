@@ -5,12 +5,12 @@ import {backupFileName, compareUpdateTime, isOwnBy} from '../util/util'
 import {Comment} from '../common/clazz/comment'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
-import {Context} from '../common/clazz/context'
+import {BlogContext} from '../common/clazz/blog-context'
 import path from 'path'
 
 const METADATA_NAME = '.metadata'
 
-export async function files(context: Context): Promise<void> {
+export async function files(context: BlogContext): Promise<void> {
     const kit = context.kit
     const issues = context.essayIssues
     const BACKUP_PATH = path.join(context.config.save_md_path, '/')

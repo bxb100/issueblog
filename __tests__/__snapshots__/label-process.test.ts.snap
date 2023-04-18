@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test generate string 1`] = `
+"
+## 2021
+<details><summary>MORE</summary>
+
+- [测试隐藏 label 6](https://github.com/bxb100/issueblog-test/issues/10)---2021-12-04
+- [测试隐藏 label 5](https://github.com/bxb100/issueblog-test/issues/9)---2021-12-04
+- [测试隐藏 label 4](https://github.com/bxb100/issueblog-test/issues/8)---2021-12-04
+- [测试隐藏 label 3](https://github.com/bxb100/issueblog-test/issues/7)---2021-12-04
+- [测试隐藏 label 2](https://github.com/bxb100/issueblog-test/issues/6)---2021-12-04
+- [测试隐藏 label 1](https://github.com/bxb100/issueblog-test/issues/5)---2021-12-04
+</details>
+
+
+## two
+<details><summary>MORE</summary>
+
+- [测试隐藏 label 1](https://github.com/bxb100/issueblog-test/issues/5)---2021-12-04
+</details>
+
+
+## 测试
+<details><summary>MORE</summary>
+
+- [测试一个文章](https://github.com/bxb100/issueblog-test/issues/21)---2021-12-05
+</details>
+
+"
+`;

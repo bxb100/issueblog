@@ -3,7 +3,7 @@ import {Constant} from './constant'
 import {Issue} from './issue'
 import {Config} from '../../util/config'
 
-export class Context {
+export class BlogContext {
     readonly kit: GithubKit
     readonly issues: Issue[] = []
     readonly sectionMap = new Map<string, string>()
@@ -13,7 +13,7 @@ export class Context {
     constructor(issues: Issue[], kit: GithubKit, config: Config) {
         this.kit = kit
         this.issues = issues
-        this.essayIssues = Context.getEssayIssues(issues)
+        this.essayIssues = BlogContext.getEssayIssues(issues)
         this.config = config
     }
 

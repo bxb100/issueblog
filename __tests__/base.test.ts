@@ -8,7 +8,7 @@ import {IComment} from '../src/common/interface/comment'
 import {ReactionContent} from '../src/common/enum/reaction-content'
 import {Reaction} from '../src/common/interface/reaction'
 import {Comment} from '../src/common/clazz/comment'
-import {Context} from '../src/common/clazz/context'
+import {BlogContext} from '../src/common/clazz/blog-context'
 
 Object.defineProperty(context, 'repo', {
     get: jest.fn(() => ({
@@ -88,7 +88,7 @@ getIssueCommentsMock.mockImplementation(async issue => {
     }
     return []
 })
-export const blogContext = new Context(
+export const blogContext = new BlogContext(
     Issue.cast(JSON.parse(issueResult)),
     utils,
     config

@@ -1,6 +1,40 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 2189:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BlogContext = void 0;
+const constant_1 = __nccwpck_require__(6464);
+class BlogContext {
+    constructor(issues, kit, config) {
+        this.issues = [];
+        this.sectionMap = new Map();
+        this.essayIssues = [];
+        this.kit = kit;
+        this.issues = issues;
+        this.essayIssues = BlogContext.getEssayIssues(issues);
+        this.config = config;
+    }
+    getIssues(label) {
+        if (label) {
+            return this.issues.filter(issue => issue.hasLabel(label));
+        }
+        return this.issues;
+    }
+    static getEssayIssues(issues) {
+        return issues.filter(issue => !(issue.hasLabel(constant_1.Constant.FIXED_LINKS) ||
+            issue.hasLabel(constant_1.Constant.FIXED_TODO)));
+    }
+}
+exports.BlogContext = BlogContext;
+
+
+/***/ }),
+
 /***/ 8802:
 /***/ (function(__unused_webpack_module, exports) {
 
@@ -72,40 +106,6 @@ Constant.FIXED_TOP = 'Top';
 Constant.FIXED_TODO = 'Todo';
 Constant.FIXED_RECENT = 'Recent';
 Constant.AGG_EACH_LABEL = 'Label';
-
-
-/***/ }),
-
-/***/ 8158:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Context = void 0;
-const constant_1 = __nccwpck_require__(6464);
-class Context {
-    constructor(issues, kit, config) {
-        this.issues = [];
-        this.sectionMap = new Map();
-        this.essayIssues = [];
-        this.kit = kit;
-        this.issues = issues;
-        this.essayIssues = Context.getEssayIssues(issues);
-        this.config = config;
-    }
-    getIssues(label) {
-        if (label) {
-            return this.issues.filter(issue => issue.hasLabel(label));
-        }
-        return this.issues;
-    }
-    static getEssayIssues(issues) {
-        return issues.filter(issue => !(issue.hasLabel(constant_1.Constant.FIXED_LINKS) ||
-            issue.hasLabel(constant_1.Constant.FIXED_TODO)));
-    }
-}
-exports.Context = Context;
 
 
 /***/ }),
@@ -350,7 +350,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Processor = void 0;
-const context_1 = __nccwpck_require__(8158);
+const blog_context_1 = __nccwpck_require__(2189);
 const constant_1 = __nccwpck_require__(6464);
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const links_process_1 = __nccwpck_require__(7143);
@@ -401,7 +401,7 @@ class Processor {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.context == null) {
                 const kit = new github_kit_1.GithubKit(this.config.github_token);
-                this.context = new context_1.Context(yield kit.getAllIssues(), kit, this.config);
+                this.context = new blog_context_1.BlogContext(yield kit.getAllIssues(), kit, this.config);
             }
             return this.context;
         });
@@ -873,7 +873,7 @@ exports.RECENT_ISSUE_TITLE = RECENT_ISSUE_TITLE;
 function add_md_recent(context) {
     return __awaiter(this, void 0, void 0, function* () {
         const limit = parseInt(context.config.recent_limit);
-        const recentIssues = context.issues.slice(0, limit);
+        const recentIssues = context.essayIssues.slice(0, limit);
         let recentSection = (0, exports.RECENT_ISSUE_TITLE)(context.config);
         recentSection += recentIssues.map(i => i.mdIssueInfo()).join('');
         core.debug(`recentSection: ${recentSection}`);
@@ -1053,10 +1053,11 @@ function add_md_todo(context) {
             return;
         }
         let todoSection = exports.TODO_ISSUE_TITLE;
+        const wrap = s => `${s.replace(/\[\^\d+\]/g, '')}\n`;
         for (const todoIssue of todoIssues) {
             const { title, undone, done } = parse(todoIssue);
             todoSection += `TODO list from ${title}\n`;
-            todoSection += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
+            todoSection += (0, util_1.wrapDetails)(undone, done, wrap);
         }
         core.debug(`TODO section: ${todoSection}`);
         context.sectionMap.set(constant_1.Constant.FIXED_TODO, todoSection);

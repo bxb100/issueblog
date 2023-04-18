@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test generate string 1`] = `
+"## TODO
+TODO list from [todo 测试 2](https://github.com/bxb100/issueblog-test/issues/19) all done
+<details><summary>MORE</summary>
+
+- [x] 1
+- [x] 2
+</details>
+
+TODO list from [todo 测试](https://github.com/bxb100/issueblog-test/issues/18)--1 jobs to do--2 jobs done
+- [ ] undone
+<details><summary>MORE</summary>
+
+- [x] done
+- [x] done2
+</details>
+
+"
+`;

@@ -5,7 +5,7 @@ import {IRssFeed} from '../common/interface/rss-feed'
 import {Release} from '../common/clazz/release'
 import {rootPath} from '../main'
 import {template} from '../util/template'
-import {Context} from '../common/clazz/context'
+import {BlogContext} from '../common/clazz/blog-context'
 import {backupFileName} from '../util/util'
 import {Issue} from '../common/clazz/issue'
 
@@ -19,7 +19,7 @@ function linkTemplate(issue: Issue): string {
     )}/${backupFileName(issue).replace('.md', '')}`
 }
 
-export async function rss(context: Context): Promise<void> {
+export async function rss(context: BlogContext): Promise<void> {
     const config = context.config
     const kit = context.kit
     const issues = context.essayIssues

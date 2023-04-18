@@ -3,7 +3,7 @@ import {Comment} from '../common/clazz/comment'
 import {Config} from '../util/config'
 import {Constant} from '../common/clazz/constant'
 import {IComment} from '../common/interface/comment'
-import {Context} from '../common/clazz/context'
+import {BlogContext} from '../common/clazz/blog-context'
 
 // -----------------------------------------------------------------------------
 /**
@@ -42,7 +42,7 @@ function _makeFriendTableString(comment: IComment): string {
     return ''
 }
 
-export async function add_md_friends(context: Context): Promise<void> {
+export async function add_md_friends(context: BlogContext): Promise<void> {
     const friendIssues = context.getIssues(Constant.FIXED_LINKS)
 
     const all: Promise<string[]>[] = []
