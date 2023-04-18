@@ -3,7 +3,6 @@ export class Constant {
     static readonly FIXED_TOP = 'Top'
     static readonly FIXED_TODO = 'Todo'
     static readonly FIXED_RECENT = 'Recent'
-
     static readonly AGG_EACH_LABEL = 'Label'
 
     readonly header: string

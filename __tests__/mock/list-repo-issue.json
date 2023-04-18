@@ -239,7 +239,7 @@
     "closed_at": null,
     "author_association": "OWNER",
     "active_lock_reason": null,
-    "body": "- [x] 1\r\n- [x] 2 ",
+    "body": "- [x] 1[^1][^2][^3]\r\n- [x] 2\r\n ",
     "reactions": {
       "url": "https://api.github.com/repos/bxb100/issueblog-test/issues/19/reactions",
       "total_count": 0,

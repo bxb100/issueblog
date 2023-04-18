@@ -1,4 +1,5 @@
 import {template} from '../src/util/template'
+import exp = require("constants");
 
 const testData =
     '{\n' +
@@ -234,6 +235,7 @@ test('testTemplate', async () => {
 
     const result = template(JSON.parse(testData))
     console.log(result)
+		expect(result).toMatchSnapshot()
     expect(result).toContain('<![CDATA[测试文章 2]]>')
     expect(result).toContain('<category>测试</category>')
     expect(result).toContain(

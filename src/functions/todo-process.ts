@@ -3,6 +3,7 @@ import {Constant} from '../common/clazz/constant'
 import {Issue} from '../common/clazz/issue'
 import {wrapDetails} from '../util/util'
 import {BlogContext} from '../common/clazz/blog-context'
+import {WrapperToString} from '../common/types/wrapper-to-string'
 
 export const TODO_ISSUE_TITLE = '## TODO\n'
 
@@ -15,10 +16,14 @@ export async function add_md_todo(context: BlogContext): Promise<void> {
 
     let todoSection: string = TODO_ISSUE_TITLE
 
+    const wrap: WrapperToString<string> = s => `${s.replace(
+			/\[\^\d+\]/g, ''
+		)}\n`
     for (const todoIssue of todoIssues) {
         const {title, undone, done} = parse(todoIssue)
         todoSection += `TODO list from ${title}\n`
-        todoSection += wrapDetails(undone, done, s => `${s}\n`)
+
+        todoSection += wrapDetails(undone, done, wrap)
     }
     core.debug(`TODO section: ${todoSection}`)
     context.sectionMap.set(Constant.FIXED_TODO, todoSection)

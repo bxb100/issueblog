@@ -813,7 +813,7 @@ exports.RECENT_ISSUE_TITLE = RECENT_ISSUE_TITLE;
 function add_md_recent(context) {
     return __awaiter(this, void 0, void 0, function* () {
         const limit = parseInt(context.config.recent_limit);
-        const recentIssues = context.issues.slice(0, limit);
+        const recentIssues = context.essayIssues.slice(0, limit);
         let recentSection = (0, exports.RECENT_ISSUE_TITLE)(context.config);
         recentSection += recentIssues.map(i => i.mdIssueInfo()).join('');
         core.debug(`recentSection: ${recentSection}`);
@@ -983,10 +983,11 @@ function add_md_todo(context) {
             return;
         }
         let todoSection = exports.TODO_ISSUE_TITLE;
+        const wrap = s => `${s.replace(/\[\^\d+\]/g, '')}\n`;
         for (const todoIssue of todoIssues) {
             const { title, undone, done } = parse(todoIssue);
             todoSection += `TODO list from ${title}\n`;
-            todoSection += (0, util_1.wrapDetails)(undone, done, s => `${s}\n`);
+            todoSection += (0, util_1.wrapDetails)(undone, done, wrap);
         }
         core.debug(`TODO section: ${todoSection}`);
         context.sectionMap.set(constant_1.Constant.FIXED_TODO, todoSection);

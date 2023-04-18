@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test generate string 1`] = `
+"
+## 
+| Name | Link | Desc |
+| ---- | ---- | ---- |
+| 兔子鮮笙 | https://tuzi.moe | 20 岁的天才少年 |
+| 兔子鮮笙 | https://tuzi.moe | desc\\:测试 |
+"
+`;
