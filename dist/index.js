@@ -584,7 +584,7 @@ function saveIssue(kit, issue, info) {
                 .getIssueComments(issue)
                 .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
         }
-        (0, util_1.unifyReferToNumber)(issue, comments);
+        const bottomLinks = (0, util_1.unifyReferToNumber)(issue, comments);
         const backupPath = BACKUP_PATH + fileName;
         let content = `[${issue.title}](${issue.html_url})\n\n`;
         content += issue.body || 'No description provided.';
@@ -593,6 +593,7 @@ function saveIssue(kit, issue, info) {
             content += `<a id='issuecomment-${comment.id}'></a>\n`;
             content += comment.body;
         }
+        content += `\n${bottomLinks}`;
         fs.writeFileSync(backupPath, content);
     });
 }
