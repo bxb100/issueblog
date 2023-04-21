@@ -1,0 +1,9 @@
+[
+	{
+		"author_association": "OWNER",
+		"body": "## CI 配置\r\n\r\n* lockbud, 注意复制 tool-chain[^1]\r\n* [GitHub Action yaml](https://gist.github.com/LukeMathWalker/5ae1107432ce283310c3e601fac915f3)\r\n\r\n[^1]: https://github.com/BurtonQin/lockbud/issues/44"
+	},
+	{
+		"body": "## 技巧\r\n\r\n* 使用 `+night` 不需要在项目中设置 `tool-chain`, 当然要注意下编译使用的版本需要和项目的一致, 比如 https://github.com/BurtonQin/lockbud\r\n```shell\r\n# Use the nightly toolchain just for this command invocation\r\ncargo +nightly expand\r\n```\r\n\r\n* [actix-web](https://github.com/actix/actix-web) 支持共享 app 配置了[^1]\r\n```rust\r\nfn create_app() -> App<\r\n    impl ServiceFactory<\r\n        ServiceRequest,\r\n        Config = (),\r\n        Response = ServiceResponse<impl MessageBody>,\r\n        Error = Error,\r\n        InitError = (),\r\n    >,\r\n> {\r\n    App::new()\r\n        .route(\"/\", web::get().to(greet))\r\n        .route(\"/health_check\", web::get().to(health_check))\r\n        .route(\"/{name}\", web::get().to(greet))\r\n}\r\n```\r\n\r\n\r\n[^1]: https://github.com/actix/actix-web/issues/1147#issuecomment-1509937750"
+	}
+]

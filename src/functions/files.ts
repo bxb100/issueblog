@@ -1,7 +1,12 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import {Metadata, MetadataInfo} from '../common/types/metadata'
-import {backupFileName, compareUpdateTime, isOwnBy} from '../util/util'
+import {
+    backupFileName,
+    compareUpdateTime,
+    isOwnBy,
+    unifyReferToNumber
+} from '../util/util'
 import {Comment} from '../common/clazz/comment'
 import {GithubKit} from '../common/clazz/github-kit'
 import {Issue} from '../common/clazz/issue'
@@ -68,6 +73,15 @@ async function saveIssue(
         // remove the old file
         fs.unlinkSync(BACKUP_PATH + info.name)
     }
+    let comments: Comment[] = []
+    if (issue.comments > 0) {
+        // just focus on the first hundred comments
+        comments = await kit
+            .getIssueComments(issue)
+            .then(list => list.filter(c => isOwnBy(c, kit.owner)))
+    }
+    unifyReferToNumber(issue, comments)
+
     const backupPath = BACKUP_PATH + fileName
     const tags: string = issue.labels
         .map(label => Issue.getLabelValue(label))
@@ -81,18 +95,10 @@ async function saveIssue(
     const mdTitle = issue.title.replace(/:/g, ' ')
     let content = `---\ntitle: ${mdTitle}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`
     content += issue.body || ''
-    if (issue.comments > 0) {
-        // just focus on the first hundred comments
-        const comments: Comment[] = await kit
-            .getIssueComments(issue)
-            .then(list => list.filter(c => isOwnBy(c, kit.owner)))
-
-        for (const comment of comments) {
-            content += `\n\n---\n\n`
-            content += `<a id="issuecomment-${comment.id}"></a>\n`
-            content += comment.body
-        }
+    for (const comment of comments) {
+        content += `\n\n---\n\n`
+        content += `<a id='issuecomment-${comment.id}'></a>\n`
+        content += comment.body
     }
-
     fs.writeFileSync(backupPath, content)
 }
