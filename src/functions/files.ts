@@ -80,7 +80,7 @@ async function saveIssue(
             .getIssueComments(issue)
             .then(list => list.filter(c => isOwnBy(c, kit.owner)))
     }
-    unifyReferToNumber(issue, comments)
+    const bottomLinks = unifyReferToNumber(issue, comments)
 
     const backupPath = BACKUP_PATH + fileName
     const tags: string = issue.labels
@@ -100,5 +100,6 @@ async function saveIssue(
         content += `<a id='issuecomment-${comment.id}'></a>\n`
         content += comment.body
     }
+    content += `\n${bottomLinks}`
     fs.writeFileSync(backupPath, content)
 }

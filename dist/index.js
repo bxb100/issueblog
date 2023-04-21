@@ -635,7 +635,7 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
                 .getIssueComments(issue)
                 .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
         }
-        (0, util_1.unifyReferToNumber)(issue, comments);
+        const bottomLinks = (0, util_1.unifyReferToNumber)(issue, comments);
         const backupPath = BACKUP_PATH + fileName;
         const tags = issue.labels
             .map(label => issue_1.Issue.getLabelValue(label))
@@ -653,6 +653,7 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
             content += `<a id='issuecomment-${comment.id}'></a>\n`;
             content += comment.body;
         }
+        content += `\n${bottomLinks}`;
         fs.writeFileSync(backupPath, content);
     });
 }
