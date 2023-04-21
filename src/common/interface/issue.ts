@@ -4,7 +4,7 @@ import {IMilestone} from './milestone'
 import {IUser} from './user'
 import {IsoDateString} from '../types/iso-date-string'
 
-export interface IIssue {
+export interface IIssue extends IContent {
     title: string
     number: number
     created_at: IsoDateString
@@ -18,5 +18,8 @@ export interface IIssue {
     assignees?: IAssignee[] | null
     comments: number
     html_url: string
+}
+
+export interface IContent {
     body?: string | null
 }

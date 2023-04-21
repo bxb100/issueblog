@@ -63,8 +63,14 @@ class Comment {
     constructor(comment) {
         this.id = comment.id;
         this.user = comment.user;
-        this.body = comment.body;
+        this._body = comment.body;
         this.reactions = comment.reactions;
+    }
+    get body() {
+        return this._body;
+    }
+    set body(body) {
+        this._body = body;
     }
     static cast(comments) {
         return comments.map((c) => new Comment(c));
@@ -333,9 +339,15 @@ class Issue {
         this.updated_at = data.updated_at;
         this.user = data.user;
         this.html_url = data.html_url;
-        this.body = data.body;
+        this._body = data.body;
         // easy way get yyyy-MM-dd
         this.created_at_sub = this.created_at.substring(0, 10);
+    }
+    get body() {
+        return this._body;
+    }
+    set body(body) {
+        this._body = body;
     }
     static cast(data) {
         return data.map(d => new Issue(d));
@@ -565,19 +577,21 @@ function saveIssue(kit, issue, info) {
             // remove the old file
             fs.unlinkSync(BACKUP_PATH + info.name);
         }
+        let comments = [];
+        if (issue.comments > 0) {
+            // just focus on the first hundred comments
+            comments = yield kit
+                .getIssueComments(issue)
+                .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
+        }
+        (0, util_1.unifyReferToNumber)(issue, comments);
         const backupPath = BACKUP_PATH + fileName;
         let content = `[${issue.title}](${issue.html_url})\n\n`;
         content += issue.body || 'No description provided.';
-        if (issue.comments > 0) {
-            // just focus on the first hundred comments
-            const comments = yield kit
-                .getIssueComments(issue)
-                .then(list => list.filter(c => (0, util_1.isOwnBy)(c, kit.owner)));
-            for (const comment of comments) {
-                content += `\n\n---\n\n`;
-                content += `<a id="issuecomment-${comment.id}"></a>\n`;
-                content += comment.body;
-            }
+        for (const comment of comments) {
+            content += `\n\n---\n\n`;
+            content += `<a id='issuecomment-${comment.id}'></a>\n`;
+            content += comment.body;
         }
         fs.writeFileSync(backupPath, content);
     });
@@ -1510,7 +1524,7 @@ exports.template = template;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.compareUpdateTime = exports.backupFileName = exports.wrapDetails = exports.isOwnBy = void 0;
+exports.unifyReferToNumber = exports.compareUpdateTime = exports.backupFileName = exports.wrapDetails = exports.isOwnBy = void 0;
 function isOwnBy(obj, username) {
     var _a;
     return ((_a = obj.user) === null || _a === void 0 ? void 0 : _a.login) === username;
@@ -1540,6 +1554,35 @@ function compareUpdateTime(a, b) {
     return new Date(a.updatedAt).getTime() - Date.parse(b);
 }
 exports.compareUpdateTime = compareUpdateTime;
+function unifyReferToNumber(issue, comments) {
+    let n = 1;
+    const referenceLinks = [];
+    function replaceReferenceLink(content) {
+        var _a;
+        if (!content.body)
+            return;
+        // remove all the reference links
+        for (const ref of content.body.match(/\[\^\d](?!:)/gm) || []) {
+            const number = ref.slice(2, -1);
+            const rg = RegExp(`\\[\\^${number}]:\\s*.+`, 'gm');
+            // eslint-disable-next-line github/array-foreach
+            (_a = content.body.match(rg)) === null || _a === void 0 ? void 0 : _a.forEach(link => {
+                var _a;
+                content.body = (_a = content.body) === null || _a === void 0 ? void 0 : _a.replace(link, '');
+                referenceLinks.push(link.replace(/(^\[\^\d+]:\s*)/, ''));
+            });
+            content.body = content.body.replace(ref, `[^${n++}]`);
+        }
+    }
+    replaceReferenceLink(issue);
+    for (const comment of comments) {
+        replaceReferenceLink(comment);
+    }
+    return referenceLinks.reduce((p, c, index) => {
+        return `${p}\n[^${index + 1}]: ${c}`;
+    }, '');
+}
+exports.unifyReferToNumber = unifyReferToNumber;
 
 
 /***/ }),

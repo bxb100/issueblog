@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test unifyReferToNumber 1`] = `
+"
+[^1]: https://eisel.me/lld
+[^2]: https://www.reddit.com/r/rust/comments/11h28k3/faster_apple_builds_with_the_lld_linker/
+[^3]: https://github.com/BurtonQin/lockbud/issues/44
+[^4]: https://github.com/actix/actix-web/issues/1147#issuecomment-1509937750"
+`;
+
+exports[`test unifyReferToNumber 2`] = `
+"~~## ZLD 的配置~~
+
+~~Rust 编译大部分耗时在 [linker 阶段](https://en.wikipedia.org/wiki/Linker_(computing)), 所以文中给与 ZLD 配置, 但是注意后面的配置路径有点问题, homebrew Apple silicon 默认的安装位置在\`/opt/homebrew/bin/\`~~
+
+\`\`\`diff
+# .cargo/config.toml
+# On Windows
+# \`\`\`
+# cargo install -f cargo-binutils
+# rustup component add llvm-tools-preview
+# \`\`\`
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+[target.x86_64-pc-windows-gnu]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+# On Linux:
+# - Ubuntu, \`sudo apt-get install lld clang\`
+# - Arch, \`sudo pacman -S lld clang\`
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "linker=clang", "-C", "link-arg=-fuse-ld=lld"]
+# On MacOS, \`brew install michaeleisel/zld/zld\`
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-fuse-ld=/usr/local/bin/zld"]
+[target.aarch64-apple-darwin]
+- rustflags = ["-C", "link-arg=-fuse-ld=/usr/local/bin/zld"]
++ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/zld"]
+\`\`\`
+提到了新出来的 [mold](https://github.com/rui314/mold) 会更加好一点, 有机会再试试
+
+---
+
+update:
+* zld 不再维护的了, 使用 lld 替代[^1], 但是和 reddit 上有用户评论一样, 速度并没有提示很高[^2]
+* mold 的 MacOS 版本 sold 是商业版需要购买 licence , 放弃
+
+总结: 不要花时间在 linker 上
+
+
+
+
+"
+`;
+
+exports[`test unifyReferToNumber 3`] = `
+"## CI 配置
+
+* lockbud, 注意复制 tool-chain[^3]
+* [GitHub Action yaml](https://gist.github.com/LukeMathWalker/5ae1107432ce283310c3e601fac915f3)
+
+"
+`;
+
+exports[`test unifyReferToNumber 4`] = `
+"## 技巧
+
+* 使用 \`+night\` 不需要在项目中设置 \`tool-chain\`, 当然要注意下编译使用的版本需要和项目的一致, 比如 https://github.com/BurtonQin/lockbud
+\`\`\`shell
+# Use the nightly toolchain just for this command invocation
+cargo +nightly expand
+\`\`\`
+
+* [actix-web](https://github.com/actix/actix-web) 支持共享 app 配置了[^4]
+\`\`\`rust
+fn create_app() -> App<
+    impl ServiceFactory<
+        ServiceRequest,
+        Config = (),
+        Response = ServiceResponse<impl MessageBody>,
+        Error = Error,
+        InitError = (),
+    >,
+> {
+    App::new()
+        .route("/", web::get().to(greet))
+        .route("/health_check", web::get().to(health_check))
+        .route("/{name}", web::get().to(greet))
+}
+\`\`\`
+
+
+"
+`;

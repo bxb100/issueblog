@@ -7,13 +7,22 @@ export class Comment implements IComment {
     readonly id: number
     readonly user: IUser | null
     readonly reactions: Reactions | undefined
-    readonly body: string | undefined
 
     constructor(comment: Readonly<IComment>) {
         this.id = comment.id
         this.user = comment.user
-        this.body = comment.body
+        this._body = comment.body
         this.reactions = comment.reactions
+    }
+
+    private _body: string | null | undefined
+
+    get body(): string | undefined | null {
+        return this._body
+    }
+
+    set body(body: string | undefined | null) {
+        this._body = body
     }
 
     static cast(comments: Readonly<IComment[]>): Comment[] {
