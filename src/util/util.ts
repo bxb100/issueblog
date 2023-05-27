@@ -34,7 +34,7 @@ export function wrapDetails<T>(
 }
 
 export function backupFileName(issue: Issue): string {
-    return `${issue.number}.md`
+    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`
 }
 
 export function compareUpdateTime(a: MetadataInfo, b: IsoDateString): number {
@@ -43,22 +43,44 @@ export function compareUpdateTime(a: MetadataInfo, b: IsoDateString): number {
 
 export function unifyReferToNumber(issue: Issue, comments: IComment[]): string {
     const referenceLinks: string[] = []
+    const otherReferenceLinks: string[] = []
     let index = 1
 
     function replaceReferenceLink(content: Issue | IComment): void {
         if (!content.body) return
-        // remove all the reference links
+        const mapping = new Map<string, string>()
+        const referLinks: string[] = []
+
+        // eslint-disable-next-line github/array-foreach
+        content.body.match(/\[\^\w+]:\s*.+/g)?.forEach(link => {
+            content.body = content.body?.replace(link, '')
+            referLinks.push(link)
+        })
+
         for (const ref of content.body.match(/\[\^\d](?!:)/g) || []) {
-            // eslint-disable-next-line github/array-foreach
-            content.body.match(/\[\^\w+]:\s*.+/g)?.forEach(link => {
-                content.body = content.body?.replace(link, '')
-                if (link.startsWith(ref)) {
-                    link = link.replace(ref, `[^${index}]`)
-                }
-                referenceLinks.push(link)
-            })
-            content.body = content.body.replace(ref, `[^${index}]`)
+            // if not add prefix `$$`, it will recursive replace
+            content.body = content.body.replace(ref, `[^$-${index}]`)
+            mapping.set(ref, `[^${index}]`)
             index++
+        }
+        content.body = content.body?.replace(/\^\$-/g, '^')
+
+        // order the reference links
+        for (const ref of mapping.keys()) {
+            for (const link of referLinks) {
+                if (link.startsWith(ref)) {
+                    referenceLinks.push(
+                        link.replace(ref, mapping.get(ref) || '')
+                    )
+                    // remove from link
+                    referLinks.splice(referLinks.indexOf(link), 1)
+                    break
+                }
+            }
+        }
+        // some other not with number reference links
+        if (referLinks.length !== 0) {
+            otherReferenceLinks.push(...referLinks)
         }
     }
 
@@ -66,6 +88,8 @@ export function unifyReferToNumber(issue: Issue, comments: IComment[]): string {
     // eslint-disable-next-line github/array-foreach
     comments.forEach(replaceReferenceLink)
 
+    // add them to the top of the links
+    referenceLinks.unshift(...otherReferenceLinks)
     return referenceLinks.reduce((p, c) => {
         return `${p}\n${c}`
     }, '')
