@@ -1556,31 +1556,32 @@ function compareUpdateTime(a, b) {
 }
 exports.compareUpdateTime = compareUpdateTime;
 function unifyReferToNumber(issue, comments) {
-    let n = 1;
     const referenceLinks = [];
+    let index = 1;
     function replaceReferenceLink(content) {
         var _a;
         if (!content.body)
             return;
         // remove all the reference links
-        for (const ref of content.body.match(/\[\^\d](?!:)/gm) || []) {
-            const number = ref.slice(2, -1);
-            const rg = RegExp(`\\[\\^${number}]:\\s*.+`, 'gm');
+        for (const ref of content.body.match(/\[\^\d](?!:)/g) || []) {
             // eslint-disable-next-line github/array-foreach
-            (_a = content.body.match(rg)) === null || _a === void 0 ? void 0 : _a.forEach(link => {
+            (_a = content.body.match(/\[\^\w+]:\s*.+/g)) === null || _a === void 0 ? void 0 : _a.forEach(link => {
                 var _a;
                 content.body = (_a = content.body) === null || _a === void 0 ? void 0 : _a.replace(link, '');
-                referenceLinks.push(link.replace(/(^\[\^\d+]:\s*)/, ''));
+                if (link.startsWith(ref)) {
+                    link = link.replace(ref, `[^${index}]`);
+                }
+                referenceLinks.push(link);
             });
-            content.body = content.body.replace(ref, `[^${n++}]`);
+            content.body = content.body.replace(ref, `[^${index}]`);
+            index++;
         }
     }
     replaceReferenceLink(issue);
-    for (const comment of comments) {
-        replaceReferenceLink(comment);
-    }
-    return referenceLinks.reduce((p, c, index) => {
-        return `${p}\n[^${index + 1}]: ${c}`;
+    // eslint-disable-next-line github/array-foreach
+    comments.forEach(replaceReferenceLink);
+    return referenceLinks.reduce((p, c) => {
+        return `${p}\n${c}`;
     }, '');
 }
 exports.unifyReferToNumber = unifyReferToNumber;

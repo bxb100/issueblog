@@ -42,31 +42,31 @@ export function compareUpdateTime(a: MetadataInfo, b: IsoDateString): number {
 }
 
 export function unifyReferToNumber(issue: Issue, comments: IComment[]): string {
-    let n = 1
     const referenceLinks: string[] = []
+    let index = 1
 
     function replaceReferenceLink(content: Issue | IComment): void {
         if (!content.body) return
         // remove all the reference links
-        for (const ref of content.body.match(/\[\^\d](?!:)/gm) || []) {
-            const number = ref.slice(2, -1)
-            const rg = RegExp(`\\[\\^${number}]:\\s*.+`, 'gm')
+        for (const ref of content.body.match(/\[\^\d](?!:)/g) || []) {
             // eslint-disable-next-line github/array-foreach
-            content.body.match(rg)?.forEach(link => {
+            content.body.match(/\[\^\w+]:\s*.+/g)?.forEach(link => {
                 content.body = content.body?.replace(link, '')
-                referenceLinks.push(link.replace(/(^\[\^\d+]:\s*)/, ''))
+                if (link.startsWith(ref)) {
+                    link = link.replace(ref, `[^${index}]`)
+                }
+                referenceLinks.push(link)
             })
-            content.body = content.body.replace(ref, `[^${n++}]`)
+            content.body = content.body.replace(ref, `[^${index}]`)
+            index++
         }
     }
 
     replaceReferenceLink(issue)
+    // eslint-disable-next-line github/array-foreach
+    comments.forEach(replaceReferenceLink)
 
-    for (const comment of comments) {
-        replaceReferenceLink(comment)
-    }
-
-    return referenceLinks.reduce((p, c, index) => {
-        return `${p}\n[^${index + 1}]: ${c}`
+    return referenceLinks.reduce((p, c) => {
+        return `${p}\n${c}`
     }, '')
 }
