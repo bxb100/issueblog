@@ -1556,31 +1556,51 @@ function compareUpdateTime(a, b) {
 }
 exports.compareUpdateTime = compareUpdateTime;
 function unifyReferToNumber(issue, comments) {
-    let n = 1;
     const referenceLinks = [];
+    const otherReferenceLinks = [];
+    let index = 1;
     function replaceReferenceLink(content) {
-        var _a;
+        var _a, _b;
         if (!content.body)
             return;
-        // remove all the reference links
-        for (const ref of content.body.match(/\[\^\d](?!:)/gm) || []) {
-            const number = ref.slice(2, -1);
-            const rg = RegExp(`\\[\\^${number}]:\\s*.+`, 'gm');
-            // eslint-disable-next-line github/array-foreach
-            (_a = content.body.match(rg)) === null || _a === void 0 ? void 0 : _a.forEach(link => {
-                var _a;
-                content.body = (_a = content.body) === null || _a === void 0 ? void 0 : _a.replace(link, '');
-                referenceLinks.push(link.replace(/(^\[\^\d+]:\s*)/, ''));
-            });
-            content.body = content.body.replace(ref, `[^${n++}]`);
+        const mapping = new Map();
+        const referLinks = [];
+        // eslint-disable-next-line github/array-foreach
+        (_a = content.body.match(/\[\^\w+]:\s*.+/g)) === null || _a === void 0 ? void 0 : _a.forEach(link => {
+            var _a;
+            content.body = (_a = content.body) === null || _a === void 0 ? void 0 : _a.replace(link, '');
+            referLinks.push(link);
+        });
+        for (const ref of content.body.match(/\[\^\d](?!:)/g) || []) {
+            // if not add prefix `$$`, it will recursive replace
+            content.body = content.body.replace(ref, `[^$-${index}]`);
+            mapping.set(ref, `[^${index}]`);
+            index++;
+        }
+        content.body = (_b = content.body) === null || _b === void 0 ? void 0 : _b.replace(/\^\$-/g, '^');
+        // order the reference links
+        for (const ref of mapping.keys()) {
+            for (const link of referLinks) {
+                if (link.startsWith(ref)) {
+                    referenceLinks.push(link.replace(ref, mapping.get(ref) || ''));
+                    // remove from link
+                    referLinks.splice(referLinks.indexOf(link), 1);
+                    break;
+                }
+            }
+        }
+        // some other not with number reference links
+        if (referLinks.length !== 0) {
+            otherReferenceLinks.push(...referLinks);
         }
     }
     replaceReferenceLink(issue);
-    for (const comment of comments) {
-        replaceReferenceLink(comment);
-    }
-    return referenceLinks.reduce((p, c, index) => {
-        return `${p}\n[^${index + 1}]: ${c}`;
+    // eslint-disable-next-line github/array-foreach
+    comments.forEach(replaceReferenceLink);
+    // add them to the top of the links
+    referenceLinks.unshift(...otherReferenceLinks);
+    return referenceLinks.reduce((p, c) => {
+        return `${p}\n${c}`;
     }, '');
 }
 exports.unifyReferToNumber = unifyReferToNumber;
