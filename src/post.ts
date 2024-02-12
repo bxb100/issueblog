@@ -32,6 +32,10 @@ const run = async (): Promise<void> => {
     const submodules = await submodulePath()
     core.info(`submodules: ${submodules}`)
     for (const filename of editedFilenames) {
+        if (filename.startsWith('.github')) {
+            // skip GitHub Actions files
+            continue
+        }
         core.debug(`git adding ${filename}…`)
         await exec('git', ['add', filename])
         if (submodules.includes(filename)) {

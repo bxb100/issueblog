@@ -64,6 +64,10 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     const submodules = yield (0, git_1.submodulePath)();
     core.info(`submodules: ${submodules}`);
     for (const filename of editedFilenames) {
+        if (filename.startsWith('.github')) {
+            // skip GitHub Actions files
+            continue;
+        }
         core.debug(`git adding ${filename}…`);
         yield (0, exec_1.exec)('git', ['add', filename]);
         if (submodules.includes(filename)) {
