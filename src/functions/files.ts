@@ -19,7 +19,7 @@ export async function files(context: BlogContext): Promise<void> {
     const kit = context.kit
     const issues = context.essayIssues
     const BACKUP_PATH = path.join(context.config.save_md_path, '/')
-    const METADATA_PATH = path.join(BACKUP_PATH, METADATA_NAME)
+    const METADATA_PATH = METADATA_NAME
     // make sure backup directory exists
     fs.existsSync(BACKUP_PATH) || fs.mkdirSync(BACKUP_PATH, {recursive: true})
     // make sure metadata file exists
