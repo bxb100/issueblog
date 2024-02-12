@@ -657,8 +657,7 @@ tags:
 ${tags}
 ---
 
-
-    `;
+`;
         content += issue.body || '';
         for (const comment of comments) {
             content += `\n\n---\n\n`;
