@@ -57,7 +57,7 @@ inputs:
     required: false
     description: The path to save the markdown file
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
   post: 'dist/post/index.js'
 branding:
