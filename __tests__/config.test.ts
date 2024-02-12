@@ -20,7 +20,6 @@ const base_config = {
     top_title: 'top_title',
     unlabeled_title: 'unlabeled_title',
     blog_url: 'blog_url',
-    save_feed_path: 'save_feed_path',
     save_md_path: 'save_md_path'
 }
 

@@ -15,7 +15,6 @@ const keys = [
     'unlabeled_title',
     'blog_image_url',
     'blog_url',
-    'save_feed_path',
     'save_md_path'
 ]
 
@@ -32,7 +31,6 @@ const commonConfigSchema = z.object({
     unlabeled_title: z.string(),
     blog_image_url: z.string().default('blog.png'),
     blog_url: z.string(),
-    save_feed_path: z.string(),
     save_md_path: z.string()
 })
 

@@ -29,7 +29,6 @@ export const config = {
     anchor_number: '',
 		blog_url: '',
     recent_limit: '',
-    save_feed_path: '',
     save_md_path: ''
 }
 

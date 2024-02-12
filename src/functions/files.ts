@@ -90,10 +90,22 @@ async function saveIssue(
         .join('')
 
     // hexo simple post template
-    const createAt = new Date(issue.created_at).getTime()
+    const createAt = new Date(issue.created_at).toISOString()
+    const updateAt = new Date(issue.updated_at).toISOString()
     // hexo not support : in title
     const mdTitle = issue.title.replace(/:/g, ' ')
-    let content = `---\ntitle: ${mdTitle}\ndate: ${createAt}\ntags:\n${tags}\nurl: ${issue.html_url}\n\n---\n`
+    let content = `
+    ---
+    title: ${mdTitle}
+    pubDatetime: ${createAt}
+    modDatetime: ${updateAt}
+    url: ${issue.html_url}
+    tags:
+      ${tags}
+    
+    ---
+    
+    `
     content += issue.body || ''
     for (const comment of comments) {
         content += `\n\n---\n\n`

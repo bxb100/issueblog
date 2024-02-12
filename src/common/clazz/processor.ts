@@ -6,7 +6,6 @@ import {add_md_top} from '../../functions/top-process'
 import {add_md_recent} from '../../functions/recent-process'
 import {add_md_todo} from '../../functions/todo-process'
 import {add_md_label} from '../../functions/label-process'
-import {rss} from '../../functions/rss'
 import {files} from '../../functions/files'
 import {GithubKit} from './github-kit'
 import {Config} from '../../util/config'
@@ -42,11 +41,6 @@ export class Processor {
                 throw err
             }
         )
-    }
-
-    async rss(): Promise<Processor> {
-        await rss(await this.init())
-        return this
     }
 
     async files(): Promise<Processor> {

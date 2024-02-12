@@ -52,12 +52,8 @@ inputs:
     description: The title of the unlabeled issues group
     required: false
     default: 'Reverie'
-  save_feed_path:
-    default: './source'
-    required: false
-    description: The path to save the feed.xml
   save_md_path:
-    default: './source/_posts'
+    default: './src/content/blog'
     required: false
     description: The path to save the markdown file
 runs:
