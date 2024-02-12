@@ -641,15 +641,14 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
         // hexo not support : in title
         const mdTitle = issue.title.replace(/:/g, ' ');
         let content = `
-    ---
-    title: ${mdTitle}
-    pubDatetime: ${createAt}
-    modDatetime: ${updateAt}
-    url: ${issue.html_url}
-    tags:
-      ${tags}
-    
-    ---
+---
+title: ${mdTitle}
+pubDatetime: ${createAt}
+modDatetime: ${updateAt}
+url: ${issue.html_url}
+tags:
+    ${tags}
+---
     
     `;
         content += issue.body || '';
