@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import {exec} from '@actions/exec'
+import {diff, submodulePath} from './util/git'
 
 const run = async (): Promise<void> => {
     core.startGroup('Post cleanup script')
@@ -10,13 +11,33 @@ const run = async (): Promise<void> => {
         return
     }
 
-    const files = JSON.parse(process.env.FILES || '[]')
+    const files: string[] = JSON.parse(process.env.FILES || '[]')
+
+    core.startGroup('Calculate diff')
+    const editedFiles = []
+    const submodules = await submodulePath()
+    core.info(`submodules: ${submodules}`)
+    for (const filename of files) {
+        core.debug(`git adding ${filename}…`)
+        await exec('git', ['add', filename])
+        if (submodules.includes(filename)) {
+            editedFiles.push({name: filename, submodule: true})
+        } else {
+            const bytes = await diff(filename)
+            if (bytes == null) {
+                editedFiles.push({msg: `${filename} mark rename`})
+                continue
+            }
+            editedFiles.push({name: filename, deltaBytes: bytes})
+        }
+    }
+    core.endGroup()
 
     const date = new Date().toISOString()
     const meta = JSON.stringify(
         {
             date,
-            files
+            editedFiles
         },
         undefined,
         2
@@ -24,7 +45,7 @@ const run = async (): Promise<void> => {
     const msg = `Refresh README AND BACK UP (${date})`
 
     // Don't want to commit if there aren't any files changed!
-    if (!files.length) {
+    if (!editedFiles.length) {
         core.notice('No files changed')
         core.endGroup()
         return

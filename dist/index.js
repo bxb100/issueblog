@@ -1135,33 +1135,12 @@ function run() {
         core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`);
         core.info(`editedFilenames: \n${editedFilenames}`);
         core.endGroup();
-        // 4. 计算是否有修改
-        core.startGroup('Calculate diff');
-        const editedFiles = [];
-        const submodules = yield (0, git_1.submodulePath)();
-        core.info(`submodules: ${submodules}`);
-        for (const filename of editedFilenames) {
-            core.debug(`git adding ${filename}…`);
-            yield (0, exec_1.exec)('git', ['add', filename]);
-            if (submodules.includes(filename)) {
-                editedFiles.push({ name: filename, submodule: true });
-            }
-            else {
-                const bytes = yield (0, git_1.diff)(filename);
-                if (bytes == null) {
-                    editedFiles.push({ msg: `${filename} mark rename` });
-                    continue;
-                }
-                editedFiles.push({ name: filename, deltaBytes: bytes });
-            }
-        }
-        core.endGroup();
-        // 5. 存储变更文件等待 POST 提交
+        // 4. 存储变更文件名等待提交
         core.startGroup('Committing with metadata');
         const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]');
-        const files = [...alreadyEditedFiles, ...editedFiles];
+        const files = [...alreadyEditedFiles, ...editedFilenames];
         core.info(`alreadyEditedFiles: \n${JSON.stringify(alreadyEditedFiles)}`);
-        core.info(`editedFiles: \n${JSON.stringify(editedFiles)}`);
+        core.info(`editedFiles: \n${JSON.stringify(editedFilenames)}`);
         core.exportVariable('FILES', files);
         core.endGroup();
     });

@@ -1,10 +1,5 @@
 import * as core from '@actions/core'
-import {
-    diff,
-    getModifiedUnstagedFiles,
-    getUnstagedFiles,
-    submodulePath
-} from './util/git'
+import {getModifiedUnstagedFiles, getUnstagedFiles} from './util/git'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
 import path from 'path'
@@ -49,34 +44,13 @@ async function run(): Promise<void> {
     core.info(`editedFilenames: \n${editedFilenames}`)
     core.endGroup()
 
-    // 4. 计算是否有修改
-    core.startGroup('Calculate diff')
-    const editedFiles = []
-    const submodules = await submodulePath()
-    core.info(`submodules: ${submodules}`)
-    for (const filename of editedFilenames) {
-        core.debug(`git adding ${filename}…`)
-        await exec('git', ['add', filename])
-        if (submodules.includes(filename)) {
-            editedFiles.push({name: filename, submodule: true})
-        } else {
-            const bytes = await diff(filename)
-            if (bytes == null) {
-                editedFiles.push({msg: `${filename} mark rename`})
-                continue
-            }
-            editedFiles.push({name: filename, deltaBytes: bytes})
-        }
-    }
-    core.endGroup()
-
-    // 5. 存储变更文件等待 POST 提交
+    // 4. 存储变更文件名等待提交
     core.startGroup('Committing with metadata')
-    const alreadyEditedFiles = JSON.parse(process.env.FILES || '[]')
-    const files = [...alreadyEditedFiles, ...editedFiles]
+    const alreadyEditedFiles: string[] = JSON.parse(process.env.FILES || '[]')
+    const files: string[] = [...alreadyEditedFiles, ...editedFilenames]
 
     core.info(`alreadyEditedFiles: \n${JSON.stringify(alreadyEditedFiles)}`)
-    core.info(`editedFiles: \n${JSON.stringify(editedFiles)}`)
+    core.info(`editedFiles: \n${JSON.stringify(editedFilenames)}`)
     core.exportVariable('FILES', files)
     core.endGroup()
 }

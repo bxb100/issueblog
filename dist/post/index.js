@@ -41,6 +41,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const exec_1 = __nccwpck_require__(514);
+const git_1 = __nccwpck_require__(23);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     core.startGroup('Post cleanup script');
     if (process.env.HAS_RUN_POST_JOB) {
@@ -49,14 +50,34 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
     const files = JSON.parse(process.env.FILES || '[]');
+    core.startGroup('Calculate diff');
+    const editedFiles = [];
+    const submodules = yield (0, git_1.submodulePath)();
+    core.info(`submodules: ${submodules}`);
+    for (const filename of files) {
+        core.debug(`git adding ${filename}…`);
+        yield (0, exec_1.exec)('git', ['add', filename]);
+        if (submodules.includes(filename)) {
+            editedFiles.push({ name: filename, submodule: true });
+        }
+        else {
+            const bytes = yield (0, git_1.diff)(filename);
+            if (bytes == null) {
+                editedFiles.push({ msg: `${filename} mark rename` });
+                continue;
+            }
+            editedFiles.push({ name: filename, deltaBytes: bytes });
+        }
+    }
+    core.endGroup();
     const date = new Date().toISOString();
     const meta = JSON.stringify({
         date,
-        files
+        editedFiles
     }, undefined, 2);
     const msg = `Refresh README AND BACK UP (${date})`;
     // Don't want to commit if there aren't any files changed!
-    if (!files.length) {
+    if (!editedFiles.length) {
         core.notice('No files changed');
         core.endGroup();
         return;
@@ -73,6 +94,185 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
 run().catch(error => {
     core.setFailed(`Post script failed! ${error.message}`);
 });
+
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+// noinspection SpellCheckingInspection
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.submodulePath = exports.getModifiedUnstagedFiles = exports.getUnstagedFiles = exports.diff = exports.gitStatus = void 0;
+const core = __importStar(__nccwpck_require__(186));
+const exec_1 = __nccwpck_require__(514);
+const path_1 = __importDefault(__nccwpck_require__(17));
+const fs_1 = __nccwpck_require__(147);
+function gitStatus() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug('Getting gitStatus()');
+        let output = '';
+        yield (0, exec_1.exec)('git', ['status', '-s'], {
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                }
+            }
+        });
+        core.debug(`=== output was:\n${output}`);
+        return output
+            .split('\n')
+            .map(l => l.trim())
+            .filter(l => l !== '')
+            .map(l => {
+            const chunks = l.split(/\s+/);
+            return {
+                flag: chunks[0],
+                path: chunks[1]
+            };
+        });
+    });
+}
+exports.gitStatus = gitStatus;
+function getHeadSize(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let raw = '';
+        const exitCode = yield (0, exec_1.exec)('git', ['cat-file', '-s', `HEAD:${filePath}`], {
+            listeners: {
+                stdline: (data) => {
+                    raw += data;
+                }
+            }
+        });
+        core.debug(`raw cat-file output: ${exitCode} '${raw}'`);
+        if (exitCode === 0) {
+            return parseInt(raw, 10);
+        }
+    });
+}
+function diffSize(file) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (file.flag) {
+            case 'M': {
+                const stat = (0, fs_1.statSync)(file.path);
+                core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
+                // get old size and compare
+                const oldSize = yield getHeadSize(file.path);
+                const delta = oldSize === undefined ? stat.size : stat.size - oldSize;
+                core.debug(` ==> ${file.path} modified: old ${oldSize}, new ${stat.size}, delta ${delta}b `);
+                return delta;
+            }
+            case 'A': {
+                const stat = (0, fs_1.statSync)(file.path);
+                core.debug(`Calculating diff for ${JSON.stringify(file)}, with size ${stat.size}b`);
+                core.debug(` ==> ${file.path} added: delta ${stat.size}b`);
+                return stat.size;
+            }
+            case 'D': {
+                const oldSize = yield getHeadSize(file.path);
+                const delta = oldSize === undefined ? 0 : oldSize;
+                core.debug(` ==> ${file.path} deleted: delta ${delta}b`);
+                return delta;
+            }
+            case 'R': {
+                core.debug(` ==> ${file.path} rename to ${file.path2}`);
+                return null;
+            }
+            default: {
+                throw new Error(`Encountered an unexpected file status in git: ${file.flag} ${file.path}`);
+            }
+        }
+    });
+}
+function diff(filename) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const statuses = yield gitStatus();
+        core.debug(`Parsed statuses: ${statuses.map(s => JSON.stringify(s)).join(', ')}`);
+        const status = statuses.find(s => path_1.default.relative(s.path, filename) === '');
+        if (typeof status === 'undefined') {
+            core.info(`No status found for ${filename}, aborting.`);
+            return 0; // there's no change to the specified file
+        }
+        return yield diffSize(status);
+    });
+}
+exports.diff = diff;
+const lsFile = (commandLine, args) => __awaiter(void 0, void 0, void 0, function* () {
+    const raw = [];
+    yield (0, exec_1.exec)(commandLine, args, {
+        listeners: {
+            stdline: (data) => {
+                raw.push(data.trim());
+            }
+        }
+    });
+    return raw.filter(l => l !== '');
+});
+function getUnstagedFiles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return lsFile('git', ['ls-files', '--others', '--exclude-standard']);
+    });
+}
+exports.getUnstagedFiles = getUnstagedFiles;
+function getModifiedUnstagedFiles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return lsFile('git', ['ls-files', '-m']);
+    });
+}
+exports.getModifiedUnstagedFiles = getModifiedUnstagedFiles;
+function submodulePath() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const raw = [];
+        yield (0, exec_1.exec)('git', ['ls-files', '-s'], {
+            listeners: {
+                stdline: (data) => {
+                    if (data.trim().startsWith('160000')) {
+                        raw.push(data.trim().split('\t')[1]);
+                    }
+                }
+            }
+        });
+        return raw;
+    });
+}
+exports.submodulePath = submodulePath;
 
 
 /***/ }),
