@@ -633,13 +633,13 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
         const backupPath = BACKUP_PATH + fileName;
         let tags;
         if (issue.labels.length === 0) {
-            tags = '\t- uncategorized\n';
+            tags = '  - uncategorized\n';
         }
         else {
             tags = issue.labels
                 .map(label => issue_1.Issue.getLabelValue(label))
                 .filter(Boolean)
-                .map(label => `\t- ${label}\n`)
+                .map(label => `  - ${label}\n`)
                 .join('');
         }
         // hexo simple post template
@@ -656,7 +656,8 @@ url: ${issue.html_url}
 tags:
 ${tags}
 ---
-    
+
+
     `;
         content += issue.body || '';
         for (const comment of comments) {

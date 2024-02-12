@@ -86,12 +86,12 @@ async function saveIssue(
     const backupPath = BACKUP_PATH + fileName
     let tags: string
     if (issue.labels.length === 0) {
-        tags = '\t- uncategorized\n'
+        tags = '  - uncategorized\n'
     } else {
         tags = issue.labels
             .map(label => Issue.getLabelValue(label))
             .filter(Boolean)
-            .map(label => `\t- ${label}\n`)
+            .map(label => `  - ${label}\n`)
             .join('')
     }
 
@@ -109,7 +109,8 @@ url: ${issue.html_url}
 tags:
 ${tags}
 ---
-    
+
+
     `
     content += issue.body || ''
     for (const comment of comments) {
