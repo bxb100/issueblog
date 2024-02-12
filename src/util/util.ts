@@ -34,7 +34,7 @@ export function wrapDetails<T>(
 }
 
 export function backupFileName(issue: Issue): string {
-    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`
+    return `${issue.title.replace(/\t|\s/g, '_').replace('?|!|.', '')}.md`
 }
 
 export function compareUpdateTime(a: MetadataInfo, b: IsoDateString): number {

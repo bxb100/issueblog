@@ -602,6 +602,7 @@ function files(context) {
         parse = needBackupIssues.reduce((acc, issue) => {
             acc[issue.number] = {
                 name: (0, util_1.backupFileName)(issue),
+                issueNumber: issue.number,
                 createdAt: issue.created_at,
                 updatedAt: issue.updated_at
             };
@@ -630,11 +631,17 @@ function saveIssue(kit, issue, info, BACKUP_PATH) {
         }
         const bottomLinks = (0, util_1.unifyReferToNumber)(issue, comments);
         const backupPath = BACKUP_PATH + fileName;
-        const tags = issue.labels
-            .map(label => issue_1.Issue.getLabelValue(label))
-            .filter(Boolean)
-            .map(label => `- ${label}\n`)
-            .join('');
+        let tags;
+        if (issue.labels.length === 0) {
+            tags = '\t- uncategorized\n';
+        }
+        else {
+            tags = issue.labels
+                .map(label => issue_1.Issue.getLabelValue(label))
+                .filter(Boolean)
+                .map(label => `\t- ${label}\n`)
+                .join('');
+        }
         // hexo simple post template
         const createAt = new Date(issue.created_at).toISOString();
         const updateAt = new Date(issue.updated_at).toISOString();
@@ -647,7 +654,7 @@ pubDatetime: ${createAt}
 modDatetime: ${updateAt}
 url: ${issue.html_url}
 tags:
-    ${tags}
+${tags}
 ---
     
     `;
@@ -1458,7 +1465,7 @@ function wrapDetails(shows, hides, wrapper) {
 }
 exports.wrapDetails = wrapDetails;
 function backupFileName(issue) {
-    return `${issue.number}-${issue.title.replace(/\t|\s/g, '_')}.md`;
+    return `${issue.title.replace(/\t|\s/g, '_').replace('?|!|.', '')}.md`;
 }
 exports.backupFileName = backupFileName;
 function compareUpdateTime(a, b) {

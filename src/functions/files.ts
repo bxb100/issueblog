@@ -51,6 +51,7 @@ export async function files(context: BlogContext): Promise<void> {
     parse = needBackupIssues.reduce((acc, issue) => {
         acc[issue.number] = {
             name: backupFileName(issue),
+            issueNumber: issue.number,
             createdAt: issue.created_at,
             updatedAt: issue.updated_at
         }
@@ -83,11 +84,16 @@ async function saveIssue(
     const bottomLinks = unifyReferToNumber(issue, comments)
 
     const backupPath = BACKUP_PATH + fileName
-    const tags: string = issue.labels
-        .map(label => Issue.getLabelValue(label))
-        .filter(Boolean)
-        .map(label => `- ${label}\n`)
-        .join('')
+    let tags: string
+    if (issue.labels.length === 0) {
+        tags = '\t- uncategorized\n'
+    } else {
+        tags = issue.labels
+            .map(label => Issue.getLabelValue(label))
+            .filter(Boolean)
+            .map(label => `\t- ${label}\n`)
+            .join('')
+    }
 
     // hexo simple post template
     const createAt = new Date(issue.created_at).toISOString()
@@ -101,7 +107,7 @@ pubDatetime: ${createAt}
 modDatetime: ${updateAt}
 url: ${issue.html_url}
 tags:
-    ${tags}
+${tags}
 ---
     
     `

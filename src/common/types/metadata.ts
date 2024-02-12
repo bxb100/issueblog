@@ -1,5 +1,6 @@
 export type MetadataInfo = {
     name: string
+    issueNumber: number
     createdAt: string
     updatedAt: string
 }
