@@ -1,6 +1,11 @@
 import * as core from '@actions/core'
 import {exec} from '@actions/exec'
-import {diff, submodulePath} from './util/git'
+import {
+    diff,
+    getModifiedUnstagedFiles,
+    getUnstagedFiles,
+    submodulePath
+} from './util/git'
 
 const run = async (): Promise<void> => {
     core.startGroup('Post cleanup script')
@@ -11,13 +16,22 @@ const run = async (): Promise<void> => {
         return
     }
 
-    const files: string[] = JSON.parse(process.env.FILES || '[]')
+    // 3. monitor file changes
+    core.startGroup('Monitor file changes')
+    const newUnstagedFiles = await getUnstagedFiles()
+    const modifiedUnstagedFiles = await getModifiedUnstagedFiles()
+    const editedFilenames = [...newUnstagedFiles, ...modifiedUnstagedFiles]
+    core.info(`newUnstagedFiles: \n${newUnstagedFiles}`)
+    core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`)
+    core.info(`editedFilenames: \n${editedFilenames}`)
+    core.endGroup()
 
+    // 4. calculate diff and add to git
     core.startGroup('Calculate diff')
     const editedFiles = []
     const submodules = await submodulePath()
     core.info(`submodules: ${submodules}`)
-    for (const filename of files) {
+    for (const filename of editedFilenames) {
         core.debug(`git adding ${filename}…`)
         await exec('git', ['add', filename])
         if (submodules.includes(filename)) {
@@ -33,6 +47,7 @@ const run = async (): Promise<void> => {
     }
     core.endGroup()
 
+    // 5. commit and push
     const date = new Date().toISOString()
     const meta = JSON.stringify(
         {

@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import {getModifiedUnstagedFiles, getUnstagedFiles} from './util/git'
 import {exec} from '@actions/exec'
 import {getConfig} from './util/config'
 import path from 'path'
@@ -32,26 +31,6 @@ async function run(): Promise<void> {
         .then(async p => Promise.all([p.files()]))
         .catch(err => core.setFailed(`process failed: ${err}`))
 
-    core.endGroup()
-
-    // 3. 暂存需要提交的文件
-    core.startGroup('Monitor file changes')
-    const newUnstagedFiles = await getUnstagedFiles()
-    const modifiedUnstagedFiles = await getModifiedUnstagedFiles()
-    const editedFilenames = [...newUnstagedFiles, ...modifiedUnstagedFiles]
-    core.info(`newUnstagedFiles: \n${newUnstagedFiles}`)
-    core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`)
-    core.info(`editedFilenames: \n${editedFilenames}`)
-    core.endGroup()
-
-    // 4. 存储变更文件名等待提交
-    core.startGroup('Committing with metadata')
-    const alreadyEditedFiles: string[] = JSON.parse(process.env.FILES || '[]')
-    const files: string[] = [...alreadyEditedFiles, ...editedFilenames]
-
-    core.info(`alreadyEditedFiles: \n${JSON.stringify(alreadyEditedFiles)}`)
-    core.info(`editedFiles: \n${JSON.stringify(editedFilenames)}`)
-    core.exportVariable('FILES', files)
     core.endGroup()
 }
 

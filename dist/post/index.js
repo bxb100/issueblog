@@ -49,12 +49,21 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         core.endGroup();
         return;
     }
-    const files = JSON.parse(process.env.FILES || '[]');
+    // 3. monitor file changes
+    core.startGroup('Monitor file changes');
+    const newUnstagedFiles = yield (0, git_1.getUnstagedFiles)();
+    const modifiedUnstagedFiles = yield (0, git_1.getModifiedUnstagedFiles)();
+    const editedFilenames = [...newUnstagedFiles, ...modifiedUnstagedFiles];
+    core.info(`newUnstagedFiles: \n${newUnstagedFiles}`);
+    core.info(`modifiedUnstagedFiles: \n${modifiedUnstagedFiles}`);
+    core.info(`editedFilenames: \n${editedFilenames}`);
+    core.endGroup();
+    // 4. calculate diff and add to git
     core.startGroup('Calculate diff');
     const editedFiles = [];
     const submodules = yield (0, git_1.submodulePath)();
     core.info(`submodules: ${submodules}`);
-    for (const filename of files) {
+    for (const filename of editedFilenames) {
         core.debug(`git adding ${filename}…`);
         yield (0, exec_1.exec)('git', ['add', filename]);
         if (submodules.includes(filename)) {
@@ -70,6 +79,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     core.endGroup();
+    // 5. commit and push
     const date = new Date().toISOString();
     const meta = JSON.stringify({
         date,
