@@ -1247,7 +1247,11 @@ function wrapDetails(shows, hides, wrapper) {
 }
 exports.wrapDetails = wrapDetails;
 function backupFileName(issue) {
-    return `${issue.title.replace(/\t|\s/g, '_').replace(/[?!\\.]/g, '')}.md`;
+    const name = issue.title
+        .replace(/\t|\s/g, '_')
+        .replace(/[?!\\.]/g, '')
+        .replace(':', '');
+    return `${name}.md`;
 }
 exports.backupFileName = backupFileName;
 function compareUpdateTime(a, b) {
